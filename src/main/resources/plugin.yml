@@ -1,0 +1,17 @@
+name: Lifesteal-Smp-Plugin
+version: ${project.version}
+main: me.ikevoodoo.lifestealsmpplugin.LifestealSmpPlugin
+api-version: 1.17
+authors: [ IkeVoodoo ]
+description: LifeSteal SMP Plugin replica by IkeVoodoo
+
+commands:
+  lsreload:
+    permission: lssmp.reload
+    description: Reload the plugin
+  lseliminate:
+    permission: lssmp.eliminate
+    description: Eliminate a player or all players
+  lsrevive:
+    permission: lssmp.revive
+    description: Revive a player or all players
