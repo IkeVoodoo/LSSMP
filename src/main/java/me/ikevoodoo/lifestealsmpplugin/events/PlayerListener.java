@@ -19,11 +19,11 @@ public class PlayerListener implements Listener {
         Player killed = event.getEntity();
         Player killer = event.getEntity().getKiller();
         if(killer != null) {
-            modifyHealth(killer, 2);
             if(shouldEliminate(killed)) {
                 eliminate(killed, killer);
                 return;
             }
+            modifyHealth(killer, 2);
             modifyHealth(killed, -2);
         }
     }
