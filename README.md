@@ -13,7 +13,7 @@ Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lif
 
 Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.94387/)
 
-# Changelog 1.4:
+# Changelog 1.4
 
 - Killing now gives/remove hearts accordingly
 - Elimination now works properly
