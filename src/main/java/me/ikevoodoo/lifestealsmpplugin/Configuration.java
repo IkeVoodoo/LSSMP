@@ -19,6 +19,8 @@ public class Configuration {
     private static boolean shouldSpectate;
     private static String killerNotOnline, killerDisconnected;
 
+    private static boolean scaleHealth;
+
     private static final HashMap<String, Object> configKeys = new HashMap<>();
 
     private static final List<UUID> eliminated = new ArrayList<>();
@@ -34,6 +36,8 @@ public class Configuration {
         configKeys.put("elimination.spectate.shouldSpectate", true);
         configKeys.put("elimination.spectate.killerNotOnline", "&cYour killer is not online so you are not allowed to spectate!");
         configKeys.put("elimination.spectate.killerDisconnected", "&cYour killer has disconnected!");
+
+        configKeys.put("elimination.scaleHealth", true);
     }
 
     public static void init() {
@@ -60,6 +64,8 @@ public class Configuration {
         shouldSpectate = configuration.getBoolean("elimination.spectate.shouldSpectate");
         killerNotOnline = configuration.getString("elimination.spectate.killerNotOnline");
         killerDisconnected = configuration.getString("elimination.spectate.killerDisconnected");
+
+        scaleHealth = configuration.getBoolean("elimination.scaleHealth");
 
         List<UUID> tempEliminated = new ArrayList<>();
         if(configuration.contains("eliminated")) {
@@ -124,6 +130,10 @@ public class Configuration {
 
     public static String getKillerDisconnected() {
         return killerDisconnected;
+    }
+
+    public static boolean shouldScaleHealth() {
+        return scaleHealth;
     }
 
     public static void addElimination(Player player, UUID killerId) {
