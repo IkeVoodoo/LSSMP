@@ -35,6 +35,13 @@ public class PlayerListener implements Listener {
             }
             modifyHealth(killed, -2);
             return;
+        } else {
+            if(shouldEliminate(killed)) {
+                eliminate(killed, null);
+                event.setCancelled(true);
+                return;
+            }
+            modifyHealth(killed, -2);
         }
 
         String killerUUID = Configuration.getKiller(killed.getUniqueId());

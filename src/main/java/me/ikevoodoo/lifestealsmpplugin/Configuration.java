@@ -11,7 +11,7 @@ public class Configuration {
     private static LifestealSmpPlugin plugin;
     private static FileConfiguration configuration;
 
-    private static boolean shouldEliminate;
+    private static boolean shouldEliminate, environmentStealsHearts;
 
     private static boolean shouldBan, broadcastBan;
     private static String banMessage, broadcastMessage;
@@ -38,6 +38,7 @@ public class Configuration {
         configKeys.put("elimination.spectate.killerDisconnected", "&cYour killer has disconnected!");
 
         configKeys.put("elimination.scaleHealth", true);
+        configKeys.put("elimination.environmentStealsHearts", false);
     }
 
     public static void init() {
@@ -55,6 +56,7 @@ public class Configuration {
             e.printStackTrace();
         }
         shouldEliminate = configuration.getBoolean("elimination.shouldEliminate");
+        environmentStealsHearts = configuration.getBoolean("elimination.environmentStealsHearts");
 
         shouldBan = configuration.getBoolean("elimination.bans.shouldBan");
         broadcastBan = configuration.getBoolean("elimination.bans.broadcastBan");
@@ -102,6 +104,10 @@ public class Configuration {
 
     public static boolean shouldEliminate() {
         return shouldEliminate;
+    }
+
+    public static boolean environmentStealsHearts() {
+        return environmentStealsHearts;
     }
 
     public static boolean shouldBan() {

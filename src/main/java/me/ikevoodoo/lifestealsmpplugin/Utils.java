@@ -9,10 +9,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 public class Utils {
+
+
 
     public static AttributeInstance getMaxHealth(Player player) {
         return player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -32,18 +33,21 @@ public class Utils {
             return;
         }
 
+        String killerName = killer != null ? killer.getName() : "Environment";
+        UUID id = killer != null ? killer.getUniqueId() : player.getWorld().getUID();
+
         if(Configuration.shouldBan()) {
-            Configuration.addElimination(player, killer.getUniqueId());
+            Configuration.addElimination(player, id);
             if(Configuration.shouldBroadcastBan()) {
                 Bukkit.broadcast(getFromText(Configuration.getBroadcastMessage().replace("%player%", player.getName())));
             }
 
-            Configuration.banID(player.getUniqueId(), Configuration.getBanMessage().replace("%player%", killer.getName()));
-            player.kick(getFromText(Configuration.getBanMessage().replace("%player%", killer.getName())));
+            Configuration.banID(player.getUniqueId(), Configuration.getBanMessage().replace("%player%", killerName));
+            player.kick(getFromText(Configuration.getBanMessage().replace("%player%", killerName)));
         } else if (Configuration.shouldSpectate()) {
             player.setGameMode(GameMode.SPECTATOR);
             player.setSpectatorTarget(killer);
-            Configuration.addElimination(player, killer.getUniqueId());
+            Configuration.addElimination(player, id);
         }
     }
 
