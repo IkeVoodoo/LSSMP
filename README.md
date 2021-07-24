@@ -13,17 +13,9 @@ Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lif
 
 Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.94387/)
 
-# Changelog 1.4
+# Changelog v1.5.0
 
-- Killing now gives/remove hearts accordingly
-- Elimination now works properly
-- Spectating works sortof (WIP)
-- Commands have been fixed
-
-Spectating:
-- Known bugs:
-- Player is not put into killer's body on death
-- Upon the killer dying the victim is released
-- Upon the victim rejoining the victim is released
+- Added bStats metrics
+- Added lifesteal by environment option (Not tested)
 
 For any bugs please report them here: https://github.com/IkeVoodoo/LSSMP/issues
