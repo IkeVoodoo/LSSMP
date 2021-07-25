@@ -13,8 +13,8 @@ Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lif
 
 Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.94387/)
 
-# Changelog v1.5.1
-
-- Fixed a crash
+Changelog 1.5.1.1
+- New version system (major.minor.fix.recompile)
+- Hopefully now it works
 
 For any bugs please report them here: https://github.com/IkeVoodoo/LSSMP/issues
