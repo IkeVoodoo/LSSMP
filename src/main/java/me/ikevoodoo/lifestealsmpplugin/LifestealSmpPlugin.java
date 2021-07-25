@@ -23,7 +23,6 @@ public final class LifestealSmpPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        saveDefaultConfig();
         saveConfig();
         Configuration.init();
         Metrics metrics = new Metrics(this, 12177);
