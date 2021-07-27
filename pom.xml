@@ -6,7 +6,7 @@
 
     <groupId>me.ikevoodoo</groupId>
     <artifactId>lifesteal-smp-plugin</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.1.2</version>
     <packaging>jar</packaging>
 
     <name>Lifesteal Smp Plugin</name>

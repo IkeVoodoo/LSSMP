@@ -27,6 +27,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HttpsURLConnection;
+
+import me.ikevoodoo.lifestealsmpplugin.LifestealSmpPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -290,6 +292,8 @@ public class Metrics {
                             }
                         }
                     });
+            customCharts.remove("eliminations");
+            LifestealSmpPlugin.updateMetrics();
         }
 
         private void sendData(JsonObjectBuilder.JsonObject data) throws Exception {
@@ -521,6 +525,17 @@ public class Metrics {
                 throw new IllegalArgumentException("chartId must not be null");
             }
             this.chartId = chartId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(o instanceof String) return chartId.equals(o);
+            return super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return -2435;
         }
 
         public JsonObjectBuilder.JsonObject getRequestJsonObject(

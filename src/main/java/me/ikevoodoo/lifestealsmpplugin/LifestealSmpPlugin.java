@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 public final class LifestealSmpPlugin extends JavaPlugin {
 
     private static LifestealSmpPlugin instance;
+    private static Metrics metrics;
 
     // IntelliJ NPE warnings for getCommand
     @SuppressWarnings("all")
@@ -25,9 +26,22 @@ public final class LifestealSmpPlugin extends JavaPlugin {
         instance = this;
         saveConfig();
         Configuration.init();
-        Metrics metrics = new Metrics(this, 12177);
+        metrics = new Metrics(this, 12177);
 
-        metrics.addCustomChart(new Metrics.AdvancedPie("elmiminations", new Callable<Map<String, Integer>>() {
+        updateMetrics();
+        
+        getCommand("lsreload").setExecutor(new ReloadCommand());
+        getCommand("lseliminate").setExecutor(new EliminateCommand());
+        getCommand("lsrevive").setExecutor(new ReviveCommand());
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+    }
+    
+    public static LifestealSmpPlugin getInstance() {
+        return instance;
+    }
+
+    public static void updateMetrics() {
+        metrics.addCustomChart(new Metrics.AdvancedPie("eliminations", new Callable<Map<String, Integer>>() {
             @Override
             public Map<String, Integer> call() throws Exception {
                 Map<String, Integer> valueMap = new HashMap<>();
@@ -40,16 +54,6 @@ public final class LifestealSmpPlugin extends JavaPlugin {
                 return valueMap;
             }
         }));
-        
-        getCommand("lsreload").setExecutor(new ReloadCommand());
-        getCommand("lseliminate").setExecutor(new EliminateCommand());
-        getCommand("lsrevive").setExecutor(new ReviveCommand());
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     }
-    
-    public static LifestealSmpPlugin getInstance() {
-        return instance;
-    }
-
 
 }
