@@ -1,7 +1,6 @@
 name: Lifesteal-Smp-Plugin
 version: ${project.version}
 main: me.ikevoodoo.lifestealsmpplugin.LifestealSmpPlugin
-api-version: 1.17
 authors: [ IkeVoodoo ]
 description: LifeSteal SMP Plugin replica by IkeVoodoo
 
