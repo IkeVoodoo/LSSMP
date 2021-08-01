@@ -22,6 +22,7 @@ public class Utils {
     public static void modifyHealth(Player player, int scale) {
         AttributeInstance maxHp = getMaxHealth(player);
         maxHp.setBaseValue(maxHp.getValue() + scale);
+        if(Configuration.shouldScaleHealth()) player.setHealth(player.getHealth() + scale);
     }
 
     public static boolean shouldEliminate(Player player) {
