@@ -8,7 +8,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,14 +16,14 @@ public class ReviveCommand implements CommandExecutor {
 
     @SuppressWarnings("deprecation")
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender.hasPermission("lssmp.revive")) {
             if(args.length > 0) {
                 String person = args[0];
                 if((person.equalsIgnoreCase("all")
                         || person.equalsIgnoreCase("@a")) && sender.hasPermission("lssmp.revive.all")) {
                     Configuration.getEliminations().forEach(Configuration::revive);
-                    Bukkit.broadcast(Utils.getFromText(ChatColor.GOLD + "Revived everyone!"));
+                    Bukkit.broadcastMessage(Utils.getFromText(ChatColor.GOLD + "Revived everyone!"));
                 } else {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(person);
                     List<UUID> eliminations = Configuration.getEliminations();

@@ -1,10 +1,8 @@
 package me.ikevoodoo.lifestealsmpplugin.events;
 
-import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import me.ikevoodoo.lifestealsmpplugin.Configuration;
 import me.ikevoodoo.lifestealsmpplugin.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +28,7 @@ public class PlayerListener implements Listener {
             modifyHealth(killer, 2);
             if(shouldEliminate(killed)) {
                 eliminate(killed, killer);
-                event.setCancelled(true);
+                //event.setCancelled(true);
                 return;
             }
             modifyHealth(killed, -2);
@@ -38,7 +36,7 @@ public class PlayerListener implements Listener {
         } else {
             if(shouldEliminate(killed)) {
                 eliminate(killed, null);
-                event.setCancelled(true);
+                //event.setCancelled(true);
                 return;
             }
             modifyHealth(killed, -2);
@@ -102,7 +100,7 @@ public class PlayerListener implements Listener {
         if(killedUUID != null) {
             Player player = Bukkit.getPlayer(UUID.fromString(killedUUID));
             if(player != null) {
-                player.kick(
+                player.kickPlayer(
                         Utils.getFromText(
                                 Configuration.getKillerDisconnected()
                         )
@@ -116,15 +114,6 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         if (Configuration.isEliminated(player)) {
             event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSpectatingStopped(PlayerStopSpectatingEntityEvent event) {
-        Player player = event.getPlayer();
-        if(Configuration.isEliminated(player)) {
-            event.setCancelled(true);
-            player.setSpectatorTarget(event.getSpectatorTarget()); // Just in case it does not cancel
         }
     }
 

@@ -1,7 +1,5 @@
 package me.ikevoodoo.lifestealsmpplugin;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -39,12 +37,10 @@ public class Utils {
 
         if(Configuration.shouldBan()) {
             Configuration.addElimination(player, id);
-            if(Configuration.shouldBroadcastBan()) {
-                Bukkit.broadcast(getFromText(Configuration.getBroadcastMessage().replace("%player%", player.getName())));
-            }
-
+            if(Configuration.shouldBroadcastBan())
+                Bukkit.broadcastMessage(getFromText(Configuration.getBroadcastMessage().replace("%player%", player.getName())));
             Configuration.banID(player.getUniqueId(), Configuration.getBanMessage().replace("%player%", killerName));
-            player.kick(getFromText(Configuration.getBanMessage().replace("%player%", killerName)));
+            player.kickPlayer(getFromText(Configuration.getBanMessage().replace("%player%", killerName)));
         } else if (Configuration.shouldSpectate()) {
             player.setGameMode(GameMode.SPECTATOR);
             player.setSpectatorTarget(killer);
@@ -52,12 +48,8 @@ public class Utils {
         }
     }
 
-    public static TextComponent getFromText(String text) {
-        return Component.text(
-                ChatColor.translateAlternateColorCodes('&',
-                        text
-                )
-        );
+    public static String getFromText(String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 
 

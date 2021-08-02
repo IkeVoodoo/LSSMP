@@ -6,12 +6,12 @@ import me.ikevoodoo.lifestealsmpplugin.commands.ReloadCommand;
 import me.ikevoodoo.lifestealsmpplugin.commands.ReviveCommand;
 import me.ikevoodoo.lifestealsmpplugin.events.PlayerListener;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 public final class LifestealSmpPlugin extends JavaPlugin {
@@ -28,6 +28,16 @@ public final class LifestealSmpPlugin extends JavaPlugin {
         Configuration.init();
         metrics = new Metrics(this, 12177);
 
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            for(UUID id : Configuration.getEliminations()) {
+                Player player = Bukkit.getPlayer(id);
+                if(player == null) continue;
+                if(player.getSpectatorTarget() == null) {
+                    player.setSpectatorTarget(Bukkit.getPlayer(UUID.fromString(Configuration.getKiller(id))));
+                }
+            }
+        }, 0, 5);
+
         updateMetrics();
         
         getCommand("lsreload").setExecutor(new ReloadCommand());
@@ -41,18 +51,15 @@ public final class LifestealSmpPlugin extends JavaPlugin {
     }
 
     public static void updateMetrics() {
-        metrics.addCustomChart(new Metrics.AdvancedPie("eliminations", new Callable<Map<String, Integer>>() {
-            @Override
-            public Map<String, Integer> call() throws Exception {
-                Map<String, Integer> valueMap = new HashMap<>();
-                valueMap.put(Configuration.shouldEliminate()         ? "Eliminates"                : "Does not eliminate",                1);
-                valueMap.put(Configuration.environmentStealsHearts() ? "Environment steals hearts" : "Envirnoment does not steal hearts", 1);
-                valueMap.put(Configuration.shouldScaleHealth()       ? "Scales Health"             : "Does not scale health",             1);
-                valueMap.put(Configuration.shouldBan()               ? "Bans"                      : "Does not ban",                      1);
-                valueMap.put(Configuration.shouldBroadcastBan()      ? "Broadcasts ban"            : "Does not broadcast ban",            1);
-                valueMap.put(Configuration.shouldSpectate()          ? "Has spectators"            : "Does not have spectators",          1);
-                return valueMap;
-            }
+        metrics.addCustomChart(new Metrics.AdvancedPie("eliminations", () -> {
+            Map<String, Integer> valueMap = new HashMap<>();
+            valueMap.put(Configuration.shouldEliminate()         ? "Eliminates"                : "Does not eliminate",                1);
+            valueMap.put(Configuration.environmentStealsHearts() ? "Environment steals hearts" : "Envirnoment does not steal hearts", 1);
+            valueMap.put(Configuration.shouldScaleHealth()       ? "Scales Health"             : "Does not scale health",             1);
+            valueMap.put(Configuration.shouldBan()               ? "Bans"                      : "Does not ban",                      1);
+            valueMap.put(Configuration.shouldBroadcastBan()      ? "Broadcasts ban"            : "Does not broadcast ban",            1);
+            valueMap.put(Configuration.shouldSpectate()          ? "Has spectators"            : "Does not have spectators",          1);
+            return valueMap;
         }));
     }
 
