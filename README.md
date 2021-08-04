@@ -7,7 +7,7 @@ This is not official and is purely fan made, do not go ask Parrot for updates!
 
 # NOTE
 
-  - You are not allowed to redistribute this plugin on any third-party, however you are fully free to modify this project and if you feel like you made a good addition send over a Pull Request.
+  - You are not allowed to redistribute this plugin on any third-party, however you are fully free to modify this project and if you feel like you made a good addition send over a Pull Request. However you are still not allowed to redistribute any edited version unless you get specific permission.
 
 Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lifesteal-smp-plugin) - Unmaintained, will no longer receive updates.
 
