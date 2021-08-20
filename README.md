@@ -15,7 +15,28 @@ Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lif
 
 Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.94387/)
 
-Changelog v1.5.2.0
-- Made scaleHealth option Work
+Changelog Alpha 1.6.0.0
+
+- Commands:
+  - Added lshealth, lsversion
+  - Modified lseliminate, lsreload and lsrevive
+
+- Permissions
+  - ADD lssmp.health
+  - ADD lssmp.update.checker
+
+- Config
+ - Added new config file plugins/LifeSteal-Smp-Plugin/recipes/heartRecipes
+ - Added keys:
+  - elimination.healthScale (Default 1 Heart)
+  - elimination.scaleHealth (Default true)
+
+- Bugfixes
+ - Death by environment should only happen when config is enabled
+
+- Misc
+ - Update checker & Update notifier
+ - Hearts are now craftable
+ - Added spigot support
 
 For any bugs please report them here: https://github.com/IkeVoodoo/LSSMP/issues
