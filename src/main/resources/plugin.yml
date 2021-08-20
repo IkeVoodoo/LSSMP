@@ -15,3 +15,7 @@ commands:
   lsrevive:
     permission: lssmp.revive
     description: Revive a player or all players
+  lsversion:
+    description: Get the plugin version
+  lshealth:
+    description: Health command to get, add and remove health!

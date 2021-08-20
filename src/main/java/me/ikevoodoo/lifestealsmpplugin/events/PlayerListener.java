@@ -1,18 +1,19 @@
 package me.ikevoodoo.lifestealsmpplugin.events;
 
 import me.ikevoodoo.lifestealsmpplugin.Configuration;
+import me.ikevoodoo.lifestealsmpplugin.LifestealSmpPlugin;
 import me.ikevoodoo.lifestealsmpplugin.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
 
@@ -24,28 +25,47 @@ public class PlayerListener implements Listener {
     public void onKill(PlayerDeathEvent event) {
         Player killed = event.getEntity();
         Player killer = event.getEntity().getKiller();
+
+        double scaleAmount = Configuration.getHealthScaleAmountHP();
         if(killer != null) {
-            modifyHealth(killer, 2);
+            modifyHealth(killer, scaleAmount);
             if(shouldEliminate(killed)) {
                 eliminate(killed, killer);
                 //event.setCancelled(true);
                 return;
             }
-            modifyHealth(killed, -2);
+            modifyHealth(killed, -scaleAmount);
             return;
-        } else {
+        } else if(Configuration.environmentStealsHearts()) {
             if(shouldEliminate(killed)) {
                 eliminate(killed, null);
                 //event.setCancelled(true);
                 return;
             }
-            modifyHealth(killed, -2);
+            modifyHealth(killed, -scaleAmount);
         }
 
         String killerUUID = Configuration.getKiller(killed.getUniqueId());
         if(killerUUID != null) {
             Player player = Bukkit.getPlayer(UUID.fromString(killerUUID));
             if(player != null) killed.setSpectatorTarget(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInteract(PlayerInteractEvent event) {
+        if(event.getItem() == null) return;
+        ItemMeta meta = event.getItem().getItemMeta();
+        ItemMeta heartMeta = LifestealSmpPlugin.heartItem.getItemMeta();
+        if(meta == null || heartMeta == null) return;
+        if(meta.getDisplayName().equalsIgnoreCase(heartMeta.getDisplayName()) && meta.getLore() != null && meta.getLore().equals(heartMeta.getLore()) && event.getItem().getType() == LifestealSmpPlugin.heartItem.getType()) {
+            event.setCancelled(true);
+            Utils.modifyHealth(event.getPlayer(), 2);
+            if(event.getHand() != null) {
+                ItemStack stack = event.getItem().getAmount() - 1 == 0 ? new ItemStack(Material.AIR, 2) : event.getItem();
+                stack.setAmount(stack.getAmount() - 1);
+                event.getPlayer().getInventory().setItem(event.getHand(), stack);
+            }
         }
     }
 

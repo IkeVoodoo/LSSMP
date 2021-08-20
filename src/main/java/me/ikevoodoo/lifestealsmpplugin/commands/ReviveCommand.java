@@ -32,12 +32,12 @@ public class ReviveCommand implements CommandExecutor {
                         UUID id = eliminations.get(index);
                         Configuration.revive(id);
                         sender.sendMessage(ChatColor.GOLD + "Revived " + ChatColor.AQUA + player.getName());
-                        return false;
+                        return true;
                     }
                     sender.sendMessage(ChatColor.AQUA + player.getName() + ChatColor.RED + " is not eliminated.");
                 }
             }
         }
-        return false;
+        return true;
     }
 }

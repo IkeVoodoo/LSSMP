@@ -21,12 +21,15 @@ public class Configuration {
 
     private static boolean scaleHealth;
 
+    private static double scaleAmount, scaleAmountHP;
+
     private static final HashMap<String, Object> configKeys = new HashMap<>();
 
     private static final List<UUID> eliminated = new ArrayList<>();
 
     static {
         configKeys.put("elimination.shouldEliminate", true);
+        configKeys.put("elimination.environmentStealsHearts", false);
 
         configKeys.put("elimination.bans.shouldBan", false);
         configKeys.put("elimination.bans.banMessage", "&cYou been banned due to loosing all of your hearts, your last killer was &4%player%");
@@ -38,7 +41,8 @@ public class Configuration {
         configKeys.put("elimination.spectate.killerDisconnected", "&cYour killer has disconnected!");
 
         configKeys.put("elimination.scaleHealth", true);
-        configKeys.put("elimination.environmentStealsHearts", false);
+        configKeys.put("elimination.healthScale", 1.0D);
+        scaleAmountHP = 2.0D;
     }
 
     public static void init() {
@@ -68,6 +72,13 @@ public class Configuration {
         killerDisconnected = configuration.getString("elimination.spectate.killerDisconnected");
 
         scaleHealth = configuration.getBoolean("elimination.scaleHealth");
+
+        scaleAmount = configuration.getDouble("elimination.healthScale");
+
+        // Convertsion examples
+        // 1.0 Hearts -> 2.0 HP
+        // 1.5 Hearts -> 2.5 HP
+        scaleAmountHP = Utils.parseHearts(scaleAmount);
 
         List<UUID> tempEliminated = new ArrayList<>();
         if(configuration.contains("eliminated")) {
@@ -141,6 +152,15 @@ public class Configuration {
     public static boolean shouldScaleHealth() {
         return scaleHealth;
     }
+
+    public static double getHealthScaleAmount() {
+        return scaleAmount;
+    }
+
+    public static double getHealthScaleAmountHP() {
+        return scaleAmountHP;
+    }
+
 
     public static void addElimination(Player player, UUID killerId) {
         if(killerId != null) {

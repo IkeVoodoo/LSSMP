@@ -50,7 +50,7 @@ public class EliminateCommand implements CommandExecutor {
                         Configuration.banID(player.getUniqueId(), Configuration.getBanMessage().replace("%player%", sender.getName()));
                         sender.sendMessage(ChatColor.GOLD + "Eliminated " + ChatColor.AQUA + player.getName());
                         player.kickPlayer(Utils.getFromText(Configuration.getBanMessage().replace("%player%", sender.getName())));
-                        return false;
+                        return true;
                     }
 
                     OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(person);
@@ -59,6 +59,6 @@ public class EliminateCommand implements CommandExecutor {
                 }
             }
         }
-        return false;
+        return true;
     }
 }
