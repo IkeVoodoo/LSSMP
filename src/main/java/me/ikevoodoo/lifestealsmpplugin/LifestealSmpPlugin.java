@@ -121,7 +121,7 @@ public final class LifestealSmpPlugin extends JavaPlugin {
 
         updateTask = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             checkForUpdates();
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 5, TimeUnit.MINUTES);
 
         updateMetrics();
         
