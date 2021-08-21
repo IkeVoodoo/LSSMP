@@ -72,13 +72,8 @@ public final class LifestealSmpPlugin extends JavaPlugin {
         if(!heartRecipeFile.exists()) {
             try {
                 heartRecipeFile.createNewFile();
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Could not create file: " + heartRecipeFile.getPath() + " | The plugin might break.");
-            }
-        }
-
-        try(PrintWriter pw = new PrintWriter(new FileWriter(heartRecipeFile))) {
-            String text = """
+                try(PrintWriter pw = new PrintWriter(new FileWriter(heartRecipeFile))) {
+                    String text = """
                     {
                         "enabled": true,
                         "shaped": true,
@@ -98,12 +93,26 @@ public final class LifestealSmpPlugin extends JavaPlugin {
                         }
                     }
                     """;
-            pw.print(text);
-            currentHeartRecipe = loadRecipe(text);
-            Bukkit.addRecipe(currentHeartRecipe);
-        } catch (Exception e) {
-            e.printStackTrace();
+                    pw.print(text);
+                    currentHeartRecipe = loadRecipe(text);
+                    Bukkit.addRecipe(currentHeartRecipe);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Could not create file: " + heartRecipeFile.getPath() + " | The plugin might break.");
+            }
+        } else {
+            try {
+                currentHeartRecipe = loadRecipe(heartRecipeFile);
+                Bukkit.addRecipe(currentHeartRecipe);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Could not load heart recipe file!");
+            }
+
         }
+
+
 
         metrics = new Metrics(this, 12177);
 
