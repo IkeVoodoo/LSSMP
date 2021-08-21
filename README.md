@@ -17,7 +17,6 @@ Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.9
 
 Changelog Alpha 1.6.1.0
 
-- Bug Fixes
- -  Fixed crash
+ - Fixed crash
 
 For any bugs please report them here: https://github.com/IkeVoodoo/LSSMP/issues
