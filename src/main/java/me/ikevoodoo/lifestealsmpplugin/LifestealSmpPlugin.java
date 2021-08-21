@@ -19,9 +19,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class LifestealSmpPlugin extends JavaPlugin {
 
@@ -30,6 +37,10 @@ public final class LifestealSmpPlugin extends JavaPlugin {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static LifestealSmpPlugin instance;
     private static Metrics metrics;
+
+    private static ScheduledFuture<?> updateTask;
+
+    public static final Logger LOGGER = Logger.getLogger("LSSMP");
 
     public static Recipe currentHeartRecipe;
     public static File heartRecipeFile;
@@ -62,7 +73,7 @@ public final class LifestealSmpPlugin extends JavaPlugin {
             try {
                 heartRecipeFile.createNewFile();
             } catch (IOException e) {
-                System.err.println("Could not create file: " + heartRecipeFile.getPath() + " | The plugin might break.");
+                LOGGER.log(Level.SEVERE, "Could not create file: " + heartRecipeFile.getPath() + " | The plugin might break.");
             }
         }
 
@@ -96,19 +107,7 @@ public final class LifestealSmpPlugin extends JavaPlugin {
 
         metrics = new Metrics(this, 12177);
 
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(new URL("http://188.34.178.99:8080/LSSMP/version").openStream()))) {
-            String line = br.readLine();
-            if(!line.equalsIgnoreCase(getDescription().getVersion())) {
-                broadcastMessage(prefix + ChatColor.GOLD + "There is a new update available! Current version: "
-                        + ChatColor.RED + getDescription().getVersion()
-                        + ChatColor.GOLD + ", Updated Version: "
-                        + ChatColor.GREEN
-                        + line, "lssmp.update.checker");
-                updateAvailable = true;
-            }
-        } catch (Exception e) {
-            System.err.println("Could not check for updates!");
-        }
+        checkForUpdates();
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for(UUID id : Configuration.getEliminations()) {
@@ -118,23 +117,11 @@ public final class LifestealSmpPlugin extends JavaPlugin {
                     player.setSpectatorTarget(Bukkit.getPlayer(UUID.fromString(Configuration.getKiller(id))));
                 }
             }
-        }, 0, 5);
+        }, 0, 10);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            try(BufferedReader br = new BufferedReader(new InputStreamReader(new URL("http://188.34.178.99:8080/LSSMP/version").openStream()))) {
-                String line = br.readLine();
-                if(!line.equalsIgnoreCase(getDescription().getVersion())) {
-                    broadcastMessage(prefix + ChatColor.GOLD + "There is a new update available! Current version: "
-                            + ChatColor.RED + getDescription().getVersion()
-                            + ChatColor.GOLD + ", Updated Version: "
-                            + ChatColor.GREEN
-                            + line, "lssmp.update.checker");
-                    updateAvailable = true;
-                } else updateAvailable = false;
-            } catch (Exception e) {
-                System.err.println("Could not check for updates!");
-            }
-        }, 0, 5 * 60 * 20);
+        updateTask = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            checkForUpdates();
+        }, 0, 5, TimeUnit.SECONDS);
 
         updateMetrics();
         
@@ -148,7 +135,15 @@ public final class LifestealSmpPlugin extends JavaPlugin {
         getCommand("lshealth").setTabCompleter(new HealthCommandTabCompleter());
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     }
-    
+
+    @Override
+    public void onDisable() {
+        if(updateTask != null) {
+            updateTask.cancel(true);
+            updateTask = null;
+        }
+    }
+
     public static LifestealSmpPlugin getInstance() { return instance; }
 
     public static void updateMetrics() {
@@ -179,7 +174,7 @@ public final class LifestealSmpPlugin extends JavaPlugin {
                 try {
                     amount = Integer.parseInt(outputAmount.asText());
                 } catch (Exception ignored) {
-                    System.err.println("Could not load amount for value: " + outputAmount.asText() + " | Defaulting to 1.");
+                    LOGGER.log(Level.SEVERE, "Could not load amount for value: " + outputAmount.asText() + " | Defaulting to 1.");
                 }
             }
 
@@ -242,6 +237,49 @@ public final class LifestealSmpPlugin extends JavaPlugin {
             }
         }
         return null;
+    }
+
+    private void checkForUpdates() {
+        InputStream is;
+        try {
+            is = getInputStream("http://188.34.178.99:8080/LSSMP/version");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Could not check for updates as the server is down/not responding!");
+            return;
+        }
+        if(is == null) {
+            LOGGER.log(Level.WARNING, "Could not establish input stream to update server. Not an error, however if this persists make an issue at https://www.github.com/IkeVoodoo/LSSMP/Issues.");
+            return;
+        }
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String line = br.readLine();
+            if(!line.equalsIgnoreCase(getDescription().getVersion())) {
+                broadcastMessage(prefix + ChatColor.GOLD + "There is a new update available! Current version: "
+                        + ChatColor.RED + getDescription().getVersion()
+                        + ChatColor.GOLD + ", Updated Version: "
+                        + ChatColor.GREEN
+                        + line, "lssmp.update.checker");
+                updateAvailable = true;
+            } else updateAvailable = false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Could not check for updates!");
+        }
+    }
+
+    private static InputStream getInputStream(String website) throws IOException {
+        URL url = new URL(website);
+
+        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+        HttpURLConnection.setFollowRedirects(false);
+        huc.setConnectTimeout(5 * 1000);
+        huc.setRequestMethod("GET");
+        huc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+        huc.connect();
+       try {
+           return huc.getInputStream();
+       } catch (SocketTimeoutException exception) {
+            return null;
+       }
     }
 
     private static void broadcastMessage(String message, String permission) {
