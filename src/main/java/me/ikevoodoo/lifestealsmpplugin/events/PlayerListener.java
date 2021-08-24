@@ -29,19 +29,9 @@ public class PlayerListener implements Listener {
         double scaleAmount = Configuration.getHealthScaleAmountHP();
         if(killer != null) {
             modifyHealth(killer, scaleAmount);
-            if(shouldEliminate(killed)) {
-                eliminate(killed, killer);
-                //event.setCancelled(true);
-                return;
-            }
             modifyHealth(killed, -scaleAmount);
             return;
         } else if(Configuration.environmentStealsHearts()) {
-            if(shouldEliminate(killed)) {
-                eliminate(killed, null);
-                //event.setCancelled(true);
-                return;
-            }
             modifyHealth(killed, -scaleAmount);
         }
 

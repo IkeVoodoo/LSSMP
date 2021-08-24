@@ -6,9 +6,7 @@ import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Recipe;
 
-import java.util.Iterator;
 import java.util.UUID;
 
 public class Utils {
@@ -24,18 +22,16 @@ public class Utils {
     public static void modifyHealth(Player player, double scale) {
         AttributeInstance maxHp = getMaxHealth(player);
 
-
-        // Fixing crashes!
-        if(maxHp.getBaseValue() + scale < 0)
-            maxHp.setBaseValue(0);
+        if(maxHp.getBaseValue() + scale <= 0) {
+            maxHp.setBaseValue(20);
+            if(Configuration.environmentStealsHearts() && player.getKiller() == null)
+                eliminate(player, null);
+            else if(player.getKiller() != null)
+                eliminate(player, player.getKiller());
+        }
         else maxHp.setBaseValue(maxHp.getValue() + scale);
 
-        // Please, Please work
         if(Configuration.shouldScaleHealth() && player.getHealth() + scale > 0) player.setHealth(player.getHealth() + scale);
-    }
-
-    public static boolean shouldEliminate(Player player) {
-        return getMaxHealth(player).getValue() == 0;
     }
 
     public static void eliminate(Player player, Player killer) {
