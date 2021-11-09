@@ -253,7 +253,7 @@ public final class LifestealSmpPlugin extends JavaPlugin {
         try {
             is = getInputStream("http://188.34.178.99:8080/LSSMP/version");
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Could not check for updates as the server is down/not responding!");
+            //LOGGER.log(Level.SEVERE, "Could not check for updates as the server is down/not responding!");
             return;
         }
         if(is == null) {
