@@ -1,4 +1,7 @@
 # LSSMP
+
+# THIS FORK CONTAINS SOME BUG FIXES
+
 LifeSteal SMP Plugin recreation by IkeVoodoo
 
 Now on aternos!
