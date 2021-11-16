@@ -15,6 +15,8 @@ Download on [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/lif
 
 Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.94387/)
 
+Join the [Discord](https://discord.gg/7hr8CxNEKk)
+
 Changelog Alpha 1.6.4.0
 
 - Probably fixed eliminations
