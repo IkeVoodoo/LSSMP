@@ -31,7 +31,7 @@ public class Utils {
         }
         else if(!Configuration.isCappedHealth() || finalHealth<= Configuration.getMaxAllowedHealth()) maxHp.setBaseValue(maxHp.getValue() + scale);
 
-        if(Configuration.shouldScaleHealth() && player.getHealth() + scale > 0) player.setHealth(player.getHealth() + scale);
+        if(Configuration.shouldScaleHealth() && player.getHealth() + scale > 0 && (player.getHealth() + scale) <= maxHp.getValue()) player.setHealth(player.getHealth() + scale);
     }
 
     public static void eliminate(Player player, Player killer) {
