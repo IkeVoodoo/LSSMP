@@ -21,7 +21,7 @@ public class Utils {
 
     public static void modifyHealth(Player player, double scale) {
         AttributeInstance maxHp = getMaxHealth(player);
-
+        double finalHealth = maxHp.getValue() + scale;
         if(maxHp.getBaseValue() + scale <= 0) {
             maxHp.setBaseValue(20);
             if(Configuration.environmentStealsHearts() && player.getKiller() == null)
@@ -29,7 +29,7 @@ public class Utils {
             else if(player.getKiller() != null)
                 eliminate(player, player.getKiller());
         }
-        else maxHp.setBaseValue(maxHp.getValue() + scale);
+        else if(!Configuration.isCappedHealth() || finalHealth<= Configuration.getMaxAllowedHealth()) maxHp.setBaseValue(maxHp.getValue() + scale);
 
         if(Configuration.shouldScaleHealth() && player.getHealth() + scale > 0) player.setHealth(player.getHealth() + scale);
     }

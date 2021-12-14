@@ -23,6 +23,9 @@ public class Configuration {
 
     private static double scaleAmount, scaleAmountHP;
 
+    private static boolean cappedHealth;
+    private static double cappedMaxHealth;
+
     private static final HashMap<String, Object> configKeys = new HashMap<>();
 
     private static final List<UUID> eliminated = new ArrayList<>();
@@ -42,6 +45,9 @@ public class Configuration {
 
         configKeys.put("elimination.scaleHealth", true);
         configKeys.put("elimination.healthScale", 1.0D);
+
+        configKeys.put("elimination.cappedHealth", false);
+        configKeys.put("elimination.cappedMaxHealth", 80D);
         scaleAmountHP = 2.0D;
     }
 
@@ -79,6 +85,8 @@ public class Configuration {
         // 1.0 Hearts -> 2.0 HP
         // 1.5 Hearts -> 2.5 HP
         scaleAmountHP = Utils.parseHearts(scaleAmount);
+        cappedHealth = configuration.getBoolean("elimination.cappedHealth");
+        cappedMaxHealth = configuration.getDouble("elimination.cappedMaxHealth") * 2;
 
         List<UUID> tempEliminated = new ArrayList<>();
         if(configuration.contains("eliminated")) {
@@ -161,6 +169,13 @@ public class Configuration {
         return scaleAmountHP;
     }
 
+    public static boolean isCappedHealth() {
+        return cappedHealth;
+    }
+
+    public static double getMaxAllowedHealth() {
+        return cappedMaxHealth;
+    }
 
     public static void addElimination(Player player, UUID killerId) {
         if(killerId != null) {
