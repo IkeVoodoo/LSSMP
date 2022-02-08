@@ -175,8 +175,9 @@ class LSSMP: JavaPlugin() {
             HEART_CONFIG["options.outputAmount"] = 1
             HEART_CONFIG["options.shaped"] = true
 
+
             HEART_CONFIG["recipe.slots.1.item"] = "gold block"
-            HEART_CONFIG["recipe.slots.2.item"] = "bonemeal"
+            HEART_CONFIG["recipe.slots.2.item"] = "bone meal"
             HEART_CONFIG["recipe.slots.3.item"] = "gold block"
 
             HEART_CONFIG["recipe.slots.4.item"] = "obsidian"
