@@ -1,8 +1,8 @@
 package me.ikevoodoo.lssmp.commands
 
-import UpdateData
 import me.ikevoodoo.lssmp.LSSMP
 import me.ikevoodoo.lssmp.TranslationManager.Companion.getTranslation
+import me.ikevoodoo.lssmp.UpdateData
 import me.ikevoodoo.lssmp.utils.ExtensionUtils.Companion.color
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor

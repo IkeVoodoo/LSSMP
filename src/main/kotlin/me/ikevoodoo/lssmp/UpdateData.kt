@@ -1,3 +1,5 @@
+package me.ikevoodoo.lssmp
+
 class UpdateData private constructor() {
 
     companion object {
