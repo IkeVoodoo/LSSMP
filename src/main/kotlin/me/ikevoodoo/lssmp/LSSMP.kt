@@ -1,6 +1,5 @@
 package me.ikevoodoo.lssmp
 
-import UpdateData
 import me.ikevoodoo.lssmp.TranslationManager.Companion.addTranslation
 import me.ikevoodoo.lssmp.commands.*
 import me.ikevoodoo.lssmp.commands.completion.*
