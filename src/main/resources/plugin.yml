@@ -1,0 +1,29 @@
+name: Lifesteal-Smp-Plugin
+main: me.ikevoodoo.lssmp.LSSMP
+version: ${project.version}
+api-version: 1.16
+author: IkeVoodoo
+description: Lifesteal SMP Plugin
+
+commands:
+  lsreload:
+    description: Reload the plugin
+  lseliminate:
+    description: Eliminate a player or all players
+  lsrevive:
+    description: Revive a player or all players
+  lsversion:
+    description: Get the plugin version
+  lshealth:
+    description: Health command to get, add, set and remove health!
+  lswithdraw:
+    description: Withdraw hearts!
+  lslanguage:
+    description: Change the language of the plugin!
+  lschangelog:
+    description: View the changelog of the plugin!
+  lsreset:
+    description: Reset a player or all players
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin.version}
+  - org.openjdk.nashorn:nashorn-core:15.3

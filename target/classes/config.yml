@@ -1,0 +1,146 @@
+# Configuration for eliminations
+elimination:
+
+  # Should eliminations be enabled?
+  # Default: true
+  shouldEliminate: true
+
+  # Should the player loose a heart if they die to the environment?
+  # Such as lava, falling, drowning, zombies, skeletons, etc.
+  # Default: false
+  environmentStealsHearts: false
+
+  # How much health should be taken from the player who died from environment?
+  # Works only if environmentStealsHearts is true.
+  # Default: 1.0
+  environmentHealthScale: 1.0
+
+  # How much health should be given to the killer of a player?
+  # How much health should be taken from the player who died?
+  # Default: 1.0
+  healthScale: 1.0
+
+  # Maximum number of hearts a player can have.
+  # Default: 10
+  maxHearts: 10
+
+  # Is max health enabled?
+  # Default: false
+  useMaxHealth: false
+
+  # The default amount of hearts a new player has
+  # Default: 10
+  defaultHearts: 10
+
+  # Should the killed/killer's health stay the same percentage of the max health?
+  # Default: true
+  scaleHealth: true
+
+  # Configuration for spectating
+  spectate:
+
+    # Is spectating enabled?
+    # Default: true
+    shouldSpectate: true
+
+    # Should the spectating player follow their killer?
+    # Default: true
+    followKiller: true
+
+    # Kick message for a spectator when their killer isn't online
+    # Only enabled if followKiller is true
+    # Default: '&cYour killer is not online, so you are not allowed to spectate!'
+    killerNotOnline: '&cYour killer is not online, so you are not allowed to spectate!'
+
+  # Configuration for banning
+  bans:
+
+    # Should players be banned when they die?
+    # Overrides shouldSpectate
+    # Default: true
+    shouldBan: true
+
+    # Ban message for players
+    # Default: '&cYou have been banned due to loosing all of your hearts, your last killer was &4%player%'
+    banMessage: '&cYou have been banned due to loosing all of your hearts, your last killer was &4%player%'
+
+    # Should the ban message be broadcast?
+    # Default: false
+    broadcastBan: false
+
+    # Broadcast ban message
+    # Default: '&c%player% has lost all of their hearts and has been banned.'
+    broadcastMessage: '&c%player% has lost all of their hearts and has been banned.'
+
+    # Should there be a ban time for players?
+    # Default: false
+    usingBanTime: false
+
+    # Ban time, format: hours:minutes:seconds.milliseconds
+    # Default: 00:00:00.0000
+    banTime: '00:00:00.0000'
+
+  # Allowed worlds for lifesteal to work in
+  # Use 'all' to allow all worlds
+  # Default: [world, world_nether, world_the_end]
+  allowedWorlds:
+    - world
+    - world_nether
+    - world_the_end
+
+# Anti alt measures
+antiAlts:
+
+  # Are alts allowed?
+  # Default: false
+  altsAllowed: false
+
+  # Maximum amount of alts a player can have
+  # Default: 0
+  maxAlts: 0
+
+# Customization
+events:
+
+  # What to do when a player is revived?
+  revived:
+
+    # What should the player's max health be upon reviving?
+    # Use 'RESET' to reset to the default max health
+    # Use a number to set the max health to that number
+    # Default: RESET
+    maxHealth: 'RESET'
+
+    # Commands to execute when a player is revived
+    commands:
+      - none
+
+  # What to do when a player is eliminated?
+  eliminated:
+
+    # Commands to execute when a player is eliminated
+    commands:
+      - none
+
+  # What to do when a player dies?
+  killed:
+
+    # Commands to execute when a player dies
+    commands:
+      - none
+
+# Configuration for the plugin's items
+items:
+
+  # Heart item configuration
+  heart:
+
+    # Name of the heart item
+    # Changes across every player's inventory upon reloading
+    # Default: '&c❤ &fExtra heart.'
+    name: '&c❤ &fExtra heart.'
+
+    # Lore of the heart item
+    # Changes across every player's inventory upon reloading
+    lore:
+      - Gives you an extra heart!
