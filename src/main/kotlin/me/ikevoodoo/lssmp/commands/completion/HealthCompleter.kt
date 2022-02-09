@@ -33,7 +33,7 @@ class HealthCompleter: TabCompleter {
                         if (!args.contains("--limit")) it.add("--limit")
                     }
                     it
-                }.filter { it.startsWith(args[args.size - 1]) }.toMutableList()
+                }.filter { it.startsWith(args[args.size - 1].lowercase()) }.toMutableList()
             }
         }
 

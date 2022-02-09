@@ -78,21 +78,95 @@ class ExtensionUtils {
             if(isConfigurationSection("recipe.slots")) {
                 for(key in getConfigurationSection("recipe.slots")?.getKeys(false)!!) {
                     slots[key.toInt().let { if(it - 1 <= 0) 0 else if(it <= 9) it - 1 else 8}] =
-                        Material.valueOf(
-                            getString("recipe.slots.$key.item")!!
+
+                        try {
+                            closestMaterial(getString("recipe.slots.$key.item")!!
                                 .uppercase()
                                 .replace("([a-zA-Z0-9])\\s+".toRegex(), "$1_")
+                                .replace("_+".toRegex(), "_")
                                 .replace("-+".toRegex(), "_")
                                 .replace("MINECRAFT:", "")
                                 .replace(":", "")
                                 .replace("^\\s+".toRegex(), "")
                                 .replace("\\s+$".toRegex(), "")
-                        )
+                            )
+                        } catch (e: Exception) {
+                            LSSMP.INSTANCE.logger.severe(e.message)
+                            Material.AIR
+                        }
                 }
             }
 
+            for (i in 1..9) {
+                set("recipe.slots.$i.item", slots[if(i - 1 <= 0) 0 else if(i <= 9) i - 1 else 8].toString()
+                    .lowercase()
+                    .replace("([a-zA-Z0-9])_".toRegex(), "$1 ")
+                    .replace("-+".toRegex(), "_")
+                    .replace("minecraft:", "")
+                    .replace(":", "")
+                )
+            }
 
             return HeartRecipe(enabled, outputAmount, shaped, slots)
+        }
+
+        fun closestMaterial(name: String): Material {
+            return try {
+                Material.valueOf(name)
+            } catch (e: Exception) {
+                val distances = ArrayList<Pair<Int, String>>()
+                for(material in Material.values()) {
+                    distances.add(distance(material.name, name) to material.name)
+                }
+
+                val min = distances.minByOrNull { it.first }
+                    ?: throw IllegalStateException("No material found for $name, defaulting to AIR")
+
+                distances.sortBy { it.first }
+
+                val second = distances[1]
+
+                if(min.first > 5 && second.first - min.first < 6) throw IllegalStateException("No material found for $name, defaulting to AIR")
+
+                Material.valueOf(min.second)
+            }
+        }
+        
+        fun distance(str1: String, str2: String): Int {
+            val len1 = str1.length
+            val len2 = str2.length
+            val dp = Array(len1 + 1) { IntArray(len2 + 1) }
+
+            for (i in 0..len1) {
+                dp[i][0] = i
+            }
+
+            for (j in 0..len2) {
+                dp[0][j] = j
+            }
+
+            for (i in 1..len1) {
+                for (j in 1..len2) {
+                    val cost = if (str1[i - 1] == str2[j - 1]) 0 else 1
+                    dp[i][j] = min(
+                        dp[i - 1][j] + 1,
+                        dp[i][j - 1] + 1,
+                        dp[i - 1][j - 1] + cost
+                    )
+                }
+            }
+
+            return dp[len1][len2]
+        }
+
+        fun min(vararg numbers: Int): Int {
+            var min = numbers[0]
+            for (number in numbers) {
+                if (number < min) {
+                    min = number
+                }
+            }
+            return min
         }
     }
 

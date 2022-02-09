@@ -48,6 +48,8 @@ class LSSMP: JavaPlugin() {
         val PREFIX = ChatColor.DARK_AQUA.toString() + "[" + ChatColor.AQUA + "LSSMP" + ChatColor.DARK_AQUA + "] " + ChatColor.RESET
     }
 
+    private lateinit var HEART_RECIPE_FILE: File
+
     override fun onEnable() {
         INSTANCE = this
         Bukkit.getPluginManager().registerEvents(PlayerListener(), this)
@@ -167,9 +169,9 @@ class LSSMP: JavaPlugin() {
             .setCustomModelData(931)
             .setLore(config.getStringList("items.heart.lore").ifEmpty { listOf("Gives you an extra heart!") })
 
-        val heartRecipeFile = File(dataFolder.absolutePath + "/heartRecipe.yml")
-        if(!heartRecipeFile.exists()) {
-            heartRecipeFile.createNewFile()
+        HEART_RECIPE_FILE = File(dataFolder.absolutePath + "/heartRecipe.yml")
+        if(!HEART_RECIPE_FILE.exists()) {
+            HEART_RECIPE_FILE.createNewFile()
             HEART_CONFIG = YamlConfiguration()
             HEART_CONFIG["options.enabled"] = true
             HEART_CONFIG["options.outputAmount"] = 1
@@ -188,8 +190,8 @@ class LSSMP: JavaPlugin() {
             HEART_CONFIG["recipe.slots.8.item"] = "diamond block"
             HEART_CONFIG["recipe.slots.9.item"] = "diamond block"
 
-            HEART_CONFIG.save(heartRecipeFile)
-        } else HEART_CONFIG = YamlConfiguration.loadConfiguration(heartRecipeFile)
+            HEART_CONFIG.save(HEART_RECIPE_FILE)
+        } else HEART_CONFIG = YamlConfiguration.loadConfiguration(HEART_RECIPE_FILE)
 
         addHeartRecipe()
 
@@ -289,6 +291,7 @@ class LSSMP: JavaPlugin() {
 
     fun addHeartRecipe() {
         val recipe = HEART_CONFIG.parseRecipe()
+        HEART_CONFIG.save(HEART_RECIPE_FILE)
         if(recipe.enabled) {
             if(recipe.shaped) {
                 val shaped = ShapedRecipe(HEART_KEY, HEART_ITEM)
