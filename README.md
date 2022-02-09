@@ -21,8 +21,10 @@ Download on [SpigotMC](https://www.spigotmc.org/resources/lifesteal-smp-plugin.9
 
 Join the [Discord](https://discord.gg/7hr8CxNEKk)
 
-Changelog Alpha 2.0.0
+Changelog Alpha 2.1.0
 
-- View spigot page
+- Fixed heart recipe
+- Added heart recipe auto fixer
+- Fixed a problem with changelogs
 
 For any bugs please report them [here](https://discord.gg/7hr8CxNEKk)
