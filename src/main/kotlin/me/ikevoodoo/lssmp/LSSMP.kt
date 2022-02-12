@@ -223,8 +223,8 @@ class LSSMP: JavaPlugin() {
         val fr = TranslationStorage(dataFolder.absolutePath + "/languages/fr_fr.lst", "fr_fr", "French")
         fr["environment.displayName"] = "Environnement"
         fr["reload"] = "Rechargé!"
-        fr["elimination.ban.message"] = "&cVosu avez été banni pour élimination !"
-        fr["commands.withdraw.message"] = "&cVosu avez enlevé %amount% cœurs !"
+        fr["elimination.ban.message"] = "&cVous avez été banni pour élimination !"
+        fr["commands.withdraw.message"] = "&cVous avez enlevé %amount% cœurs !"
         fr["antiAlts.kickMessage"] = "&cVous avez été expulsé pour car un alt a été détecté !"
         fr["language.not-found"] = "&cLa langue %language% n'existe pas !"
         fr["language.set"] = "&aLa langue a été mise en %language% !"
