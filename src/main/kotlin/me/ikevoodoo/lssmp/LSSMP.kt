@@ -219,6 +219,31 @@ class LSSMP: JavaPlugin() {
         en["commands.health.no-perms"]    = "&cYou are not permitted to use /lshealth!"
         en["commands.eliminate.no-perms"] = "&cYou are not permitted to use /lseliminate!"
         en["commands.changelog.no-perms"] = "&cYou are not permitted to use /lschangelog!"
+        
+        val fr = TranslationStorage(dataFolder.absolutePath + "/languages/fr_fr.lst", "fr_fr", "French")
+        fr["environment.displayName"] = "Environnement"
+        fr["reload"] = "Rechargé!"
+        fr["elimination.ban.message"] = "&cVosu avez été banni pour élimination !"
+        fr["commands.withdraw.message"] = "&cVosu avez enlevé %amount% cœurs !"
+        fr["antiAlts.kickMessage"] = "&cVous avez été expulsé pour car un alt a été détecté !"
+        fr["language.not-found"] = "&cLa langue %language% n'existe pas !"
+        fr["language.set"] = "&aLa langue a été mise en %language% !"
+        fr["language.cleared"] = "&aLa langue a été enlevée !"
+        fr["commands.version.message"] = "&6Version actuelle : %version-color%%version% %status%"
+        fr["commands.version.status.outdated"] = "OBSOLÈTE"
+        fr["commands.version.status.latest"] = "À JOUR"
+        fr["commands.errors.player-not-found"] = "&cLe joueur %player% n'existe pas !"
+        fr["commands.changelog.message"] = "&6Notes de MÀJ :"
+        fr["commands.no-args"] = "&cVous devez spécifier un joueur !"
+        fr["commands.withdraw.no-perms"]  = "&cVous n'avez pas la permission d'utiliser /lswithdraw!"
+        fr["commands.version.no-perms"]   = "&cVous n'avez pas la permission d'utiliser /lsversion!"
+        fr["commands.revive.no-perms"]    = "&cVous n'avez pas la permission d'utiliser /lsrevive!"
+        fr["commands.reset.no-perms"]     = "&cVous n'avez pas la permission d'utiliser /lsreset!"
+        fr["commands.reload.no-perms"]    = "&cVous n'avez pas la permission d'utiliser /lsreload!"
+        fr["commands.language.no-perms"]  = "&cVous n'avez pas la permission d'utiliser /lslanguage!"
+        fr["commands.health.no-perms"]    = "&cVous n'avez pas la permission d'utiliser /lshealth!"
+        fr["commands.eliminate.no-perms"] = "&cVous n'avez pas la permission d'utiliser /lseliminate!"
+        fr["commands.changelog.no-perms"] = "&cVous n'avez pas la permission d'utiliser /lschangelog!"
 
         val it = TranslationStorage(dataFolder.absolutePath + "/languages/it_it.lst", "it_it", "Italian")
         it["environment.displayName"] = "Ambiente"
@@ -262,6 +287,7 @@ class LSSMP: JavaPlugin() {
         nl["commands.no-args"] = "&cJe moet minimaal één speler opgeven!"
 
         en.addTranslation()
+        fr.addTranslation()
         it.addTranslation()
         nl.addTranslation()
 
