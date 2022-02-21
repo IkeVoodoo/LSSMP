@@ -29,4 +29,4 @@ Changelog Alpha 2.1.0
 - Added heart recipe auto fixer
 - Fixed a problem with changelogs
 
-For any bugs please report them [here](https://discord.gg/7hr8CxNEKk)
+For any bugs please report them [here](https://refinedtech.dev/discord)
