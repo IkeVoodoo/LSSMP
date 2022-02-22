@@ -23,10 +23,12 @@ Join the [Discord](https://refinedtech.dev/discord)
 
 Follow on [Twitter](https://refinedtech.dev/twitter)
 
-Changelog Alpha 2.1.0
+Changelog Alpha 2.2.0
 
-- Fixed heart recipe
-- Added heart recipe auto fixer
-- Fixed a problem with changelogs
+- Fixed health bug
+- Config option for eliminations
+- Changed storage format for eliminations
+- Tweaked config
+- Added auto downloader
 
 For any bugs please report them [here](https://refinedtech.dev/discord)
