@@ -23,12 +23,9 @@ Join the [Discord](https://refinedtech.dev/discord)
 
 Follow on [Twitter](https://refinedtech.dev/twitter)
 
-Changelog Alpha 2.2.0
+Changelog Alpha 2.2.1
 
-- Fixed health bug
-- Config option for eliminations
-- Changed storage format for eliminations
-- Tweaked config
-- Added auto downloader
+- Fixed version in pom.xml
+- Added a comment in config
 
 For any bugs please report them [here](https://refinedtech.dev/discord)
