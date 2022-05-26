@@ -1,5 +1,5 @@
 # LSSMP
-LifeSteal SMP Plugin recreation by IkeVoodoo
+LifeSteal SMP Plugin by IkeVoodoo (Powered by [SMPCore](https://github.com/IkeVoodoo/SMPCore))
 
 Now on aternos!
 
