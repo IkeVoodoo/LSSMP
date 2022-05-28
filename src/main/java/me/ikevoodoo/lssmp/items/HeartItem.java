@@ -32,7 +32,13 @@ public class HeartItem extends CustomItem {
     @Override
     public Pair<NamespacedKey, Recipe> createRecipe() {
         NamespacedKey key = makeKey("heart_recipe");
-        RecipeData data = getPlugin().getRecipeLoader().getRecipe(getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml"), "recipe", getItemStack(), key, getRecipeOptions());
+        RecipeData data = getPlugin().getRecipeLoader().getRecipe(
+                getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml"),
+                "recipe",
+                getItemStack(),
+                key,
+                getRecipeOptions()
+        );
         unlockOnObtain(data.materials());
         return new Pair<>(key, data.recipe());
     }

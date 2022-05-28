@@ -6,6 +6,7 @@ import me.ikevoodoo.smpcore.commands.arguments.parsers.ParserRegistry;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
+import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.utils.Pair;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -14,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapelessRecipe;
 
 public class ReviveBeacon extends CustomItem {
     public ReviveBeacon(SMPPlugin plugin) {
@@ -22,7 +22,7 @@ public class ReviveBeacon extends CustomItem {
         addKey("beacon")
                 .setDecreaseOnUse(true)
                 //.bindConfig("items.heart")
-                //.bindConfigOptions(getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml").getConfigurationSection("options"))
+                .bindConfigOptions(getPlugin().getConfigHandler().getYmlConfig("beaconRecipe.yml").getConfigurationSection("options"))
                 .reload();
     }
 
@@ -33,10 +33,15 @@ public class ReviveBeacon extends CustomItem {
 
     @Override
     public Pair<NamespacedKey, Recipe> createRecipe() {
-        ShapelessRecipe recipe = new ShapelessRecipe(makeKey("revive_beacon"), getItemStack());
-        recipe.addIngredient(Material.BEACON);
-        recipe.addIngredient(Material.GOLD_INGOT);
-        return new Pair<>(makeKey("revive_beacon"), recipe);
+        NamespacedKey key = makeKey("revive_beacon");
+        RecipeData data = getPlugin().getRecipeLoader().getRecipe(
+                getPlugin().getConfigHandler().getYmlConfig("beaconRecipe.yml"),
+                "recipe", getItemStack(),
+                key,
+                getRecipeOptions()
+        );
+        unlockOnObtain(data.materials());
+        return new Pair<>(key, data.recipe());
     }
 
     @Override
