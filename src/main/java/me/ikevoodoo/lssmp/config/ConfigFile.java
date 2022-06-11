@@ -24,6 +24,12 @@ public class ConfigFile {
             public static String broadcastMessage = "&c%player% has lost all of their hearts and has been banned.";
         }
 
+        public static class Items {
+            public static class Heart {
+                public static String displayName = "§c❤ §fExtra heart.";
+            }
+        }
+
         public static List<String> allowedWorlds = List.of("all");
 
         public static boolean isWorldAllowed(World world) {

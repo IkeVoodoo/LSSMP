@@ -23,26 +23,16 @@ public class PlayerPreDeathListener extends SMPListener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
-        if(!ConfigFile.Elimination.isWorldAllowed(world)) {
+        if(!ConfigFile.Elimination.isWorldAllowed(world))
             return;
-        }
 
-        if (!event.hasKiller() || !(event.getKiller() instanceof Player killer)) {
-            if(!ConfigFile.Elimination.environmentStealsHearts)
-                return;
-
-            if(!HealthUtils.decreaseIfOver(ConfigFile.Elimination.environmentHealthScale * 2, 0, player))
-                eliminate(player);
-
-            if(HealthUtils.get(player) <= 0)
-                eliminate(player);
-
+        if((!event.hasKiller() || !(event.getKiller() instanceof Player)) && !ConfigFile.Elimination.environmentStealsHearts)
             return;
-        }
 
-        HealthUtils.increaseIfUnder(ConfigFile.Elimination.healthScale * 2, ConfigFile.Elimination.getMax(), killer);
+        if(event.hasKiller() && event.getKiller() instanceof Player killer)
+            HealthUtils.increaseIfUnder(ConfigFile.Elimination.healthScale, ConfigFile.Elimination.getMax(), killer);
 
-        if(!HealthUtils.decreaseIfOver(ConfigFile.Elimination.healthScale * 2, 0, player))
+        if(!HealthUtils.decreaseIfOver(ConfigFile.Elimination.environmentHealthScale * 2, 0, player))
             eliminate(player);
 
         if(HealthUtils.get(player) <= 0)
