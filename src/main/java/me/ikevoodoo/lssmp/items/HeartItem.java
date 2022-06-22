@@ -1,13 +1,16 @@
 package me.ikevoodoo.lssmp.items;
 
-import me.ikevoodoo.lssmp.config.ConfigFile;
+import me.ikevoodoo.lssmp.config.ItemConfig;
+import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
+import me.ikevoodoo.smpcore.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.Pair;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -15,12 +18,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 public class HeartItem extends CustomItem {
+    private static final MessageBuilder NAME_BUILDER = new MessageBuilder().add("Heart Item", ChatColor.RED);
+
     public HeartItem(SMPPlugin plugin) {
-        super(plugin, "heart_item");
+        super(plugin, "heart_item", NAME_BUILDER.build());
         addKey("heart")
                 .setDecreaseOnUse(true)
                 .bindConfig("items.heart")
-                .bindConfigOptions(getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml").getConfigurationSection("options"))
+                .bindConfigOptions("heartRecipe.yml", "options")
                 .reload();
     }
 
@@ -31,27 +36,36 @@ public class HeartItem extends CustomItem {
 
     @Override
     public Pair<NamespacedKey, Recipe> createRecipe() {
-        NamespacedKey key = makeKey("heart_recipe");
-        RecipeData data = getPlugin().getRecipeLoader().getRecipe(
+        unlockOnObtain(getRecipeData().materials());
+        return new Pair<>(makeKey("heart_recipe"), getRecipeData().recipe());
+    }
+
+    @Override
+    public RecipeData createRecipeData() {
+        return getPlugin().getRecipeLoader().getRecipe(
                 getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml"),
                 "recipe",
                 getItemStack(),
-                key,
+                makeKey("heart_recipe"),
                 getRecipeOptions()
         );
-        unlockOnObtain(data.materials());
-        return new Pair<>(key, data.recipe());
     }
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
-        if(HealthUtils.increaseIfUnder(ConfigFile.Elimination.healthScale * 2, ConfigFile.Elimination.getMax(), player)) {
-            player.sendMessage("§a+" + ConfigFile.Elimination.healthScale + " §4❤");
-            player.setHealth(player.getHealth() + ConfigFile.Elimination.healthScale * 2);
-            return new ItemClickResult(ItemClickState.SUCCESS, true);
+        int removeAmount = 1;
+        if (player.isSneaking()) {
+            removeAmount = itemStack.getAmount();
         }
 
-        player.sendMessage("§cYou have reached the maximum amount of hearts!");
+        if(HealthUtils.increaseIfUnder(MainConfig.Elimination.healthScale * 2 * removeAmount, MainConfig.Elimination.getMax(), player)) {
+            player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s", "" + MainConfig.Elimination.healthScale * removeAmount));
+            HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * removeAmount);
+            itemStack.setAmount(itemStack.getAmount() - removeAmount);
+            return new ItemClickResult(ItemClickState.IGNORE, true);
+        }
+
+        player.sendMessage(ItemConfig.HeartItem.Messages.maxHearts);
         return new ItemClickResult(
                 ItemClickState.FAIL,
                 true

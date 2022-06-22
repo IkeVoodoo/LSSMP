@@ -1,6 +1,7 @@
 package me.ikevoodoo.lssmp.commands.reset;
 
-import me.ikevoodoo.lssmp.config.ConfigFile;
+import me.ikevoodoo.lssmp.config.CommandConfig;
+import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Arguments;
@@ -14,14 +15,14 @@ import java.util.List;
 
 public class ResetCommand extends SMPCommand {
     public ResetCommand(SMPPlugin plugin) {
-        super(plugin, "lsreset", "lssmp.reset");
+        super(plugin, CommandConfig.ResetCommand.name, CommandConfig.ResetCommand.perms);
         registerSubCommands(new ResetAllCommand(plugin));
     }
 
     @Override
     public boolean execute(CommandSender sender, Arguments args) {
         if(args.isEmpty()) {
-            sender.sendMessage("§cYou must specify at least one player!");
+            sender.sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
             return true;
         }
 
@@ -29,16 +30,18 @@ public class ResetCommand extends SMPCommand {
         for(OfflinePlayer offlinePlayer : players) {
             if(offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
-                HealthUtils.set(ConfigFile.Elimination.defaultHearts * 2, player);
+                if (player != null)
+                    HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player);
             } else {
                 getPlugin().getJoinActionHandler().runOnJoin(offlinePlayer.getUniqueId(), id -> {
                     Player player = Bukkit.getPlayer(id);
-                    HealthUtils.set(ConfigFile.Elimination.defaultHearts * 2, player);
+                    if (player != null)
+                        HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player);
                 });
             }
         }
 
-        sender.sendMessage("§aReset " + players.size() + " players!");
+        sender.sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", "" + players.size()));
         return true;
     }
 }

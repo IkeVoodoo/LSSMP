@@ -1,5 +1,6 @@
 package me.ikevoodoo.lssmp.commands.health;
 
+import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
@@ -11,18 +12,18 @@ import org.bukkit.entity.Player;
 
 public class HealthSetCommand extends SMPCommand {
     protected HealthSetCommand(SMPPlugin plugin) {
-        super(plugin, "set");
+        super(plugin, CommandConfig.HealthCommand.HealthSetCommand.name, CommandConfig.HealthCommand.HealthSetCommand.perms);
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
-                new Argument("health", true, Double.class, OptionalFor.NONE)
+                new Argument("hearts", true, Double.class, OptionalFor.NONE)
         );
     }
 
     @Override
     public boolean execute(CommandSender commandSender, Arguments arguments) {
-        double health = arguments.get("health", Double.class);
+        double hearts = arguments.get("hearts", Double.class);
         Player player = arguments.get("player", Player.class);
-        HealthUtils.set(health, player);
+        HealthUtils.set(hearts * 2, player);
         return true;
     }
 }

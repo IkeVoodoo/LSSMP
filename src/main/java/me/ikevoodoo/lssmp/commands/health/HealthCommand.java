@@ -1,5 +1,6 @@
 package me.ikevoodoo.lssmp.commands.health;
 
+import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Arguments;
@@ -7,7 +8,7 @@ import org.bukkit.command.CommandSender;
 
 public class HealthCommand extends SMPCommand {
     public HealthCommand(SMPPlugin plugin) {
-        super(plugin, "lshealth", "lssmp.health");
+        super(plugin, CommandConfig.HealthCommand.name, CommandConfig.HealthCommand.perms);
         registerSubCommands(
                 new HealthSetCommand(plugin),
                 new HealthAddCommand(plugin),

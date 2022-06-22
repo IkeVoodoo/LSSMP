@@ -1,6 +1,7 @@
 package me.ikevoodoo.lssmp.commands.reset;
 
-import me.ikevoodoo.lssmp.config.ConfigFile;
+import me.ikevoodoo.lssmp.config.CommandConfig;
+import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Arguments;
@@ -12,21 +13,21 @@ import org.bukkit.entity.Player;
 
 public class ResetAllCommand extends SMPCommand {
     protected ResetAllCommand(SMPPlugin plugin) {
-        super(plugin, "all", "lssmp.reset.all");
+        super(plugin, CommandConfig.ResetCommand.ResetAllCommand.name, CommandConfig.ResetCommand.ResetAllCommand.perms);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, Arguments arguments) {
-        Bukkit.getOnlinePlayers().forEach(player -> HealthUtils.set(ConfigFile.Elimination.defaultHearts * 2, player));
+        Bukkit.getOnlinePlayers().forEach(player -> HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player));
         for(OfflinePlayer player : Bukkit.getOfflinePlayers()) {
             getPlugin().getJoinActionHandler().runOnJoin(player.getUniqueId(), id -> {
                 Player plr = Bukkit.getPlayer(id);
                 if(plr != null) {
-                    HealthUtils.set(ConfigFile.Elimination.defaultHearts * 2, plr);
+                    HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, plr);
                 }
             });
         }
-        commandSender.sendMessage("§aAll players have been reset.");
+        commandSender.sendMessage(CommandConfig.ResetCommand.Messages.resetAllPlayers);
         return true;
     }
 }

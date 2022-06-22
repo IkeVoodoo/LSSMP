@@ -1,13 +1,13 @@
 package me.ikevoodoo.lssmp.listeners;
 
-import me.ikevoodoo.lssmp.config.ConfigFile;
+import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.PlayerPreDeathEvent;
+import me.ikevoodoo.smpcore.events.TotemCheckEvent;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,33 +23,35 @@ public class PlayerPreDeathListener extends SMPListener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
-        if(!ConfigFile.Elimination.isWorldAllowed(world))
+        if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
-        if((!event.hasKiller() || !(event.getKiller() instanceof Player)) && !ConfigFile.Elimination.environmentStealsHearts)
+        if(!MainConfig.Elimination.environmentStealsHearts && (event.hasKiller() || !(event.getKiller() instanceof Player)))
             return;
 
-        if(event.hasKiller() && event.getKiller() instanceof Player killer)
-            HealthUtils.increaseIfUnder(ConfigFile.Elimination.healthScale, ConfigFile.Elimination.getMax(), killer);
+        if(event.getKiller() instanceof Player killer)
+            HealthUtils.increaseIfUnder(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMax(), killer);
 
-        if(!HealthUtils.decreaseIfOver(ConfigFile.Elimination.environmentHealthScale * 2, 0, player))
+        if(!HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, 0, player))
             eliminate(player);
 
         if(HealthUtils.get(player) <= 0)
             eliminate(player);
     }
 
+    @EventHandler
+    public void on(TotemCheckEvent event) {
+
+    }
+
     private void eliminate(Player player) {
-        player.kickPlayer("§cYou have been eliminated!");
-        if(ConfigFile.Elimination.Bans.broadcastBan) {
-            Bukkit.broadcastMessage(
-                    ChatColor.translateAlternateColorCodes('&',
-                            ConfigFile.Elimination.Bans.banTime.replace("%player%", player.getDisplayName()))
-            );
+        player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
+        if(MainConfig.Elimination.Bans.broadcastBan) {
+            Bukkit.broadcastMessage(MainConfig.Elimination.Bans.banTime.replace("%player%", player.getDisplayName()));
         }
 
-        if(ConfigFile.Elimination.Bans.useBanTime) {
-            getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(ConfigFile.Elimination.Bans.banTime));
+        if(MainConfig.Elimination.Bans.useBanTime) {
+            getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
             return;
         }
 
