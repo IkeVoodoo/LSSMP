@@ -6,8 +6,8 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
-import me.ikevoodoo.smpcore.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.recipes.RecipeData;
+import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.Pair;
 import net.md_5.bungee.api.ChatColor;
@@ -58,7 +58,13 @@ public class HeartItem extends CustomItem {
             removeAmount = itemStack.getAmount();
         }
 
-        if(HealthUtils.increaseIfUnder(MainConfig.Elimination.healthScale * 2 * removeAmount, MainConfig.Elimination.getMax(), player)) {
+        while (removeAmount > 0) {
+            if(HealthUtils.increaseIfUnder(MainConfig.Elimination.healthScale * 2 * removeAmount, MainConfig.Elimination.getMax(), player))
+                break;
+            removeAmount--;
+        }
+
+        if(removeAmount > 0) {
             player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s", "" + MainConfig.Elimination.healthScale * removeAmount));
             HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * removeAmount);
             itemStack.setAmount(itemStack.getAmount() - removeAmount);

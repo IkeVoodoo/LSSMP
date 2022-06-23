@@ -19,6 +19,8 @@ public class MainConfig {
         public static boolean useMaxHealth = true;
         public static double defaultHearts = 10.0;
 
+        public static boolean totemWorksInInventory = false;
+
         public static class Bans {
             public static String banMessage = "§cYou have been eliminated!";
 
@@ -37,20 +39,6 @@ public class MainConfig {
 
         public static double getMax() {
             return (useMaxHealth ? maxHearts : 1024) * 2;
-        }
-    }
-
-    public static class Items {
-        public static class Heart {
-            public static String displayName = "§c❤ §fExtra heart.";
-            public static List<String> lore = List.of("Gives you an extra heart!");
-            public static int customModelData = 931;
-        }
-
-        public static class Beacon {
-            public static String displayName = "§fRevive Beacon.";
-            public static List<String> lore = List.of("Right click to revive!");
-            public static int customModelData = 932;
         }
     }
 

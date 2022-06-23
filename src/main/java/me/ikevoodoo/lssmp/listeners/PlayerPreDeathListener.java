@@ -8,6 +8,7 @@ import me.ikevoodoo.smpcore.listeners.SMPListener;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,7 +27,7 @@ public class PlayerPreDeathListener extends SMPListener {
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
-        if(!MainConfig.Elimination.environmentStealsHearts && (event.hasKiller() || !(event.getKiller() instanceof Player)))
+        if(!MainConfig.Elimination.environmentStealsHearts && (!event.hasKiller() || !(event.getKiller() instanceof Player)))
             return;
 
         if(event.getKiller() instanceof Player killer)
@@ -41,7 +42,9 @@ public class PlayerPreDeathListener extends SMPListener {
 
     @EventHandler
     public void on(TotemCheckEvent event) {
-
+        if (MainConfig.Elimination.totemWorksInInventory) {
+            event.setHasTotem(event.getInventory().contains(Material.TOTEM_OF_UNDYING));
+        }
     }
 
     private void eliminate(Player player) {

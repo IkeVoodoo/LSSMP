@@ -22,7 +22,7 @@ import java.util.List;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 2;
+    public static final int CURRENT_CONFIG_VERSION = 3;
 
     public static NamespacedKey LSSMP_MENU;
 
