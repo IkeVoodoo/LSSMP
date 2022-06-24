@@ -42,6 +42,20 @@ public class MainConfig {
         }
     }
 
+    public static class Items {
+        public static class Heart {
+            public static String displayName = "§c❤ §fExtra heart.";
+            public static List<String> lore = List.of("Gives you an extra heart!");
+            public static int customModelData = 931;
+        }
+
+        public static class Beacon {
+            public static String displayName = "§fRevive Beacon.";
+            public static List<String> lore = List.of("Right click to revive!");
+            public static int customModelData = 932;
+        }
+    }
+
     public static class Messages {
         public static class Errors {
             public static String requiresPlayer = "§cA player is required to perform this command!";
