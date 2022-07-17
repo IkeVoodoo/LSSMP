@@ -4,3 +4,6 @@ main: me.ikevoodoo.lssmp.LSSMP
 api-version: 1.17
 authors: [ IkeVoodoo ]
 description: Kill someone get a heart, die to someone and loose a heart, simple!
+
+softdepend:
+  - PlaceholderAPI

@@ -3,12 +3,11 @@ package me.ikevoodoo.lssmp.commands.reset;
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.commands.arguments.Arguments;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -20,13 +19,13 @@ public class ResetCommand extends SMPCommand {
     }
 
     @Override
-    public boolean execute(CommandSender sender, Arguments args) {
-        if(args.isEmpty()) {
-            sender.sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
+    public boolean execute(Context<?> context) {
+        if(context.args().isEmpty()) {
+            context.source().sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
             return true;
         }
 
-        List<OfflinePlayer> players = args.getAll(OfflinePlayer.class);
+        List<OfflinePlayer> players = context.args().getAll(OfflinePlayer.class);
         for(OfflinePlayer offlinePlayer : players) {
             if(offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
@@ -41,7 +40,7 @@ public class ResetCommand extends SMPCommand {
             }
         }
 
-        sender.sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", "" + players.size()));
+        context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", "" + players.size()));
         return true;
     }
 }

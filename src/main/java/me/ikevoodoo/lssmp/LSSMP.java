@@ -1,48 +1,80 @@
 package me.ikevoodoo.lssmp;
 
+import me.ikevoodoo.Printer;
+import me.ikevoodoo.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.menus.RecipeEditor;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.handlers.placeholders.PlaceholderHandler;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.menus.ItemData;
-import me.ikevoodoo.smpcore.menus.Menu;
 import me.ikevoodoo.smpcore.menus.PageData;
+import me.ikevoodoo.smpcore.menus.functional.FunctionalMenu;
 import me.ikevoodoo.smpcore.recipes.RecipeData;
+import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.ExceptionUtils;
+import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.ThreadUtils;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.List;
+import java.util.logging.Logger;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 3;
+    public static final int CURRENT_CONFIG_VERSION = 4;
 
-    public static NamespacedKey LSSMP_MENU;
+    private static Printer<Logger> LOGGER;
 
     @Override
     public void onPreload() {
+        UserError.setExceptionHandler();
+
         saveResource("heartRecipe.yml", false);
         saveResource("beaconRecipe.yml", false);
         new Metrics(this, 12177);
-
-        LSSMP_MENU = new NamespacedKey(this, "lssmp_menu");
     }
 
     @Override
     public void whenEnabled() {
+        LOGGER = new Printer<>(getLogger()) {
+            @Override
+            public void printf(String s, Object... objects) {
+                getOut().severe(String.format(s, objects));
+            }
+
+            @Override
+            public void printfln(String message, Object... args) {
+                this.printf(message, args);
+            }
+        };
+
+        RecipeEditor.createItems(this);
+
+        if (isInstalled("PlaceholderAPI")) {
+            PlaceholderHandler.create(this, "lssmp", "1.0.0")
+                    .persist()
+                    .onlineRequiresPlayer()
+                    .online("hearts", player -> String.valueOf(HealthUtils.get(player) / 2))
+                    .register();
+        }
+
         this.reload();
         if (!getConfig().contains("doNotTouch_configVersion") || MainConfig.doNotTouch_configVersion < CURRENT_CONFIG_VERSION) {
-            getLogger().severe("========== LSSMP ==========");
+            UserError.from("You're using an outdated version of the config!")
+                .addReason("The config version has changed")
+                .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
+                .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
+                .printAll(LOGGER, "LSSMP: ");
+            /*getLogger().severe("========== LSSMP ==========");
             getLogger().severe("You are using an outdated version of the config!");
             getLogger().severe("To fix this run /lsupgrade");
-            getLogger().severe("WARNING: RUNNING /lsupgrade WILL RESET ALL OF YOUR CONFIGS AND RESTART THE SERVER, PROCEED WITH CAUTION");
+            getLogger().severe("WARNING: RUNNING /lsupgrade WILL RESET ALL OF YOUR CONFIGS AND RESTART THE SERVER, PROCEED WITH CAUTION");*/
         }
     }
 
@@ -53,7 +85,8 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void onReload() {
-        createMenus();
+        //createMenus();
+        RecipeEditor.createMenus(this);
 
         if(MainConfig.autoConfigReload) {
             try {
@@ -92,51 +125,33 @@ public final class LSSMP extends SMPPlugin {
     }
 
     private void createMenus() {
-        Menu heart = new Menu(LSSMP_MENU);
-        List<CustomItem> items = getItems();
-        if (items.size() > 0) {
-            CustomItem first = items.get(0);
-            heart.page(PageData.of(9 * 5, first.getFriendlyName())).item(getData(first, false, true));
-            for (int i = 1; i < items.size() - 1; i++) {
-                CustomItem item = items.get(i);
-                heart.page(PageData.of(9 * 5, item.getFriendlyName())).item(getData(item, true, true));
-            }
-            CustomItem last = items.get(items.size() - 1);
-            if (!last.equals(first)) {
-                heart.page(PageData.of(9 * 5, last.getFriendlyName())).item(getData(last, true, false));
-            }
-        }
-        getMenuHandler().add(heart);
+        createMenu()
+                .id("lssmp_menu")
+                .each(getItems())
+                .filter(item -> item.getRecipeData() == null)
+                .withPriority(0, (menu, item) -> ((FunctionalMenu)menu).page(PageData.of(9 * 5, item.getFriendlyName()))
+                        .edit(page -> page.item(getData(item, false, true))))
+                .withPriority(-1, (menu, item) -> ((FunctionalMenu)menu).page(PageData.of(9 * 5, item.getFriendlyName()))
+                        .edit(page -> page.item(getData(item, true, false))))
+                .with((menu, item) -> ((FunctionalMenu)menu).page(PageData.of(9 * 5, item.getFriendlyName()))
+                        .edit(page -> page.item(getData(item, true, true))))
+                .<FunctionalMenu>execute()
+                .register();
     }
 
     private ItemData[] getData(CustomItem item, boolean hasPrev, boolean hasNext) {
         RecipeData data = item.getRecipeData();
         ItemData[] items = new ItemData[9 * 5];
-        for (int i = 0; i < items.length; i++) {
-            ItemStack stack = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-            ItemMeta meta = stack.getItemMeta();
-            if (meta != null)
-                meta.setDisplayName(" ");
-            stack.setItemMeta(meta);
-            items[i] = ItemData.of(i, stack);
-        }
+        ItemStack empty = getItem("empty").orElseThrow().getItemStack();
+        for (int i = 0; i < items.length; i++)
+            items[i] = ItemData.of(i, empty);
 
         if (hasNext) {
-            ItemStack stack = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-            ItemMeta meta = stack.getItemMeta();
-            if (meta != null)
-                meta.setDisplayName("§a§lNext");
-            stack.setItemMeta(meta);
-            items[9 * 5 - 1] = ItemData.of(9 * 5 - 1, stack);
+            items[9 * 5 - 1] = ItemData.of(9 * 5 - 1, getItem("next").orElseThrow().getItemStack());
         }
 
         if (hasPrev) {
-            ItemStack stack = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-            ItemMeta meta = stack.getItemMeta();
-            if (meta != null)
-                meta.setDisplayName("§a§lPrevious");
-            stack.setItemMeta(meta);
-            items[9 * 4] = ItemData.of(9 * 4, stack);
+            items[9 * 4] = ItemData.of(9 * 4, getItem("prev").orElseThrow().getItemStack());
         }
 
         for (int x = 0, width = data.materials().length / 3; x < width; x++) {
@@ -145,8 +160,104 @@ public final class LSSMP extends SMPPlugin {
             }
         }
 
-        items[24] = ItemData.of(24, item.getItemStack());
+        items[24] = ItemData.of(24, item.getCleanStack());
+
+        CustomItem custom = createItem()
+                .id("lssmp_item_settings_" + item.getId())
+                .friendlyName(MessageBuilder.messageOf("§c§lSettings"))
+                .name(() -> MessageBuilder.messageOf("§c§lSettings"))
+                .material(() -> Material.COMPARATOR)
+                .bind((player, stack) -> getMenuHandler().get("lssmp_settings_" + item.getId()).open(player))
+                .register();
+
+        createSettingsMenu(item, custom);
+
+        items[8] = ItemData.of(8, custom.getItemStack());
 
         return items;
+    }
+
+    private void createSettingsMenu(CustomItem item, CustomItem settingsItem) {
+        CustomItem recipeEditorItem = createItem()
+                .id("recipe_editor_" + item.getId())
+                .friendlyName(MessageBuilder.messageOf("&6&lRecipe Editor"))
+                .name(() -> MessageBuilder.messageOf("&6&lRecipe Editor"))
+                .material(() -> Material.CRAFTING_TABLE)
+                .bind((player, stack) -> getMenuHandler().get("lssmp_recipe_editor_" + item.getId()).open(player))
+                .register();
+
+        createMenu()
+                .id("lssmp_settings_" + item.getId())
+                .page(PageData.of(9 * 5, MessageBuilder.messageOf(settingsItem.getFriendlyName())))
+                .edit(page -> {
+                    page.fill(getItem("empty").orElseThrow().getItemStack());
+
+                    page.item(ItemData.of(
+                            20,
+                            recipeEditorItem.getItemStack()
+                    ));
+
+                    createItem()
+                            .id("toggle_" + item.getId())
+                            .friendlyName(MessageBuilder.messageOf("Toggle"))
+                            .name(() -> item.isEnabled() ? MessageBuilder.messageOf("§c§lDisable") : MessageBuilder.messageOf("§a§lEnable"))
+                            .material(() -> item.isEnabled() ? Material.RED_STAINED_GLASS_PANE : Material.GREEN_STAINED_GLASS_PANE)
+                            .lore(() -> MessageBuilder.builderOf("§6§lCurrently: ").add(
+                                    item.isEnabled() ? "Enabled" : "Disabled",
+                                    item.isEnabled() ? ChatColor.GREEN : ChatColor.RED
+                            ).build())
+                            .bind((player, stack) -> {
+                                item.setEnabled(!item.isEnabled());
+                                page.item(ItemData.of(24, getItem("toggle_" + item.getId()).orElseThrow().getItemStack()));
+                            })
+                            .register();
+
+                    createItem()
+                            .id("settings_" + item.getId() + "_back")
+                            .friendlyName(MessageBuilder.messageOf("Back"))
+                            .name(() -> MessageBuilder.messageOf("§c§lBack"))
+                            .material(() -> Material.RED_STAINED_GLASS_PANE)
+                            .bind((player, stack) -> getMenuHandler().get("lssmp_menu").openLast(player))
+                            .register();
+
+                    page.item(ItemData.of(9 * 4, getItem("settings_" + item.getId() + "_back").orElseThrow().getItemStack()));
+
+                    page.onOpen(player -> {
+                        System.out.println("Opened settings for " + player.getName());
+                        /*page.item(player, ItemData.of(
+                                24,
+                                getItem("toggle_" + item.getId()).orElseThrow().getItemStack()
+                        ));*/
+                    });
+                })
+                .done()
+                .register();
+
+        createMenu()
+                .id("lssmp_recipe_editor_" + item.getId())
+                .page(PageData.of(9 * 5, MessageBuilder.messageOf(recipeEditorItem.getFriendlyName())))
+                .edit(page -> {
+                    page.fill(getItem("empty").orElseThrow().getItemStack());
+
+                    RecipeData data = item.getRecipeData();
+
+                    for (int x = 0, width = data.materials().length / 3; x < width; x++) {
+                        for (int y = 0, height = data.materials().length / 3; y < height; y++) {
+                            page.item(ItemData.of((11 + x) + (9 * y), new ItemStack(data.materials()[x + y * width])));
+                        }
+                    }
+
+                    createItem()
+                            .id("confirm_recipe_editor_" + item.getId())
+                            .friendlyName(MessageBuilder.messageOf("Confirm"))
+                            .name(() -> MessageBuilder.messageOf("§a§lConfirm"))
+                            .material(() -> Material.LIME_STAINED_GLASS_PANE)
+                            .bind((player, stack) -> getMenuHandler().get("lssmp_settings_" + item.getId()).open(player))
+                            .register();
+
+                    page.item(ItemData.of(-1, getItem("confirm_recipe_editor_" + item.getId()).orElseThrow().getItemStack()));
+                })
+                .done()
+                .register();
     }
 }

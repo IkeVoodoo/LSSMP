@@ -11,8 +11,6 @@ import me.ikevoodoo.smpcore.items.ItemClickState;
 import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.Pair;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -21,10 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 public class ReviveBeacon extends CustomItem {
-    private static final MessageBuilder NAME_BUILDER = new MessageBuilder().add("Revive Beacon", ChatColor.RED);
-
     public ReviveBeacon(SMPPlugin plugin) {
-        super(plugin, "revive_beacon", NAME_BUILDER.build());
+        super(plugin, "revive_beacon", MessageBuilder.messageOf("§c§lRevive Beacon"));
         addKey("beacon")
                 .setDecreaseOnUse(true)
                 .bindConfig("items.beacon")
@@ -34,7 +30,7 @@ public class ReviveBeacon extends CustomItem {
 
     @Override
     public ItemStack createItem(Player player) {
-        return new ItemStack(Material.BEACON);
+        return new ItemStack(getRecipeOptions().mat());
     }
 
     @Override

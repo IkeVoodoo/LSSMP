@@ -50,7 +50,7 @@ public class PlayerPreDeathListener extends SMPListener {
     private void eliminate(Player player) {
         player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
         if(MainConfig.Elimination.Bans.broadcastBan) {
-            Bukkit.broadcastMessage(MainConfig.Elimination.Bans.banTime.replace("%player%", player.getDisplayName()));
+            Bukkit.broadcastMessage(MainConfig.Elimination.Bans.banMessage.replace("%player%", player.getDisplayName()));
         }
 
         if(MainConfig.Elimination.Bans.useBanTime) {

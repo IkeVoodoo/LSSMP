@@ -1,10 +1,9 @@
 package me.ikevoodoo.lssmp.listeners;
 
-import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.MenuEvent;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
-import org.bukkit.Material;
+import me.ikevoodoo.smpcore.menus.Menu;
 import org.bukkit.event.EventHandler;
 
 public class MenuEventListener extends SMPListener {
@@ -15,12 +14,10 @@ public class MenuEventListener extends SMPListener {
 
     @EventHandler
     public void on(MenuEvent event) {
-        if (!event.getMenu().is(LSSMP.LSSMP_MENU)) return;
+        Menu menu = event.getMenu();
 
-        if (event.getSlot() == 9 * 5 - 1 && event.getItem().getType() == Material.LIME_STAINED_GLASS_PANE)
-            event.getMenu().next(event.getPlayer());
-        else if (event.getSlot() == 9 * 4 && event.getItem().getType() == Material.LIME_STAINED_GLASS_PANE)
-            event.getMenu().previous(event.getPlayer());
+        if (!getPlugin().getMenuHandler().has(menu.id())) return;
+        if (menu.id().getKey().startsWith("lssmp_recipe_editor_")) return;
 
         event.setCancelled(true);
     }

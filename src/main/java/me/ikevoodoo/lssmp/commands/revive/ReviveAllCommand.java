@@ -2,9 +2,8 @@ package me.ikevoodoo.lssmp.commands.revive;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.commands.arguments.Arguments;
-import org.bukkit.command.CommandSender;
 
 public class ReviveAllCommand extends SMPCommand {
     protected ReviveAllCommand(SMPPlugin plugin) {
@@ -12,9 +11,9 @@ public class ReviveAllCommand extends SMPCommand {
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, Arguments arguments) {
+    public boolean execute(Context<?> context) {
         getPlugin().getEliminationHandler().reviveAll();
-        commandSender.sendMessage(CommandConfig.ReviveCommand.Messages.revivedAllPlayers);
+        context.source().sendMessage(CommandConfig.ReviveCommand.Messages.revivedAllPlayers);
         return true;
     }
 }

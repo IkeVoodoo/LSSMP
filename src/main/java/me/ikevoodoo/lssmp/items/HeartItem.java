@@ -10,7 +10,6 @@ import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.Pair;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -18,10 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 public class HeartItem extends CustomItem {
-    private static final MessageBuilder NAME_BUILDER = new MessageBuilder().add("Heart Item", ChatColor.RED);
-
     public HeartItem(SMPPlugin plugin) {
-        super(plugin, "heart_item", NAME_BUILDER.build());
+        super(plugin, "heart_item", MessageBuilder.messageOf("§c§lHeart Item"));
         addKey("heart")
                 .setDecreaseOnUse(true)
                 .bindConfig("items.heart")
@@ -66,7 +63,7 @@ public class HeartItem extends CustomItem {
 
         if(removeAmount > 0) {
             player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s", "" + MainConfig.Elimination.healthScale * removeAmount));
-            HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * removeAmount);
+            if (ItemConfig.HeartItem.claimingHeartHeals) HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * removeAmount);
             itemStack.setAmount(itemStack.getAmount() - removeAmount);
             return new ItemClickResult(ItemClickState.IGNORE, true);
         }

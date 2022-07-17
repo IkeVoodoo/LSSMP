@@ -3,18 +3,25 @@ package me.ikevoodoo.lssmp.commands.get;
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
-import me.ikevoodoo.smpcore.commands.arguments.Arguments;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
-import org.bukkit.command.CommandSender;
+import me.ikevoodoo.smpcore.items.CustomItem;
 import org.bukkit.entity.Player;
 
 public class GiveCommand extends SMPCommand {
     public GiveCommand(SMPPlugin plugin) {
         super(plugin, CommandConfig.GiveCommand.name, CommandConfig.GiveCommand.perms);
         setArgs(
-                new Argument("item", true, String.class, OptionalFor.NONE),
+                new Argument("item", true, String.class, OptionalFor.NONE,
+                        context -> getPlugin()
+                                .getItems()
+                                .stream()
+                                .filter(customItem -> customItem.getRecipeData() != null)
+                                .map(CustomItem::getId)
+                                .toList(),
+                        true),
                 new Argument("count", false, Integer.class, OptionalFor.ALL),
                 new Argument("player", false, Player.class, OptionalFor.PLAYER)
         );
@@ -22,20 +29,20 @@ public class GiveCommand extends SMPCommand {
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, Arguments arguments) {
-        getPlugin().getItem(arguments.get("item", String.class)).ifPresentOrElse(customItem -> {
-            Player target = arguments.get("player", Player.class, null);
+    public boolean execute(Context<?> context) {
+        getPlugin().getItem(context.args().get("item", String.class)).ifPresentOrElse(customItem -> {
+            Player target = context.args().get("player", Player.class, null);
             if (target == null) {
-                if (commandSender instanceof Player player) target = player;
+                if (context.source() instanceof Player player) target = player;
                 else {
-                    commandSender.sendMessage(MainConfig.Messages.Errors.requiresPlayer);
+                    context.source().sendMessage(MainConfig.Messages.Errors.requiresPlayer);
                     return;
                 }
             }
-            int count = arguments.get("count", Integer.class, 1);
+            int count = context.args().get("count", Integer.class, 1);
 
             target.getInventory().addItem(customItem.getItemStack(count));
-        }, () -> commandSender.sendMessage(String.format(MainConfig.Messages.Errors.requiresArgument, "item")));
+        }, () -> context.source().sendMessage(String.format(MainConfig.Messages.Errors.requiresArgument, "item")));
         return true;
     }
 

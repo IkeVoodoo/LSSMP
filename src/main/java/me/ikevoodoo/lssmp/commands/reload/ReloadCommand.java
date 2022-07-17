@@ -2,9 +2,8 @@ package me.ikevoodoo.lssmp.commands.reload;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.commands.arguments.Arguments;
-import org.bukkit.command.CommandSender;
 
 public class ReloadCommand extends SMPCommand {
     public ReloadCommand(SMPPlugin plugin) {
@@ -12,9 +11,9 @@ public class ReloadCommand extends SMPCommand {
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, Arguments arguments) {
+    public boolean execute(Context<?> context) {
         getPlugin().reload();
-        commandSender.sendMessage(CommandConfig.ReloadCommand.Messages.reload);
+        context.source().sendMessage(CommandConfig.ReloadCommand.Messages.reload);
         return true;
     }
 }

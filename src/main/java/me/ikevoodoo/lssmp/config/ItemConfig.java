@@ -10,6 +10,8 @@ public class ItemConfig {
             public static String increment = "§a+%s §4❤";
             public static String maxHearts = "§cYou have reached the maximum amount of hearts!";
         }
+
+        public static boolean claimingHeartHeals = true;
     }
 
     public static class ReviveBeacon {

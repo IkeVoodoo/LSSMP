@@ -2,12 +2,11 @@ package me.ikevoodoo.lssmp.commands.health;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
-import me.ikevoodoo.smpcore.commands.arguments.Arguments;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class HealthSubCommand extends SMPCommand {
@@ -20,9 +19,9 @@ public class HealthSubCommand extends SMPCommand {
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, Arguments arguments) {
-        double hearts = arguments.get("hearts", Double.class);
-        Player player =arguments.get("player", Player.class);
+    public boolean execute(Context<?> context) {
+        double hearts = context.args().get("hearts", Double.class);
+        Player player = context.args().get("player", Player.class);
         HealthUtils.decrease(hearts * 2, player);
         return true;
     }
