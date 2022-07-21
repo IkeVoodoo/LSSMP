@@ -6,7 +6,6 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
-import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.Pair;
@@ -23,6 +22,7 @@ public class HeartItem extends CustomItem {
                 .setDecreaseOnUse(true)
                 .bindConfig("items.heart")
                 .bindConfigOptions("heartRecipe.yml", "options")
+                .setRecipeFile("heartRecipe.yml")
                 .reload();
     }
 
@@ -34,9 +34,9 @@ public class HeartItem extends CustomItem {
     @Override
     public Pair<NamespacedKey, Recipe> createRecipe() {
         unlockOnObtain(getRecipeData().materials());
-        return new Pair<>(makeKey("heart_recipe"), getRecipeData().recipe());
+        return new Pair<>(makeKey("heart_item_recipe"), getRecipeData().recipe());
     }
-
+/*
     @Override
     public RecipeData createRecipeData() {
         return getPlugin().getRecipeLoader().getRecipe(
@@ -47,7 +47,7 @@ public class HeartItem extends CustomItem {
                 getRecipeOptions()
         );
     }
-
+*/
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
         int removeAmount = 1;

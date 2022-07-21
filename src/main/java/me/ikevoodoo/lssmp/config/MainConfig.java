@@ -17,6 +17,9 @@ public class MainConfig {
         public static double healthScale = 1.0;
         public static double maxHearts = 20.0;
         public static boolean useMaxHealth = true;
+
+        public static double minHearts = 5.0;
+        public static boolean useMinHealth = false;
         public static double defaultHearts = 10.0;
 
         public static boolean totemWorksInInventory = false;
@@ -28,7 +31,7 @@ public class MainConfig {
             public static String banTime = "00:00:00.0000";
 
             public static boolean broadcastBan = false;
-            public static String broadcastMessage = "&c%player% has lost all of their hearts and has been banned.";
+            public static String broadcastMessage = "§c%player% has lost all of their hearts and has been banned.";
         }
 
         public static List<String> allowedWorlds = List.of("all");
@@ -39,6 +42,10 @@ public class MainConfig {
 
         public static double getMax() {
             return (useMaxHealth ? maxHearts : 1024) * 2;
+        }
+
+        public static double getMin() {
+            return (useMinHealth ? minHearts : 0) * 2;
         }
     }
 

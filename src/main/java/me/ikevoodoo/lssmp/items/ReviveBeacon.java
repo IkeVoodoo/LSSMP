@@ -8,7 +8,6 @@ import me.ikevoodoo.smpcore.commands.arguments.parsers.ParserRegistry;
 import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
-import me.ikevoodoo.smpcore.recipes.RecipeData;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.Pair;
 import org.bukkit.NamespacedKey;
@@ -25,6 +24,7 @@ public class ReviveBeacon extends CustomItem {
                 .setDecreaseOnUse(true)
                 .bindConfig("items.beacon")
                 .bindConfigOptions("beaconRecipe.yml", "options")
+                .setRecipeFile("beaconRecipe.yml")
                 .reload();
     }
 
@@ -36,9 +36,9 @@ public class ReviveBeacon extends CustomItem {
     @Override
     public Pair<NamespacedKey, Recipe> createRecipe() {
         unlockOnObtain(getRecipeData().materials());
-        return new Pair<>(makeKey("revive_beacon"), getRecipeData().recipe());
+        return new Pair<>(makeKey("revive_beacon_recipe"), getRecipeData().recipe());
     }
-
+/*
     @Override
     public RecipeData createRecipeData() {
         return getPlugin().getRecipeLoader().getRecipe(
@@ -47,7 +47,7 @@ public class ReviveBeacon extends CustomItem {
                 makeKey("revive_beacon"),
                 getRecipeOptions()
         );
-    }
+    }*/
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {

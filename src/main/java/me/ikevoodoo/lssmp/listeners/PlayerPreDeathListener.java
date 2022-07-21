@@ -27,14 +27,12 @@ public class PlayerPreDeathListener extends SMPListener {
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
-        if(!MainConfig.Elimination.environmentStealsHearts && (!event.hasKiller() || !(event.getKiller() instanceof Player)))
+        if(event.hasKiller() && event.getKiller() instanceof Player killer)
+            HealthUtils.increaseIfUnder(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMax(), killer, true);
+        else if (!MainConfig.Elimination.environmentStealsHearts)
             return;
 
-        if(event.getKiller() instanceof Player killer)
-            HealthUtils.increaseIfUnder(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMax(), killer);
-
-        if(!HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, 0, player))
-            eliminate(player);
+        HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMin(), player, true);
 
         if(HealthUtils.get(player) <= 0)
             eliminate(player);
@@ -48,17 +46,19 @@ public class PlayerPreDeathListener extends SMPListener {
     }
 
     private void eliminate(Player player) {
-        player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
-        if(MainConfig.Elimination.Bans.broadcastBan) {
-            Bukkit.broadcastMessage(MainConfig.Elimination.Bans.banMessage.replace("%player%", player.getDisplayName()));
-        }
+        Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+            if (getPlugin().getEliminationHandler().isEliminated(player)) return;
 
-        if(MainConfig.Elimination.Bans.useBanTime) {
-            getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
-            return;
-        }
+            if(MainConfig.Elimination.Bans.broadcastBan) {
+                Bukkit.broadcastMessage(MainConfig.Elimination.Bans.broadcastMessage.replace("%player%", player.getDisplayName()));
+            }
 
-        getPlugin().getEliminationHandler().eliminate(player);
+            if(MainConfig.Elimination.Bans.useBanTime)
+                getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
+            else getPlugin().getEliminationHandler().eliminate(player);
+
+            player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
+        }, 1);
     }
 
 }
