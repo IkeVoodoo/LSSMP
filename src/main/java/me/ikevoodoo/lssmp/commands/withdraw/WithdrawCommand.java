@@ -22,7 +22,7 @@ public class WithdrawCommand extends SMPCommand {
     @Override
     public boolean execute(Context<?> context) {
         Player player = context.source(Player.class);
-        int amount = context.args().get("amount", Integer.class, 1);
+        int amount = Math.abs(context.args().get("amount", Integer.class, 1));
         if(HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2 * amount, 0, player))
             player.getInventory().addItem(getPlugin(LSSMP.class).getItem("heart_item").orElseThrow()
                     .getItemStack(amount));

@@ -36,18 +36,7 @@ public class HeartItem extends CustomItem {
         unlockOnObtain(getRecipeData().materials());
         return new Pair<>(makeKey("heart_item_recipe"), getRecipeData().recipe());
     }
-/*
-    @Override
-    public RecipeData createRecipeData() {
-        return getPlugin().getRecipeLoader().getRecipe(
-                getPlugin().getConfigHandler().getYmlConfig("heartRecipe.yml"),
-                "recipe",
-                getItemStack(),
-                makeKey("heart_recipe"),
-                getRecipeOptions()
-        );
-    }
-*/
+
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
         int removeAmount = 1;
