@@ -8,7 +8,10 @@ import me.ikevoodoo.smpcore.menus.PageData;
 import me.ikevoodoo.smpcore.menus.functional.FunctionalMenu;
 import me.ikevoodoo.smpcore.menus.functional.FunctionalPage;
 import me.ikevoodoo.smpcore.recipes.RecipeData;
+import me.ikevoodoo.smpcore.recipes.RecipeReplacement;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
+import me.ikevoodoo.smpcore.utils.PDCUtils;
+import me.ikevoodoo.smpcore.utils.Pair;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,40 +19,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class RecipeEditor {
 
     private static final int HAS_PREV = 1;
     private static final int HAS_NEXT = 2;
-
-    public static void createItems(SMPPlugin plugin) {
-        plugin.createItem()
-                .id("empty")
-                .friendlyName(MessageBuilder.messageOf("Empty"))
-                .name(() -> MessageBuilder.messageOf(" "))
-                .material(() -> Material.GRAY_STAINED_GLASS_PANE)
-                .register();
-
-        plugin.createItem()
-                .id("next")
-                .friendlyName(MessageBuilder.messageOf("Next"))
-                .name(() -> MessageBuilder.messageOf("§a§lNext"))
-                .material(() -> Material.LIME_STAINED_GLASS_PANE)
-                .bind((player, stack) -> plugin.getMenuHandler().get(player).next(player))
-                .register();
-
-        plugin.createItem()
-                .id("prev")
-                .friendlyName(MessageBuilder.messageOf("Prev"))
-                .name(() -> MessageBuilder.messageOf("§a§lPrevious"))
-                .material(() -> Material.LIME_STAINED_GLASS_PANE)
-                .bind((player, stack) -> plugin.getMenuHandler().get(player).previous(player))
-                .register();
-    }
 
     public static void createMenus(SMPPlugin plugin) {
         plugin.createMenu()
@@ -177,6 +154,7 @@ public class RecipeEditor {
                             .material(() -> Material.LIME_STAINED_GLASS_PANE)
                             .bind((player, stack) -> {
                                 ItemStack[] stacks = getStacks(new ItemStack[9], page, player, 1);
+                                RecipeReplacement[] replacements = getReplacements(plugin, stacks);
                                 Material[] mats = Arrays.stream(stacks).map(ItemStack::getType).toArray(Material[]::new);
                                 RecipeChoice[] choices = Arrays.stream(stacks).map(RecipeChoice.ExactChoice::new).toArray(RecipeChoice[]::new);
                                 Recipe recipe = item.getRecipeData().recipe();
@@ -195,7 +173,7 @@ public class RecipeEditor {
                                     }
                                 }
                                 if (toWrite != null)
-                                    plugin.getRecipeLoader().writeRecipe(item.getRecipeFile(), new RecipeData(toWrite, mats, choices));
+                                    plugin.getRecipeLoader().writeRecipe(item.getRecipeFile(), new RecipeData(toWrite, mats, choices), replacements);
                                 plugin.reload();
                                 plugin.getMenuHandler().get("lssmp_recipe_settings_" + item.getId()).open(player);
                             })
@@ -234,13 +212,29 @@ public class RecipeEditor {
     private static ItemStack[] getStacks(ItemStack[] stacks, MenuPage page, Player player, int offsetX) {
         for (int x = 0, width = stacks.length / 3; x < width; x++) {
             for (int y = 0, height = stacks.length / 3; y < height; y++) {
-                stacks[x + y * width] = page.item(
-                        player,
-                        (11 + x + offsetX) + (9 * y)).orElseGet(() -> new ItemStack(Material.AIR)
-                );
+                stacks[x + y * width] = page.item(player, (11 + x + offsetX) + (9 * y)).orElseGet(() -> new ItemStack(Material.AIR));
             }
         }
         return stacks;
+    }
+
+    private static RecipeReplacement[] getReplacements(SMPPlugin plugin, ItemStack... stacks) {
+        List<RecipeReplacement> replacements = new ArrayList<>();
+        int i = 1;
+        for (ItemStack stack : stacks) {
+            if(stack != null && !stack.getType().isAir()) {
+                ItemMeta meta = stack.getItemMeta();
+                if (meta == null) continue;
+                PersistentDataContainer pdc = meta.getPersistentDataContainer();
+                Optional<Pair<String, Byte>> optional = PDCUtils.get(pdc, PersistentDataType.BYTE);
+                int finalI = i;
+                optional.ifPresent(pair ->
+                        plugin.getItem(pair.getFirst()).ifPresent(item ->
+                                replacements.add(RecipeReplacement.of(finalI, pair.getFirst()))));
+            }
+            i++;
+        }
+        return replacements.toArray(new RecipeReplacement[0]);
     }
 
 }

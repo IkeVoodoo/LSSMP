@@ -1,6 +1,7 @@
 package me.ikevoodoo.lssmp.listeners;
 
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.utils.Util;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.PlayerPreDeathEvent;
 import me.ikevoodoo.smpcore.events.TotemCheckEvent;
@@ -27,10 +28,38 @@ public class PlayerPreDeathListener extends SMPListener {
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
-        if(event.hasKiller() && event.getKiller() instanceof Player killer)
-            HealthUtils.increaseIfUnder(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMax(), killer, true);
-        else if (!MainConfig.Elimination.environmentStealsHearts)
+        if(event.hasKiller() && event.getKiller() instanceof Player killer) {
+            Util.increaseOrDrop(
+                    MainConfig.Elimination.healthScale * 2,
+                    MainConfig.Elimination.getMax(),
+                    killer,
+                    player.getEyeLocation()
+            );
+
+            HealthUtils.decreaseIfOver(
+                    MainConfig.Elimination.healthScale * 2,
+                    MainConfig.Elimination.getMin(),
+                    player,
+                    true
+            );
+
+            if(HealthUtils.get(player) <= 0)
+                eliminate(player);
             return;
+        }
+
+        if (!MainConfig.Elimination.environmentStealsHearts)
+            return;
+
+        if(MainConfig.Elimination.alwaysDropHearts) {
+            Util.drop(
+                    getPlugin()
+                            .getItem("heart_item")
+                            .orElseThrow()
+                            .getItemStack(),
+                    player.getEyeLocation()
+            );
+        }
 
         HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMin(), player, true);
 
@@ -53,8 +82,11 @@ public class PlayerPreDeathListener extends SMPListener {
                 Bukkit.broadcastMessage(MainConfig.Elimination.Bans.broadcastMessage.replace("%player%", player.getDisplayName()));
             }
 
-            if(MainConfig.Elimination.Bans.useBanTime)
+            if(MainConfig.Elimination.Bans.useBanTime) {
+                System.out.println("Banning " + player.getName() + " for " + MainConfig.Elimination.Bans.banTime + " time");
+                System.out.println(StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
                 getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
+            }
             else getPlugin().getEliminationHandler().eliminate(player);
 
             player.kickPlayer(MainConfig.Elimination.Bans.banMessage);

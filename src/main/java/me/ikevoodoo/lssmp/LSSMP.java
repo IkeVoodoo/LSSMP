@@ -1,30 +1,41 @@
 package me.ikevoodoo.lssmp;
 
+import dev.refinedtech.configlang.scope.Scope;
 import me.ikevoodoo.Printer;
 import me.ikevoodoo.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.language.Language;
+import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.menus.RecipeEditor;
+import me.ikevoodoo.lssmp.menus.ReviveBeaconUI;
+import me.ikevoodoo.lssmp.menus.SharedItems;
 import me.ikevoodoo.smpcore.SMPPlugin;
+import me.ikevoodoo.smpcore.callbacks.eliminations.EliminationType;
 import me.ikevoodoo.smpcore.handlers.placeholders.PlaceholderHandler;
-import me.ikevoodoo.smpcore.utils.ExceptionUtils;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
-import me.ikevoodoo.smpcore.utils.ThreadUtils;
+import me.ikevoodoo.smpcore.utils.*;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public final class LSSMP extends SMPPlugin {
 
     public static final int CURRENT_CONFIG_VERSION = 5;
+    private static Lazy<Language> LANGUAGE;
 
     private static Printer<Logger> LOGGER;
 
     @Override
     public void onPreload() {
         UserError.setExceptionHandler();
+
+        LANGUAGE = new Lazy<>(() -> new Language(this));
 
         saveResource("heartRecipe.yml", false);
         saveResource("beaconRecipe.yml", false);
@@ -45,15 +56,79 @@ public final class LSSMP extends SMPPlugin {
             }
         };
 
-        RecipeEditor.createItems(this);
+        UserError.from("Debug:")
+                        .addReason(
+                                getEliminationHandler()
+                                        .getEliminatedPlayers()
+                                        .entrySet()
+                                        .stream()
+                                        .map(entry -> entry.getKey().toString() + ": " + entry.getValue())
+                                        .reduce((a, b) -> a + "\n" + b)
+                                        .orElse("No players eliminated")
+                        )
+                                .printAll("LSSMP | ");
+
+        SharedItems.register(this);
+        ReviveBeaconUI.createItems(this);
 
         if (isInstalled("PlaceholderAPI")) {
             PlaceholderHandler.create(this, "lssmp", "1.0.0")
                     .persist()
                     .onlineRequiresPlayer()
-                    .online("hearts", player -> String.valueOf(HealthUtils.get(player) / 2))
+                    .online("raw_hearts", player -> String.valueOf(HealthUtils.get(player) / 2))
+                    .online("hearts", player -> StringUtils.removeTrailingZeros(String.valueOf(HealthUtils.get(player) / 2)))
                     .register();
         }
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            List<UUID> toRevive = new ArrayList<>();
+            getEliminationHandler().getEliminatedPlayers().forEach((uuid, time) -> {
+                if(time.longValue() - System.currentTimeMillis() > 0) return;
+                toRevive.add(uuid);
+            });
+            toRevive.forEach(uuid -> getEliminationHandler().reviveOffline(Bukkit.getOfflinePlayer(uuid)));
+        }, 0, 20 * 5);
+
+        getEliminationHandler().onCacheUpdated((uuid, number) -> {
+            ReviveBeaconUI.createItems(this);
+            ReviveBeaconUI.createMenus(this);
+        });
+
+        try {
+            getResourcePackHandler().addResourcePack("pack", "https://www.dropbox.com/s/wkvjcmz296je6v3/HeartPack.zip?dl=1");
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        getEliminationHandler().listen(EliminationType.ELIMINATED, (eliminationType, player) -> {
+            Scope scope = new Scope("elimination");
+            scope.variables().set("player", new Object() {
+                public final String name = player.getName();
+                public final String displayName = player.getDisplayName();
+                public final UUID uuid = player.getUniqueId();
+            });
+
+            LSSMP.getLanguage().execute(YamlConfigSection.of(
+                    getConfigHandler()
+                    .getYmlConfig("events.yml")
+                    .getConfigurationSection("events")
+                    .getConfigurationSection("eliminated")), scope);
+        });
+
+        getEliminationHandler().listen(EliminationType.REVIVED, ((eliminationType, player) -> {
+            Scope scope = new Scope("revived");
+            scope.variables().set("player", new Object() {
+                public final String name = player.getName();
+                public final String displayName = player.getDisplayName();
+                public final UUID uuid = player.getUniqueId();
+            });
+
+            LSSMP.getLanguage().execute(YamlConfigSection.of(
+                    getConfigHandler()
+                    .getYmlConfig("events.yml")
+                    .getConfigurationSection("events")
+                    .getConfigurationSection("revived")), scope);
+        }));
 
         this.reload();
         if (!getConfig().contains("doNotTouch_configVersion") || MainConfig.doNotTouch_configVersion < CURRENT_CONFIG_VERSION) {
@@ -78,6 +153,7 @@ public final class LSSMP extends SMPPlugin {
     public void onReload() {
         //createMenus();
         RecipeEditor.createMenus(this);
+        ReviveBeaconUI.createMenus(this);
 
         if(MainConfig.autoConfigReload) {
             try {
@@ -113,5 +189,9 @@ public final class LSSMP extends SMPPlugin {
         }
 
         ThreadUtils.stop(0xD00D);
+    }
+
+    public static Language getLanguage() {
+        return LANGUAGE.get();
     }
 }

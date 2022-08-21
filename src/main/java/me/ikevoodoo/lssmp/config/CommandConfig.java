@@ -115,7 +115,7 @@ public class CommandConfig {
         public static String perms = "lssmp.withdraw";
 
         public static class Messages {
-            public static String withdraw = "§6You have withdrawn a heart!";
+            public static String withdraw = "§6You have withdrawn %amount% heart(s)!";
         }
     }
 

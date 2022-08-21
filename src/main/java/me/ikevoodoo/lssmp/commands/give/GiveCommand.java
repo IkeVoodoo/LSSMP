@@ -1,4 +1,4 @@
-package me.ikevoodoo.lssmp.commands.get;
+package me.ikevoodoo.lssmp.commands.give;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;

@@ -12,6 +12,7 @@ import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.Pair;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
@@ -53,6 +54,12 @@ public class ReviveBeacon extends CustomItem {
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
         if(getPlugin().getChatInputHandler().hasListener(player)) {
             return new ItemClickResult(ItemClickState.FAIL, true);
+        }
+
+        if (true) {
+            player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, .5f, 2);
+            getPlugin().getMenuHandler().get("lssmp_revive_beacon_menu").open(player);
+            return new ItemClickResult(ItemClickState.IGNORE, true);
         }
 
         getPlugin().getChatInputHandler().onCancellableInput(player, new ChatTransactionListener() {

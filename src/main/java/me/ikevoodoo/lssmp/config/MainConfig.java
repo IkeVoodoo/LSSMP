@@ -24,6 +24,8 @@ public class MainConfig {
 
         public static boolean totemWorksInInventory = false;
 
+        public static boolean alwaysDropHearts = false;
+
         public static class Bans {
             public static String banMessage = "§cYou have been eliminated!";
 

@@ -1,0 +1,21 @@
+killed:
+  if:
+    condition:
+      operation:
+        left: "%killed_uuid%"
+        operator: "=="
+        right: "%killer_uuid%"
+    then:
+      execute:
+        command: "say %killed_display_name% killed themselves!"
+        as: "console"
+
+eliminated:
+  execute:
+    command: "say %killed_display_name% was eliminated!"
+    as: "console"
+
+revived:
+  execute:
+      command: "lsreset %killed_uuid%"
+      as: "console"

@@ -22,8 +22,14 @@ public class WithdrawCommand extends SMPCommand {
     @Override
     public boolean execute(Context<?> context) {
         Player player = context.source(Player.class);
-        int amount = Math.abs(context.args().get("amount", Integer.class, 1));
-        if(HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2 * amount, 0, player))
+        int amount = (int) Math.ceil(Math.abs(context.args().get("amount", Integer.class, 1)));
+        HealthUtils.SetResult result = HealthUtils.decreaseIfOver(
+                MainConfig.Elimination.environmentHealthScale * 2 * amount,
+                0,
+                player
+        );
+
+        if(result.isWithin() || result.hasUsedDefault())
             player.getInventory().addItem(getPlugin(LSSMP.class).getItem("heart_item").orElseThrow()
                     .getItemStack(amount));
         else {
@@ -31,7 +37,7 @@ public class WithdrawCommand extends SMPCommand {
             player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
             return true;
         }
-        player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdraw);
+        player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdraw.replace("%amount%", amount + ""));
         return true;
     }
 }
