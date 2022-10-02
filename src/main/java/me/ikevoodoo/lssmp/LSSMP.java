@@ -1,8 +1,8 @@
 package me.ikevoodoo.lssmp;
 
 import dev.refinedtech.configlang.scope.Scope;
-import me.ikevoodoo.Printer;
-import me.ikevoodoo.UserError;
+import me.ikevoodoo.juerr.Printer;
+import me.ikevoodoo.juerr.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.lssmp.language.Language;
