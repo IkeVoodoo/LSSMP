@@ -28,7 +28,7 @@ public class PlayerPreDeathListener extends SMPListener {
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
-        if(event.hasKiller() && event.getKiller() instanceof Player killer) {
+        if(event.hasKiller() && event.getKiller() instanceof Player killer && (!MainConfig.Elimination.useMinHealth || HealthUtils.get(player) > MainConfig.Elimination.getMin())) {
             Util.increaseOrDrop(
                     MainConfig.Elimination.healthScale * 2,
                     MainConfig.Elimination.getMax(),
