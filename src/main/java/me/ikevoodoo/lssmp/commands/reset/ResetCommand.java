@@ -30,17 +30,17 @@ public class ResetCommand extends SMPCommand {
             if(offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
                 if (player != null)
-                    HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player);
+                    HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, player, getPlugin(), MainConfig.Elimination::isWorldAllowed);
             } else {
                 getPlugin().getJoinActionHandler().runOnJoin(offlinePlayer.getUniqueId(), id -> {
                     Player player = Bukkit.getPlayer(id);
                     if (player != null)
-                        HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player);
+                        HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, player, getPlugin(), MainConfig.Elimination::isWorldAllowed);
                 });
             }
         }
 
-        context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", "" + players.size()));
+        context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", String.valueOf(players.size())));
         return true;
     }
 }

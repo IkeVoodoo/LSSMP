@@ -73,7 +73,7 @@ public class ReviveBeacon extends CustomItem {
                         return false;
                     }
                     getPlugin().getEliminationHandler().reviveOffline(offlinePlayer);
-                    player.sendMessage(ItemConfig.ReviveBeacon.Messages.revivedPlayer.replace("%s", "" + offlinePlayer.getName()));
+                    player.sendMessage(ItemConfig.ReviveBeacon.Messages.revivedPlayer.replace("%s", String.valueOf(offlinePlayer.getName())));
                     return true;
                 }
 

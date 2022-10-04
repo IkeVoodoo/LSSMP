@@ -10,11 +10,13 @@ public class CommandConfig {
         public static String perms = "lssmp.eliminate";
 
         public static class EliminateAllCommand {
+
             public static String name = "all";
             public static String perms = "lssmp.eliminate.all";
         }
 
         public static class Messages {
+
             public static String eliminatedAllPlayers = "§cEliminated all players!";
             public static String eliminatedPlayers = "§cEliminated %s players!";
         }
@@ -116,6 +118,8 @@ public class CommandConfig {
 
         public static class Messages {
             public static String withdraw = "§6You have withdrawn %amount% heart(s)!";
+            public static String withdrawnTooMuch = "§cWithdraw count is too high! Lower it to at least %max%!";
+            public static String notEnoughSpace = "§cYou do not have enough space to fit %amount% heart(s) in your inventory!";
         }
     }
 

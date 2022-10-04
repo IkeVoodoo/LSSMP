@@ -27,14 +27,15 @@ public class ReviveCommand extends SMPCommand {
         for (OfflinePlayer offlinePlayer : players) {
             if(offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
-                if (player != null)
+                if (player != null) {
                     getPlugin().getEliminationHandler().revive(player);
+                }
             } else {
                 getPlugin().getEliminationHandler().reviveOffline(offlinePlayer);
             }
         }
 
-        context.source().sendMessage(CommandConfig.ReviveCommand.Messages.revivedPlayers.replace("%s", "" + players.size()));
+        context.source().sendMessage(CommandConfig.ReviveCommand.Messages.revivedPlayers.replace("%s", String.valueOf(players.size())));
         return true;
     }
 }

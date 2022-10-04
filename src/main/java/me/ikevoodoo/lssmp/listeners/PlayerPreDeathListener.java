@@ -25,6 +25,7 @@ public class PlayerPreDeathListener extends SMPListener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
+
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
@@ -33,14 +34,16 @@ public class PlayerPreDeathListener extends SMPListener {
                     MainConfig.Elimination.healthScale * 2,
                     MainConfig.Elimination.getMax(),
                     killer,
-                    player.getEyeLocation()
+                    player.getEyeLocation(),
+                getPlugin()
             );
 
             HealthUtils.decreaseIfOver(
                     MainConfig.Elimination.healthScale * 2,
                     MainConfig.Elimination.getMin(),
                     player,
-                    true
+                    true,
+                getPlugin()
             );
 
             if(HealthUtils.get(player) <= 0)
@@ -61,7 +64,7 @@ public class PlayerPreDeathListener extends SMPListener {
             );
         }
 
-        HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMin(), player, true);
+        HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMin(), player, true, getPlugin());
 
         if(HealthUtils.get(player) <= 0)
             eliminate(player);
@@ -83,8 +86,6 @@ public class PlayerPreDeathListener extends SMPListener {
             }
 
             if(MainConfig.Elimination.Bans.useBanTime) {
-                System.out.println("Banning " + player.getName() + " for " + MainConfig.Elimination.Bans.banTime + " time");
-                System.out.println(StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
                 getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
             }
             else getPlugin().getEliminationHandler().eliminate(player);

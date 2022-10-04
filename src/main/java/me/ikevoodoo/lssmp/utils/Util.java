@@ -17,7 +17,7 @@ public class Util {
 
     }
 
-    public static void increaseOrDrop(double amount, double max, LivingEntity entity, Location dropAt) {
+    public static void increaseOrDrop(double amount, double max, LivingEntity entity, Location dropAt, SMPPlugin plugin) {
         if (MainConfig.Elimination.alwaysDropHearts) {
             drop(PLUGIN
                     .getItem("heart_item")
@@ -31,7 +31,8 @@ public class Util {
                         amount,
                         max,
                         entity,
-                        true
+                        true,
+                    plugin
                 );
 
         if (result.isOutOfBounds()) {

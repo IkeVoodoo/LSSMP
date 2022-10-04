@@ -22,9 +22,14 @@ public class MainConfig {
         public static boolean useMinHealth = false;
         public static double defaultHearts = 10.0;
 
+        public static boolean useReviveHearts = true;
+        public static double reviveHearts = 10.0;
+
         public static boolean totemWorksInInventory = false;
 
         public static boolean alwaysDropHearts = false;
+
+        public static boolean fullInventoryHeartDrop = true;
 
         public static class Bans {
             public static String banMessage = "§cYou have been eliminated!";

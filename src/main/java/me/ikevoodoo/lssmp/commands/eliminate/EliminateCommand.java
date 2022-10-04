@@ -28,7 +28,7 @@ public class EliminateCommand extends SMPCommand {
             player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
         }
 
-        context.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedPlayers.replace("%s", "" + players.size()));
+        context.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedPlayers.replace("%s", String.valueOf(players.size())));
         return true;
     }
 

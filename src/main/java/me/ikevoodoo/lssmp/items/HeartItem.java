@@ -46,20 +46,24 @@ public class HeartItem extends CustomItem {
             removeAmount = itemStack.getAmount();
         }
 
+        int total = removeAmount;
+
         while (removeAmount > 0) {
             HealthUtils.SetResult result = HealthUtils.increaseIfUnder(
                     MainConfig.Elimination.healthScale * 2 * removeAmount,
                     MainConfig.Elimination.getMax(),
-                    player
+                    player,
+                getPlugin()
             );
             if(!result.isOutOfBounds())
                 break;
             removeAmount--;
         }
 
+
         if(removeAmount > 0) {
-            player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s", "" + MainConfig.Elimination.healthScale * removeAmount));
-            if (ItemConfig.HeartItem.claimingHeartHeals) HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * removeAmount);
+            player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s",  String.valueOf(MainConfig.Elimination.healthScale * removeAmount)));
+            if (ItemConfig.HeartItem.claimingHeartHeals) HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * total);
             itemStack.setAmount(itemStack.getAmount() - removeAmount);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.BLOCKS, 1, 1.5f);
             return new ItemClickResult(ItemClickState.IGNORE, true);

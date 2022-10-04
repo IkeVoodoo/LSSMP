@@ -17,12 +17,12 @@ public class ResetAllCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
-        Bukkit.getOnlinePlayers().forEach(player -> HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player));
+        Bukkit.getOnlinePlayers().forEach(player -> HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player, getPlugin()));
         for(OfflinePlayer player : Bukkit.getOfflinePlayers()) {
             getPlugin().getJoinActionHandler().runOnJoin(player.getUniqueId(), id -> {
                 Player plr = Bukkit.getPlayer(id);
                 if(plr != null) {
-                    HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, plr);
+                    HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, plr, getPlugin(), MainConfig.Elimination::isWorldAllowed);
                 }
             });
         }

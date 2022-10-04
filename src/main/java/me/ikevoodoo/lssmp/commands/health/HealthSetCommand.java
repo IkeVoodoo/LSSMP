@@ -22,7 +22,7 @@ public class HealthSetCommand extends SMPCommand {
     public boolean execute(Context<?> context) {
         double hearts = context.args().get("hearts", Double.class);
         Player player = context.args().get("player", Player.class);
-        HealthUtils.set(hearts * 2, player);
+        HealthUtils.set(hearts * 2, player, getPlugin());
         return true;
     }
 }

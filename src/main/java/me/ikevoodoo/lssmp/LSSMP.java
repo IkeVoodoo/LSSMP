@@ -5,6 +5,7 @@ import me.ikevoodoo.Printer;
 import me.ikevoodoo.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.config.ResourepackConfig;
 import me.ikevoodoo.lssmp.language.Language;
 import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.menus.RecipeEditor;
@@ -18,7 +19,6 @@ import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,18 +56,6 @@ public final class LSSMP extends SMPPlugin {
             }
         };
 
-        UserError.from("Debug:")
-                        .addReason(
-                                getEliminationHandler()
-                                        .getEliminatedPlayers()
-                                        .entrySet()
-                                        .stream()
-                                        .map(entry -> entry.getKey().toString() + ": " + entry.getValue())
-                                        .reduce((a, b) -> a + "\n" + b)
-                                        .orElse("No players eliminated")
-                        )
-                                .printAll("LSSMP | ");
-
         SharedItems.register(this);
         ReviveBeaconUI.createItems(this);
 
@@ -94,11 +82,7 @@ public final class LSSMP extends SMPPlugin {
             ReviveBeaconUI.createMenus(this);
         });
 
-        try {
-            getResourcePackHandler().addResourcePack("pack", "https://www.dropbox.com/s/wkvjcmz296je6v3/HeartPack.zip?dl=1");
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        getResourcePackHandler().addResourcePack("pack", ResourepackConfig.getUrl());
 
         getEliminationHandler().listen(EliminationType.ELIMINATED, (eliminationType, player) -> {
             Scope scope = new Scope("elimination");
@@ -116,6 +100,10 @@ public final class LSSMP extends SMPPlugin {
         });
 
         getEliminationHandler().listen(EliminationType.REVIVED, ((eliminationType, player) -> {
+            if (MainConfig.Elimination.useReviveHearts) {
+                HealthUtils.setAll(MainConfig.Elimination.reviveHearts, player, this);
+            }
+
             Scope scope = new Scope("revived");
             scope.variables().set("player", new Object() {
                 public final String name = player.getName();
@@ -137,10 +125,6 @@ public final class LSSMP extends SMPPlugin {
                 .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
                 .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
                 .printAll(LOGGER, "LSSMP: ");
-            /*getLogger().severe("========== LSSMP ==========");
-            getLogger().severe("You are using an outdated version of the config!");
-            getLogger().severe("To fix this run /lsupgrade");
-            getLogger().severe("WARNING: RUNNING /lsupgrade WILL RESET ALL OF YOUR CONFIGS AND RESTART THE SERVER, PROCEED WITH CAUTION");*/
         }
     }
 
