@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 5;
+    public static final int CURRENT_CONFIG_VERSION = 6;
     private static Lazy<Language> LANGUAGE;
 
     private static Printer<Logger> LOGGER;
