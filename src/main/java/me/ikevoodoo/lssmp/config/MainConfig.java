@@ -20,6 +20,7 @@ public class MainConfig {
 
         public static double minHearts = 5.0;
         public static boolean useMinHealth = false;
+        public static boolean banAtMinHealth = false;
         public static double defaultHearts = 10.0;
 
         public static boolean useReviveHearts = true;

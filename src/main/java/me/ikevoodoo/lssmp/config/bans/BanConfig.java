@@ -12,8 +12,14 @@ import java.util.Map;
 
 public class BanConfig {
 
+    public static final BanConfig INSTANCE = new BanConfig();
+
     // Name -> BanTimeData
     private final Map<String, BanTimeData> banTimeDatas = new HashMap<>();
+
+    private BanConfig() {
+
+    }
 
     public List<ConfigError> load(ConfigurationSection section) {
         if (section == null)

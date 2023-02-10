@@ -6,6 +6,7 @@ import me.ikevoodoo.juerr.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.lssmp.config.ResourepackConfig;
+import me.ikevoodoo.lssmp.config.bans.BanConfig;
 import me.ikevoodoo.lssmp.handlers.health.GlobalHealthHandler;
 import me.ikevoodoo.lssmp.handlers.health.WorldHealthHandler;
 import me.ikevoodoo.lssmp.language.Language;
@@ -23,7 +24,9 @@ import me.ikevoodoo.smpcore.utils.ThreadUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +35,7 @@ import java.util.logging.Level;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 8;
+    public static final int CURRENT_CONFIG_VERSION = 9;
     private final Lazy<Language> lazyLanguage;
 
     public LSSMP() {
@@ -47,6 +50,8 @@ public final class LSSMP extends SMPPlugin {
         saveResource("beaconRecipe.yml", false);
         saveResource("heartFragmentRecipe.yml", false);
         saveResource("events.yml", false);
+        saveResource("bans.yml", false);
+
         new Metrics(this, 12177);
     }
 
@@ -144,6 +149,7 @@ public final class LSSMP extends SMPPlugin {
     @Override
     public void onReload() {
         this.loadHealthHandler();
+        this.reloadConfigs();
 
         RecipeEditor.createMenus(this);
         ReviveBeaconUI.createMenus(this);
@@ -184,6 +190,16 @@ public final class LSSMP extends SMPPlugin {
         ThreadUtils.stop(0xD00D);
     }
 
+    private void reloadConfigs() {
+        var bans = getConfigHandler().getYmlConfig("bans.yml");
+        if (bans == null) {
+            getLogger().severe("Unable to load bans.yml");
+            return;
+        }
+
+        BanConfig.INSTANCE.load(bans.getConfigurationSection("banTimes"));
+    }
+
     public Language getLanguage() {
         return this.lazyLanguage.get();
     }
@@ -199,6 +215,10 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void saveResource(@NotNull String resourcePath, boolean replace) {
+        this.saveResourceTo(resourcePath, replace);
+    }
+
+    public File saveResourceTo(@NotNull String resourcePath, boolean replace) {
         if (resourcePath.isBlank()) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
         }
@@ -218,7 +238,7 @@ public final class LSSMP extends SMPPlugin {
         }
 
         if (outFile.exists() && !replace) {
-            return;
+            return null;
         }
 
         try {
@@ -226,5 +246,7 @@ public final class LSSMP extends SMPPlugin {
         } catch (IOException e) {
             throw new RuntimeException("Unable to save resource " + resourcePath + " to " + outFile, e);
         }
+
+        return outFile;
     }
 }

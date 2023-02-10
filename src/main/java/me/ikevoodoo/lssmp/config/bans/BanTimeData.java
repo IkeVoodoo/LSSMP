@@ -2,6 +2,7 @@ package me.ikevoodoo.lssmp.config.bans;
 
 import me.ikevoodoo.lssmp.config.errors.ConfigError;
 import me.ikevoodoo.lssmp.config.errors.Some;
+import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 
 public record BanTimeData(
@@ -47,7 +48,13 @@ public record BanTimeData(
         }
 
 
-        return Some.of(new BanTimeData(banMessage, broadcastBan, broadcastBanMessage, permission, banTime));
+        return Some.of(new BanTimeData(
+                StringUtils.color(banMessage),
+                broadcastBan,
+                StringUtils.color(broadcastBanMessage),
+                permission,
+                banTime
+        ));
     }
 
     private static Some<Long> parseBanTime(String time) {

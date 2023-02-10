@@ -119,7 +119,7 @@ public class ReviveBeaconUI {
     }
 
     public static void createMenus(SMPPlugin plugin) {
-        HashMap<UUID, Number> eliminatedPlayers = plugin.getEliminationHandler().getEliminatedPlayers();
+        Map<UUID, Number> eliminatedPlayers = plugin.getEliminationHandler().getEliminatedPlayers();
         int requiredPages = Math.max((int) Math.ceil(eliminatedPlayers.size() / 28.0), 1);
         List<Integer> pageNumbers = IntStream.range(0, requiredPages).boxed().toList();
 

@@ -1,10 +1,12 @@
 package me.ikevoodoo.lssmp.listeners;
 
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.config.bans.BanConfig;
 import me.ikevoodoo.lssmp.utils.Util;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.PlayerPreDeathEvent;
 import me.ikevoodoo.smpcore.events.TotemCheckEvent;
+import me.ikevoodoo.smpcore.handlers.EliminationData;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
@@ -35,7 +37,9 @@ public class PlayerPreDeathListener extends SMPListener {
 
         var hearts = getPlugin().getHealthHelper().getMaxHearts(player);
         if (hearts <= MainConfig.Elimination.getMin()) {
-            this.eliminate(player);
+            if (MainConfig.Elimination.banAtMinHealth) {
+                this.eliminate(player);
+            }
             return;
         }
 
@@ -61,14 +65,28 @@ public class PlayerPreDeathListener extends SMPListener {
         Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
             if (getPlugin().getEliminationHandler().isEliminated(player)) return;
 
+            var banData = BanConfig.INSTANCE.findHighest(player);
+
+            var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
+            var standardBanMessage = MainConfig.Elimination.Bans.banMessage;
+
+            var banTime = banData == null ? standardBanTime : banData.time();
+            var banMessage = banData == null ? standardBanMessage : banData.banMessage();
+
             if(MainConfig.Elimination.Bans.broadcastBan) {
-                Bukkit.broadcastMessage(MainConfig.Elimination.Bans.broadcastMessage.replace("%player%", player.getDisplayName()));
+                var standardBroadcastMessage = MainConfig.Elimination.Bans.broadcastMessage;
+
+                var broadcastMessage = banData == null ? standardBroadcastMessage : banData.broadcastBanMessage();
+
+                Bukkit.broadcastMessage(broadcastMessage.replace("%player%", player.getDisplayName()));
             }
 
             if(MainConfig.Elimination.Bans.useBanTime) {
-                getPlugin().getEliminationHandler().eliminate(player, StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime));
+                var data = banData == null ? EliminationData.infiniteTime() : new EliminationData(banMessage, banTime);
+                getPlugin().getEliminationHandler().eliminate(player, data);
+            } else {
+                getPlugin().getEliminationHandler().eliminate(player, EliminationData.infiniteTime(banMessage));
             }
-            else getPlugin().getEliminationHandler().eliminate(player);
 
             player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
         }, 1);

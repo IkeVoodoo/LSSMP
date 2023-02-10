@@ -2,9 +2,12 @@ package me.ikevoodoo.lssmp.commands.eliminate;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.config.bans.BanConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
+import me.ikevoodoo.smpcore.handlers.EliminationData;
+import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
 
 public class EliminateAllCommand extends SMPCommand {
@@ -14,8 +17,19 @@ public class EliminateAllCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> contexts) {
-        getPlugin().getEliminationHandler().eliminateAll();
-        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(MainConfig.Elimination.Bans.banMessage));
+        var defaultBanMessage = MainConfig.Elimination.Bans.banMessage;
+        var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
+
+        for (var player : Bukkit.getOnlinePlayers()) {
+            var data = BanConfig.INSTANCE.findHighest(player);
+
+            var banMessage = data == null ? defaultBanMessage : data.banMessage();
+            var time = data == null ? standardBanTime : data.time();
+
+            getPlugin().getEliminationHandler().eliminate(player, new EliminationData(banMessage, time));
+            player.kickPlayer(banMessage);
+        }
+
         contexts.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedAllPlayers);
         return true;
     }
