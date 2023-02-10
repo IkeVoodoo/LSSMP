@@ -6,13 +6,14 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.PlayerPreDeathEvent;
 import me.ikevoodoo.smpcore.events.TotemCheckEvent;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+
+import java.util.Objects;
 
 public class PlayerPreDeathListener extends SMPListener {
 
@@ -25,49 +26,28 @@ public class PlayerPreDeathListener extends SMPListener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
+        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(player, event.getKiller())) {
+            return;
+        }
 
         if(!MainConfig.Elimination.isWorldAllowed(world))
             return;
 
+        var hearts = getPlugin().getHealthHelper().getMaxHearts(player);
+        if (hearts <= MainConfig.Elimination.getMin()) {
+            this.eliminate(player);
+            return;
+        }
+
         if(event.hasKiller() && event.getKiller() instanceof Player killer) {
-            Util.increaseOrDrop(
-                    MainConfig.Elimination.healthScale * 2,
-                    MainConfig.Elimination.getMax(),
-                    killer,
-                    player.getEyeLocation(),
-                getPlugin()
-            );
-
-            HealthUtils.decreaseIfOver(
-                    MainConfig.Elimination.healthScale * 2,
-                    MainConfig.Elimination.getMin(),
-                    player,
-                    true,
-                getPlugin()
-            );
-
-            if(HealthUtils.get(player) <= 0)
-                eliminate(player);
+            this.handlePlayerKill(player, killer);
             return;
         }
 
         if (!MainConfig.Elimination.environmentStealsHearts)
             return;
 
-        if(MainConfig.Elimination.alwaysDropHearts) {
-            Util.drop(
-                    getPlugin()
-                            .getItem("heart_item")
-                            .orElseThrow()
-                            .getItemStack(),
-                    player.getEyeLocation()
-            );
-        }
-
-        HealthUtils.decreaseIfOver(MainConfig.Elimination.environmentHealthScale * 2, MainConfig.Elimination.getMin(), player, true, getPlugin());
-
-        if(HealthUtils.get(player) <= 0)
-            eliminate(player);
+        this.handleEnvironmentKill(player);
     }
 
     @EventHandler
@@ -92,6 +72,46 @@ public class PlayerPreDeathListener extends SMPListener {
 
             player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
         }, 1);
+    }
+
+    private void handleEnvironmentKill(Player player) {
+        if(MainConfig.Elimination.alwaysDropHearts || MainConfig.Elimination.environmentDropHearts) {
+            Util.drop(
+                    getPlugin()
+                            .getItem("heart_item")
+                            .orElseThrow()
+                            .getItemStack(),
+                    player.getEyeLocation()
+            );
+        }
+
+        var setResult = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
+                player,
+                MainConfig.Elimination.getEnvironmentHeartScale(),
+                MainConfig.Elimination.getMin()
+        );
+
+        if(setResult.newHealth() <= MainConfig.Elimination.getMin())
+            eliminate(player);
+    }
+
+    private void handlePlayerKill(Player player, Player killer) {
+        Util.increaseOrDrop(
+                MainConfig.Elimination.getHeartScale(),
+                MainConfig.Elimination.getMax(),
+                killer,
+                player.getEyeLocation(),
+                getPlugin()
+        );
+
+        var result = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
+                player,
+                MainConfig.Elimination.getHeartScale(),
+                MainConfig.Elimination.getMin()
+        );
+
+        if(result.newHealth() <= MainConfig.Elimination.getMin())
+            eliminate(player);
     }
 
 }

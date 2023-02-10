@@ -4,20 +4,20 @@ options:
   shaped: true
 recipe:
   '1':
-    item: gold block
+    item: heart fragment item
   '2':
-    item: bone meal
-  '3':
-    item: gold block
-  '4':
-    item: obsidian
-  '5':
-    item: fermented spider eye
-  '6':
-    item: obsidian
-  '7':
     item: diamond block
+  '3':
+    item: heart fragment item
+  '4':
+    item: diamond block
+  '5':
+    item: netherite ingot
+  '6':
+    item: diamond block
+  '7':
+    item: heart fragment item
   '8':
     item: diamond block
   '9':
-    item: diamond block
+    item: heart fragment item

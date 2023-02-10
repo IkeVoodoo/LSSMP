@@ -1,11 +1,13 @@
 package me.ikevoodoo.lssmp;
 
 import dev.refinedtech.configlang.scope.Scope;
-import me.ikevoodoo.Printer;
-import me.ikevoodoo.UserError;
+import me.ikevoodoo.juerr.Printer;
+import me.ikevoodoo.juerr.UserError;
 import me.ikevoodoo.lssmp.bstats.Metrics;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.lssmp.config.ResourepackConfig;
+import me.ikevoodoo.lssmp.handlers.health.GlobalHealthHandler;
+import me.ikevoodoo.lssmp.handlers.health.WorldHealthHandler;
 import me.ikevoodoo.lssmp.language.Language;
 import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.menus.RecipeEditor;
@@ -14,45 +16,53 @@ import me.ikevoodoo.lssmp.menus.SharedItems;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.callbacks.eliminations.EliminationType;
 import me.ikevoodoo.smpcore.handlers.placeholders.PlaceholderHandler;
-import me.ikevoodoo.smpcore.utils.*;
+import me.ikevoodoo.smpcore.utils.ExceptionUtils;
+import me.ikevoodoo.smpcore.utils.Lazy;
+import me.ikevoodoo.smpcore.utils.StringUtils;
+import me.ikevoodoo.smpcore.utils.ThreadUtils;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 6;
-    private static Lazy<Language> LANGUAGE;
+    public static final int CURRENT_CONFIG_VERSION = 8;
+    private final Lazy<Language> lazyLanguage;
 
-    private static Printer<Logger> LOGGER;
+    public LSSMP() {
+        this.lazyLanguage = new Lazy<>(() -> new Language(this));
+    }
 
     @Override
     public void onPreload() {
         UserError.setExceptionHandler();
 
-        LANGUAGE = new Lazy<>(() -> new Language(this));
-
         saveResource("heartRecipe.yml", false);
         saveResource("beaconRecipe.yml", false);
+        saveResource("heartFragmentRecipe.yml", false);
+        saveResource("events.yml", false);
         new Metrics(this, 12177);
     }
 
     @Override
     public void whenEnabled() {
-        LOGGER = new Printer<>(getLogger()) {
+        this.loadHealthHandler();
+
+        var logger = new Printer<>(getLogger()) {
             @Override
             public void printf(String s, Object... objects) {
-                getOut().severe(String.format(s, objects));
+                getOut().log(Level.SEVERE, s, objects);
             }
 
             @Override
             public void printfln(String message, Object... args) {
-                this.printf(message, args);
+                this.printf(message + "\n", args);
             }
         };
 
@@ -63,8 +73,8 @@ public final class LSSMP extends SMPPlugin {
             PlaceholderHandler.create(this, "lssmp", "1.0.0")
                     .persist()
                     .onlineRequiresPlayer()
-                    .online("raw_hearts", player -> String.valueOf(HealthUtils.get(player) / 2))
-                    .online("hearts", player -> StringUtils.removeTrailingZeros(String.valueOf(HealthUtils.get(player) / 2)))
+                    .online("raw_hearts", player -> String.valueOf(this.getHealthHelper().getMaxHearts(player)))
+                    .online("hearts", player -> StringUtils.removeTrailingZeros(String.valueOf(this.getHealthHelper().getMaxHearts(player))))
                     .register();
         }
 
@@ -92,16 +102,15 @@ public final class LSSMP extends SMPPlugin {
                 public final UUID uuid = player.getUniqueId();
             });
 
-            LSSMP.getLanguage().execute(YamlConfigSection.of(
+            this.getLanguage().execute(YamlConfigSection.of(
                     getConfigHandler()
                     .getYmlConfig("events.yml")
-                    .getConfigurationSection("events")
                     .getConfigurationSection("eliminated")), scope);
         });
 
         getEliminationHandler().listen(EliminationType.REVIVED, ((eliminationType, player) -> {
             if (MainConfig.Elimination.useReviveHearts) {
-                HealthUtils.setAll(MainConfig.Elimination.reviveHearts, player, this);
+                getHealthHelper().setMaxHeartsEverywhere(player, MainConfig.Elimination.reviveHearts);
             }
 
             Scope scope = new Scope("revived");
@@ -111,10 +120,9 @@ public final class LSSMP extends SMPPlugin {
                 public final UUID uuid = player.getUniqueId();
             });
 
-            LSSMP.getLanguage().execute(YamlConfigSection.of(
+            this.getLanguage().execute(YamlConfigSection.of(
                     getConfigHandler()
                     .getYmlConfig("events.yml")
-                    .getConfigurationSection("events")
                     .getConfigurationSection("revived")), scope);
         }));
 
@@ -124,7 +132,7 @@ public final class LSSMP extends SMPPlugin {
                 .addReason("The config version has changed")
                 .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
                 .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
-                .printAll(LOGGER, "LSSMP: ");
+                .printAll(logger, "LSSMP: ");
         }
     }
 
@@ -135,7 +143,8 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void onReload() {
-        //createMenus();
+        this.loadHealthHandler();
+
         RecipeEditor.createMenus(this);
         ReviveBeaconUI.createMenus(this);
 
@@ -175,7 +184,47 @@ public final class LSSMP extends SMPPlugin {
         ThreadUtils.stop(0xD00D);
     }
 
-    public static Language getLanguage() {
-        return LANGUAGE.get();
+    public Language getLanguage() {
+        return this.lazyLanguage.get();
+    }
+
+    private void loadHealthHandler() {
+        if (MainConfig.Elimination.perWorldHearts) {
+            getHealthHelper().setHealthHandler(new WorldHealthHandler(world -> this.makeKey(world.getUID().toString())));
+            return;
+        }
+
+        getHealthHelper().setHealthHandler(new GlobalHealthHandler());
+    }
+
+    @Override
+    public void saveResource(@NotNull String resourcePath, boolean replace) {
+        if (resourcePath.isBlank()) {
+            throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        }
+
+        resourcePath = resourcePath.replace('\\', '/');
+        InputStream in = getResource(resourcePath);
+        if (in == null) {
+            throw new IllegalArgumentException("The embedded resource '" + resourcePath + "' cannot be found in " + getFile());
+        }
+
+        File outFile = new File(getDataFolder(), resourcePath);
+        int lastIndex = resourcePath.lastIndexOf('/');
+        File outDir = new File(getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
+
+        if (!outDir.exists() && !outDir.mkdirs()) {
+            throw new IllegalStateException("Could not create path " + outDir);
+        }
+
+        if (outFile.exists() && !replace) {
+            return;
+        }
+
+        try {
+            Files.copy(in, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to save resource " + resourcePath + " to " + outFile, e);
+        }
     }
 }

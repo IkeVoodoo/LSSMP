@@ -14,12 +14,17 @@ public class ItemConfig {
         public static boolean claimingHeartHeals = true;
     }
 
+
     public static class ReviveBeacon {
         public static class Messages {
             public static String useMessage = "§cEnter the name of the player you want to revive";
             public static String revivedPlayer = "§aRevived §e%s";
             public static String cancelMessage = "§cType \"§ccancel§c\" to cancel.";
             public static String cancelled = "§aSuccessfully cancelled";
+        }
+
+        public static class Options {
+            public static boolean useMenu = true;
         }
     }
 

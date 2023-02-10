@@ -2,20 +2,20 @@ killed:
   if:
     condition:
       operation:
-        left: "%killed_uuid%"
+        left: "{{player's uuid}}"
         operator: "=="
-        right: "%killer_uuid%"
+        right: "{{killed uuid}}"
     then:
       execute:
-        command: "say %killed_display_name% killed themselves!"
+        command: "say {{player's display name}} killed themselves!"
         as: "console"
 
 eliminated:
   execute:
-    command: "say %killed_display_name% was eliminated!"
+    command: "say {{player's display name}} was eliminated!"
     as: "console"
 
 revived:
   execute:
-      command: "lsreset %killed_uuid%"
+      command: "lsreset {{player's uuid}}"
       as: "console"

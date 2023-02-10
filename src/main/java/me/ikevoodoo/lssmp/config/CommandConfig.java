@@ -52,7 +52,16 @@ public class CommandConfig {
         }
 
         public static class Messages {
-            public static String getMessage = "§3%s §6 has §a%s §4❤";
+            public static String getMessage = "§3%s §6has §a%s §4❤";
+            public static String setMessage = "§3%s §6now has §a%s §4❤ §6(Was §a%s §4❤§6)";
+            public static String setInWorldMessage = "§3%s §6now has §a%s §4❤ §6in §3%s §6(Was §a%s §4❤§6)";
+
+
+            // §3PlayerName §a+%s§4❤ §6(§c%s§4❤ §6-> §a%s§4❤§6)
+            public static String addMessage = "§3%s §a+%s§4❤ §6(§c%s§4❤ §6-> §a%s§4❤§6)";
+
+            // §3PlayerName §c-%s§4❤ §6(§a%s§4❤ §6-> §c%s§4❤§6)
+            public static String subMessage = "§3%s §c-%s§4❤ §6(§a%s§4❤ §6-> §c%s§4❤§6)";
         }
     }
 
@@ -121,6 +130,8 @@ public class CommandConfig {
             public static String withdrawnTooMuch = "§cWithdraw count is too high! Lower it to at least %max%!";
             public static String notEnoughSpace = "§cYou do not have enough space to fit %amount% heart(s) in your inventory!";
         }
+
+        public static boolean withdrawEliminates = false;
     }
 
 }

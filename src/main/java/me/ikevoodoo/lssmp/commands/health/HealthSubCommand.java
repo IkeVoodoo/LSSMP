@@ -1,12 +1,12 @@
 package me.ikevoodoo.lssmp.commands.health;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
+import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.entity.Player;
 
 public class HealthSubCommand extends SMPCommand {
@@ -20,9 +20,21 @@ public class HealthSubCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
-        double hearts = context.args().get("hearts", Double.class);
-        Player player = context.args().get("player", Player.class);
-        HealthUtils.decrease(hearts * 2, player, getPlugin());
+        var hearts = context.args().get("hearts", Double.class);
+        var health = hearts * MainConfig.Elimination.getHeartScale();
+
+        var player = context.args().get("player", Player.class);
+
+        var oldHearts = getPlugin().getHealthHelper().getMaxHealth(player) / MainConfig.Elimination.getHeartScale();
+
+        var newHearts = getPlugin().getHealthHelper().decreaseMaxHealth(player, health) / MainConfig.Elimination.getHeartScale();
+        context.source().sendMessage(String.format(
+                CommandConfig.HealthCommand.Messages.subMessage,
+                player.getName(),
+                hearts,
+                oldHearts,
+                newHearts
+        ));
         return true;
     }
 }

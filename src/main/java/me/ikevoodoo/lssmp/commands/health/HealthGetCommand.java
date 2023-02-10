@@ -6,7 +6,6 @@ import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.entity.Player;
 
 public class HealthGetCommand extends SMPCommand {
@@ -19,11 +18,11 @@ public class HealthGetCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
-        Player player = context.args().get("player", Player.class);
+        var player = context.args().get("player", Player.class);
         context.source().sendMessage(String.format(
                 CommandConfig.HealthCommand.Messages.getMessage,
                 player.getName(),
-                HealthUtils.get(player) / 2
+                getPlugin().getHealthHelper().getMaxHearts(player)
         ));
         return true;
     }

@@ -4,7 +4,6 @@ import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.lssmp.config.ResourepackConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -19,7 +18,10 @@ public class PlayerJoinListener extends SMPListener {
     @EventHandler
     public void on(PlayerJoinEvent event) {
         if(!event.getPlayer().hasPlayedBefore()) {
-            HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, event.getPlayer(), getPlugin());
+            getPlugin().getHealthHelper().setMaxHearts(
+                    event.getPlayer(),
+                    MainConfig.Elimination.defaultHearts
+            );
         }
 
         if (ResourepackConfig.enabled) {

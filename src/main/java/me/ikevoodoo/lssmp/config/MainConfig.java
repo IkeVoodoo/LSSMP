@@ -28,8 +28,12 @@ public class MainConfig {
         public static boolean totemWorksInInventory = false;
 
         public static boolean alwaysDropHearts = false;
+        public static boolean environmentDropHearts = false;
+        public static boolean playersDropHearts = false;
 
         public static boolean fullInventoryHeartDrop = true;
+
+        public static boolean allowSelfElimination = false;
 
         public static class Bans {
             public static String banMessage = "§cYou have been eliminated!";
@@ -40,6 +44,8 @@ public class MainConfig {
             public static boolean broadcastBan = false;
             public static String broadcastMessage = "§c%player% has lost all of their hearts and has been banned.";
         }
+
+        public static boolean perWorldHearts = false;
 
         public static List<String> allowedWorlds = List.of("all");
 
@@ -52,7 +58,15 @@ public class MainConfig {
         }
 
         public static double getMin() {
-            return (useMinHealth ? minHearts : 0) * 2;
+            return (useMinHealth ? minHearts : 0);
+        }
+
+        public static double getHeartScale() {
+            return healthScale * 2;
+        }
+
+        public static double getEnvironmentHeartScale() {
+            return environmentHealthScale * 2;
         }
     }
 
@@ -67,6 +81,12 @@ public class MainConfig {
             public static String displayName = "§fRevive Beacon.";
             public static List<String> lore = List.of("Right click to revive!");
             public static int customModelData = 932;
+        }
+
+        public static class HeartFragment {
+            public static String displayName = "§c§lHeart Fragment.";
+            public static List<String> lore = List.of("Use 4 of these to craft a heart!");
+            public static int customModelData = 933;
         }
     }
 

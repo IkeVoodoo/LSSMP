@@ -39,16 +39,6 @@ public class ReviveBeacon extends CustomItem {
         unlockOnObtain(getRecipeData().materials());
         return new Pair<>(makeKey("revive_beacon_recipe"), getRecipeData().recipe());
     }
-/*
-    @Override
-    public RecipeData createRecipeData() {
-        return getPlugin().getRecipeLoader().getRecipe(
-                getPlugin().getConfigHandler().getYmlConfig("beaconRecipe.yml"),
-                "recipe", getItemStack(),
-                makeKey("revive_beacon"),
-                getRecipeOptions()
-        );
-    }*/
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
@@ -56,7 +46,7 @@ public class ReviveBeacon extends CustomItem {
             return new ItemClickResult(ItemClickState.FAIL, true);
         }
 
-        if (true) {
+        if (ItemConfig.ReviveBeacon.Options.useMenu) {
             player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, .5f, 2);
             getPlugin().getMenuHandler().get("lssmp_revive_beacon_menu").open(player);
             return new ItemClickResult(ItemClickState.IGNORE, true);
@@ -88,5 +78,10 @@ public class ReviveBeacon extends CustomItem {
             }
         }, ItemConfig.ReviveBeacon.Messages.cancelMessage, ItemConfig.ReviveBeacon.Messages.cancelled, ItemConfig.ReviveBeacon.Messages.useMessage);
         return new ItemClickResult(ItemClickState.SUCCESS, true);
+    }
+
+    @Override
+    public boolean onDrop(Player player, ItemStack itemStack) {
+        return false;
     }
 }

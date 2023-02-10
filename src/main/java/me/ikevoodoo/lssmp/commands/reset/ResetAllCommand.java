@@ -5,7 +5,6 @@ import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -17,12 +16,14 @@ public class ResetAllCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
-        Bukkit.getOnlinePlayers().forEach(player -> HealthUtils.set(MainConfig.Elimination.defaultHearts * 2, player, getPlugin()));
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            getPlugin().getHealthHelper().setMaxHearts(player, MainConfig.Elimination.defaultHearts);
+        });
         for(OfflinePlayer player : Bukkit.getOfflinePlayers()) {
             getPlugin().getJoinActionHandler().runOnJoin(player.getUniqueId(), id -> {
                 Player plr = Bukkit.getPlayer(id);
                 if(plr != null) {
-                    HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, plr, getPlugin(), MainConfig.Elimination::isWorldAllowed);
+                    getPlugin().getHealthHelper().setMaxHealthEverywhere(plr, MainConfig.Elimination.defaultHearts);
                 }
             });
         }

@@ -1,42 +1,37 @@
 package me.ikevoodoo.lssmp.utils;
 
-import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.items.ItemEntity;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 public class Util {
 
-    private static final LSSMP PLUGIN = SMPPlugin.getPlugin(LSSMP.class);
-
     private Util() {
 
     }
 
     public static void increaseOrDrop(double amount, double max, LivingEntity entity, Location dropAt, SMPPlugin plugin) {
-        if (MainConfig.Elimination.alwaysDropHearts) {
-            drop(PLUGIN
+        if (MainConfig.Elimination.alwaysDropHearts || MainConfig.Elimination.playersDropHearts) {
+            drop(plugin
                     .getItem("heart_item")
                     .orElseThrow()
                     .getItemStack(), dropAt);
             return;
         }
 
-        HealthUtils.SetResult result =
-                HealthUtils.increaseIfUnder(
-                        amount,
-                        max,
-                        entity,
-                        true,
-                    plugin
-                );
+        var result = plugin.getHealthHelper().increaseMaxHealthIfUnder(
+                entity,
+                amount,
+                max
+        );
 
-        if (result.isOutOfBounds()) {
-            drop(PLUGIN
+        plugin.getHealthHelper().getMaxHealth(entity);
+
+        if (!result.isInRange()) {
+            drop(plugin
                     .getItem("heart_item")
                     .orElseThrow()
                     .getItemStack(), dropAt);
@@ -47,6 +42,7 @@ public class Util {
         ItemEntity.of(stack)
                 .setGravity(false)
                 .setGlowing(true)
+                .setInvulnerable(true)
                 .setLocation(loc)
                 .noVelocity()
                 .spawn();

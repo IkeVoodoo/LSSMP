@@ -5,12 +5,12 @@ import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ResetCommand extends SMPCommand {
     public ResetCommand(SMPPlugin plugin) {
@@ -28,19 +28,24 @@ public class ResetCommand extends SMPCommand {
         List<OfflinePlayer> players = context.args().getAll(OfflinePlayer.class);
         for(OfflinePlayer offlinePlayer : players) {
             if(offlinePlayer.isOnline()) {
-                Player player = offlinePlayer.getPlayer();
-                if (player != null)
-                    HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, player, getPlugin(), MainConfig.Elimination::isWorldAllowed);
+                this.handlePlayer(offlinePlayer.getPlayer());
             } else {
-                getPlugin().getJoinActionHandler().runOnJoin(offlinePlayer.getUniqueId(), id -> {
-                    Player player = Bukkit.getPlayer(id);
-                    if (player != null)
-                        HealthUtils.setAll(MainConfig.Elimination.defaultHearts * 2, player, getPlugin(), MainConfig.Elimination::isWorldAllowed);
-                });
+                getPlugin().getJoinActionHandler().runOnJoin(offlinePlayer.getUniqueId(), this::handlePlayer);
             }
         }
 
         context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", String.valueOf(players.size())));
         return true;
+    }
+
+    private void handlePlayer(UUID id) {
+        var player = Bukkit.getPlayer(id);
+        this.handlePlayer(player);
+    }
+
+    private void handlePlayer(Player player) {
+        if (player == null) return;
+
+        getPlugin().getHealthHelper().setMaxHeartsEverywhere(player, MainConfig.Elimination.defaultHearts);
     }
 }

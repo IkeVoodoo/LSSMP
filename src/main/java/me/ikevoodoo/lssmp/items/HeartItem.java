@@ -7,11 +7,9 @@ import me.ikevoodoo.smpcore.items.CustomItem;
 import me.ikevoodoo.smpcore.items.ItemClickResult;
 import me.ikevoodoo.smpcore.items.ItemClickState;
 import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
-import me.ikevoodoo.smpcore.utils.HealthUtils;
 import me.ikevoodoo.smpcore.utils.Pair;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +23,8 @@ public class HeartItem extends CustomItem {
                 .bindConfig("items.heart")
                 .bindConfigOptions("heartRecipe.yml", "options")
                 .setRecipeFile("heartRecipe.yml")
+                .setAllowCombustion(false)
+                .setAllowCactusDamage(false)
                 .reload();
     }
 
@@ -41,39 +41,56 @@ public class HeartItem extends CustomItem {
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
-        int removeAmount = 1;
-        if (player.isSneaking()) {
-            removeAmount = itemStack.getAmount();
-        }
-
-        int total = removeAmount;
-
-        while (removeAmount > 0) {
-            HealthUtils.SetResult result = HealthUtils.increaseIfUnder(
-                    MainConfig.Elimination.healthScale * 2 * removeAmount,
-                    MainConfig.Elimination.getMax(),
-                    player,
-                getPlugin()
+        var heartsToMax = getHeartsToMax(player);
+        if (heartsToMax <= 0) {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, .7f);
+            player.sendMessage(ItemConfig.HeartItem.Messages.maxHearts);
+            return new ItemClickResult(
+                    ItemClickState.FAIL,
+                    true
             );
-            if(!result.isOutOfBounds())
-                break;
-            removeAmount--;
         }
 
 
-        if(removeAmount > 0) {
-            player.sendMessage(ItemConfig.HeartItem.Messages.increment.replace("%s",  String.valueOf(MainConfig.Elimination.healthScale * removeAmount)));
-            if (ItemConfig.HeartItem.claimingHeartHeals) HealthUtils.heal(player, MainConfig.Elimination.healthScale * 2 * total);
-            itemStack.setAmount(itemStack.getAmount() - removeAmount);
-            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.BLOCKS, 1, 1.5f);
-            return new ItemClickResult(ItemClickState.IGNORE, true);
+        var maxItems = this.getMaxItems(heartsToMax, itemStack.getAmount(), player.isSneaking());
+        var healthToAdd = maxItems * MainConfig.Elimination.getHeartScale();
+
+        var message = ItemConfig.HeartItem.Messages.increment.replace("%s", String.valueOf(maxItems));
+        player.sendMessage(message);
+
+        var newHealth = getPlugin().getHealthHelper().increaseMaxHealth(player, healthToAdd);
+        if(ItemConfig.HeartItem.claimingHeartHeals) {
+            var health = player.getHealth();
+            var toSet = health + player.getHealth();
+
+            player.setHealth(Math.min(toSet, newHealth));
         }
 
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, SoundCategory.BLOCKS, 1, .7f);
-        player.sendMessage(ItemConfig.HeartItem.Messages.maxHearts);
+        itemStack.setAmount(itemStack.getAmount() - maxItems);
+
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1.5f);
         return new ItemClickResult(
-                ItemClickState.FAIL,
+                ItemClickState.IGNORE,
                 true
         );
+    }
+
+    private double getHeartsToMax(Player player) {
+        var max = MainConfig.Elimination.getMax();
+        var current = getPlugin().getHealthHelper().getMaxHealth(player);
+
+        var diff = max - current;
+        if (diff <= 0) return 0;
+
+        return diff;
+    }
+
+    private int getMaxItems(double healthToMax, int stackSize, boolean isSneaking) {
+        if (!isSneaking) {
+            return healthToMax >= 1 ? 1 : 0;
+        }
+
+        var maxItems = (int) Math.floor(healthToMax / MainConfig.Elimination.getHeartScale());
+        return Math.min(maxItems, stackSize);
     }
 }
