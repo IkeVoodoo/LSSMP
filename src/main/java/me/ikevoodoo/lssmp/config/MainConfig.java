@@ -2,6 +2,7 @@ package me.ikevoodoo.lssmp.config;
 
 import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.smpcore.config.annotations.Config;
+import me.ikevoodoo.smpcore.config.annotations.ListType;
 import org.bukkit.World;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class MainConfig {
 
         public static boolean perWorldHearts = false;
 
+        @ListType("java.lang.String")
         public static List<String> allowedWorlds = List.of("all");
 
         public static boolean isWorldAllowed(World world) {
@@ -74,18 +76,24 @@ public class MainConfig {
     public static class Items {
         public static class Heart {
             public static String displayName = "§c❤ §fExtra heart.";
+
+            @ListType("java.lang.String")
             public static List<String> lore = List.of("Gives you an extra heart!");
             public static int customModelData = 931;
         }
 
         public static class Beacon {
             public static String displayName = "§fRevive Beacon.";
+
+            @ListType("java.lang.String")
             public static List<String> lore = List.of("Right click to revive!");
             public static int customModelData = 932;
         }
 
         public static class HeartFragment {
             public static String displayName = "§c§lHeart Fragment.";
+
+            @ListType("java.lang.String")
             public static List<String> lore = List.of("Use 4 of these to craft a heart!");
             public static int customModelData = 933;
         }

@@ -86,7 +86,7 @@ public final class LSSMP extends SMPPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             List<UUID> toRevive = new ArrayList<>();
             getEliminationHandler().getEliminatedPlayers().forEach((uuid, time) -> {
-                if(time.longValue() - System.currentTimeMillis() > 0) return;
+                if (time.longValue() - System.currentTimeMillis() > 0) return;
                 toRevive.add(uuid);
             });
             toRevive.forEach(uuid -> getEliminationHandler().reviveOffline(Bukkit.getOfflinePlayer(uuid)));
@@ -96,8 +96,6 @@ public final class LSSMP extends SMPPlugin {
             ReviveBeaconUI.createItems(this);
             ReviveBeaconUI.createMenus(this);
         });
-
-        getResourcePackHandler().addResourcePack("pack", ResourepackConfig.getUrl());
 
         getEliminationHandler().listen(EliminationType.ELIMINATED, (eliminationType, player) -> {
             Scope scope = new Scope("elimination");
@@ -109,8 +107,8 @@ public final class LSSMP extends SMPPlugin {
 
             this.getLanguage().execute(YamlConfigSection.of(
                     getConfigHandler()
-                    .getYmlConfig("events.yml")
-                    .getConfigurationSection("eliminated")), scope);
+                            .getYmlConfig("events.yml")
+                            .getConfigurationSection("eliminated")), scope);
         });
 
         getEliminationHandler().listen(EliminationType.REVIVED, ((eliminationType, player) -> {
@@ -127,17 +125,17 @@ public final class LSSMP extends SMPPlugin {
 
             this.getLanguage().execute(YamlConfigSection.of(
                     getConfigHandler()
-                    .getYmlConfig("events.yml")
-                    .getConfigurationSection("revived")), scope);
+                            .getYmlConfig("events.yml")
+                            .getConfigurationSection("revived")), scope);
         }));
 
         this.reload();
         if (!getConfig().contains("doNotTouch_configVersion") || MainConfig.doNotTouch_configVersion < CURRENT_CONFIG_VERSION) {
             UserError.from("You're using an outdated version of the config!")
-                .addReason("The config version has changed")
-                .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
-                .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
-                .printAll(logger, "LSSMP: ");
+                    .addReason("The config version has changed")
+                    .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
+                    .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
+                    .printAll(logger, "LSSMP: ");
         }
     }
 
@@ -148,13 +146,15 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void onReload() {
+        getResourcePackHandler().addResourcePack("pack", ResourepackConfig.getUrl());
+
         this.loadHealthHandler();
         this.reloadConfigs();
 
         RecipeEditor.createMenus(this);
         ReviveBeaconUI.createMenus(this);
 
-        if(MainConfig.autoConfigReload) {
+        if (MainConfig.autoConfigReload) {
             try {
                 WatchService service = FileSystems.getDefault().newWatchService();
                 Path dir = getDataFolder().toPath();
@@ -162,7 +162,7 @@ public final class LSSMP extends SMPPlugin {
                         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
                 ThreadUtils.start(0xD00D, () -> {
                     while (!Thread.currentThread().isInterrupted()) {
-                        if(key.pollEvents().isEmpty()) continue;
+                        if (key.pollEvents().isEmpty()) continue;
                         Bukkit.getScheduler().callSyncMethod(this, () -> {
                             this.reload();
                             return true;
@@ -215,10 +215,6 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void saveResource(@NotNull String resourcePath, boolean replace) {
-        this.saveResourceTo(resourcePath, replace);
-    }
-
-    public File saveResourceTo(@NotNull String resourcePath, boolean replace) {
         if (resourcePath.isBlank()) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
         }
@@ -238,7 +234,7 @@ public final class LSSMP extends SMPPlugin {
         }
 
         if (outFile.exists() && !replace) {
-            return null;
+            return;
         }
 
         try {
@@ -246,7 +242,5 @@ public final class LSSMP extends SMPPlugin {
         } catch (IOException e) {
             throw new RuntimeException("Unable to save resource " + resourcePath + " to " + outFile, e);
         }
-
-        return outFile;
     }
 }

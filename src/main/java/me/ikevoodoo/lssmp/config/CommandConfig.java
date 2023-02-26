@@ -81,6 +81,15 @@ public class CommandConfig {
         }
     }
 
+    public static class DebugCommand {
+        public static String name = "lsdebug";
+        public static String perms = "lssmp.debug";
+
+        public static class Messages {
+            public static String reload = "§6Reloaded LSSMP";
+        }
+    }
+
     public static class ResetCommand {
         public static String name = "lsreset";
         public static String perms = "lssmp.reset";

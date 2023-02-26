@@ -6,10 +6,10 @@ import me.ikevoodoo.smpcore.config.annotations.Config;
 public class ResourepackConfig {
 
     public static boolean enabled = true;
-    public static String url = "https://www.dropbox.com/s/wkvjcmz296je6v3/HeartPack.zip?dl=1";
+    public static String url = "https://raw.githubusercontent.com/IkeVoodoo/LSSMP/v3/HeartPack.zip";
 
     public static String getUrl() {
-        return url == null ? "https://www.dropbox.com/s/wkvjcmz296je6v3/HeartPack.zip?dl=1" : url;
+        return url == null ? "https://raw.githubusercontent.com/IkeVoodoo/LSSMP/v3/HeartPack.zip" : url;
     }
 
 }
