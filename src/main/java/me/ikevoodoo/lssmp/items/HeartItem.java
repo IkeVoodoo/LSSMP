@@ -61,7 +61,7 @@ public class HeartItem extends CustomItem {
         var newHealth = getPlugin().getHealthHelper().increaseMaxHealth(player, healthToAdd);
         if(ItemConfig.HeartItem.claimingHeartHeals) {
             var health = player.getHealth();
-            var toSet = health + player.getHealth();
+            var toSet = health + healthToAdd;
 
             player.setHealth(Math.min(toSet, newHealth));
         }
