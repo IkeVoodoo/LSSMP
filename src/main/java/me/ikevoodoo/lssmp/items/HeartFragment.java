@@ -13,7 +13,7 @@ public class HeartFragment extends CustomItem {
     public HeartFragment(SMPPlugin plugin) {
         super(plugin, "heart_fragment_item", MessageBuilder.messageOf("§c§lHeart Fragment"));
         addKey("heart_fragment")
-                .bindConfig("items.heartfragment")
+                .bindConfig("items.heartFragment")
                 .bindConfigOptions("heartFragmentRecipe.yml", "options")
                 .setRecipeFile("heartFragmentRecipe.yml")
                 .reload();

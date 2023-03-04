@@ -14,8 +14,6 @@ public class HealthSetCommand extends SMPCommand {
     protected HealthSetCommand(SMPPlugin plugin) {
         super(plugin, CommandConfig.HealthCommand.HealthSetCommand.name, CommandConfig.HealthCommand.HealthSetCommand.perms);
 
-        System.out.println("HealthSetCommand: " + CommandConfig.HealthCommand.HealthSetCommand.name);
-
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
                 new Argument("hearts", true, Double.class, OptionalFor.NONE),
