@@ -2,6 +2,7 @@ package me.ikevoodoo.lssmp.commands.withdraw;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.config.bans.BanConfig;
 import me.ikevoodoo.lssmp.utils.Util;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.CommandUsable;
@@ -9,6 +10,7 @@ import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,11 +25,31 @@ public class WithdrawCommand extends SMPCommand {
     public boolean execute(Context<?> context) {
         Player player = context.source(Player.class);
         var amount = Math.abs(context.args().get("amount", Integer.class, 1));
+        if (amount < 1) {
+            player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdrawnTooLittle);
+            return true;
+        }
+
+        var maxHealth = Bukkit.spigot().getConfig().getDouble("settings.attribute.maxHealth.max", 2048);
+        var maxHearts = Math.floor(maxHealth / MainConfig.Elimination.getHeartScale());
+
+        // At 10 hearts it's 20 / (1 * 2) for the default config
         var max = getPlugin().getHealthHelper().getMaxHealth(player) / MainConfig.Elimination.getHeartScale();
+
+        if (amount >= maxHearts) {
+            player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdrawnTooMuch.replace("%max%", String.valueOf(max)));
+            return true;
+        }
+
         if (amount > max) {
             if (CommandConfig.WithdrawCommand.withdrawEliminates) {
-                getPlugin().getEliminationHandler().eliminate(player);
-                player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
+                var data = BanConfig.INSTANCE.findHighest(player,
+                        MainConfig.Elimination.Bans.banMessage,
+                        MainConfig.Elimination.Bans.getBanTime()
+                );
+
+                getPlugin().getEliminationHandler().eliminate(player, data);
+                player.kickPlayer(data.message());
                 return true;
             }
 
@@ -38,12 +60,17 @@ public class WithdrawCommand extends SMPCommand {
         var result = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 player,
                 amount * MainConfig.Elimination.getHeartScale(),
-                MainConfig.Elimination.getMin()
+                MainConfig.Elimination.getMinHearts()
         );
 
         if (result.isBelowMin()) {
-            getPlugin().getEliminationHandler().eliminate(player);
-            player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
+            var data = BanConfig.INSTANCE.findHighest(player,
+                    MainConfig.Elimination.Bans.banMessage,
+                    MainConfig.Elimination.Bans.getBanTime()
+            );
+
+            getPlugin().getEliminationHandler().eliminate(player, data);
+            player.kickPlayer(data.message());
             return true;
         }
 

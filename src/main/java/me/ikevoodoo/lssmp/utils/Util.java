@@ -3,6 +3,7 @@ package me.ikevoodoo.lssmp.utils;
 import me.ikevoodoo.lssmp.config.MainConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.items.ItemEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +20,7 @@ public class Util {
                     .getItem("heart_item")
                     .orElseThrow()
                     .getItemStack(), dropAt);
+            Bukkit.broadcastMessage("Dropping heart.");
             return;
         }
 
@@ -28,7 +30,7 @@ public class Util {
                 max
         );
 
-        plugin.getHealthHelper().getMaxHealth(entity);
+        Bukkit.broadcastMessage(result.toString());
 
         if (!result.isInRange()) {
             drop(plugin

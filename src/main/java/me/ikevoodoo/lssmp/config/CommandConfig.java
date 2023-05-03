@@ -137,6 +137,7 @@ public class CommandConfig {
         public static class Messages {
             public static String withdraw = "§6You have withdrawn %amount% heart(s)!";
             public static String withdrawnTooMuch = "§cWithdraw count is too high! Lower it to at least %max%!";
+            public static String withdrawnTooLittle = "§cWithdraw count is too little! Withdraw at least one heart!";
             public static String notEnoughSpace = "§cYou do not have enough space to fit %amount% heart(s) in your inventory!";
         }
 

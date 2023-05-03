@@ -1,6 +1,7 @@
 package me.ikevoodoo.lssmp.config.bans;
 
 import me.ikevoodoo.lssmp.config.errors.ConfigError;
+import me.ikevoodoo.smpcore.handlers.EliminationData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
@@ -66,6 +67,15 @@ public class BanConfig {
         }
 
         return highest;
+    }
+
+    public EliminationData findHighest(Permissible permissible, String fallbackMessage, long fallbackTime) {
+        var data = BanConfig.INSTANCE.findHighest(permissible);
+
+        var banMessage = data == null ? fallbackMessage : data.banMessage();
+        var time = data == null ? fallbackTime : data.time();
+
+        return new EliminationData(banMessage, time);
     }
 
     public BanTimeData getByName(String name) {

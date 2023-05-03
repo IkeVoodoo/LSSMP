@@ -6,7 +6,6 @@ import me.ikevoodoo.lssmp.config.bans.BanConfig;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.handlers.EliminationData;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.entity.Player;
 
@@ -31,13 +30,10 @@ public class EliminateCommand extends SMPCommand {
         var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
 
         for(Player player : players) {
-            var data = BanConfig.INSTANCE.findHighest(player);
+            var data = BanConfig.INSTANCE.findHighest(player, defaultBanMessage, standardBanTime);
 
-            var banMessage = data == null ? defaultBanMessage : data.banMessage();
-            var time = data == null ? standardBanTime : data.time();
-
-            getPlugin().getEliminationHandler().eliminate(player, new EliminationData(banMessage, time));
-            player.kickPlayer(banMessage);
+            getPlugin().getEliminationHandler().eliminate(player, data);
+            player.kickPlayer(data.message());
         }
 
         context.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedPlayers.replace("%s", String.valueOf(players.size())));

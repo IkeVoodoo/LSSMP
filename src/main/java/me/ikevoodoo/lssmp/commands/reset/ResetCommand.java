@@ -29,9 +29,10 @@ public class ResetCommand extends SMPCommand {
         for(OfflinePlayer offlinePlayer : players) {
             if(offlinePlayer.isOnline()) {
                 this.handlePlayer(offlinePlayer.getPlayer());
-            } else {
-                getPlugin().getJoinActionHandler().runOnJoin(offlinePlayer.getUniqueId(), this::handlePlayer);
+                continue;
             }
+
+            getPlugin().getJoinActionHandler().runOnceOnJoin(offlinePlayer.getUniqueId(), this::handlePlayer);
         }
 
         context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", String.valueOf(players.size())));
@@ -39,13 +40,12 @@ public class ResetCommand extends SMPCommand {
     }
 
     private void handlePlayer(UUID id) {
-        var player = Bukkit.getPlayer(id);
-        this.handlePlayer(player);
+        this.handlePlayer(Bukkit.getPlayer(id));
     }
 
     private void handlePlayer(Player player) {
         if (player == null) return;
 
-        getPlugin().getHealthHelper().setMaxHeartsEverywhere(player, MainConfig.Elimination.defaultHearts);
+        getPlugin().getHealthHelper().setMaxHealthEverywhere(player, MainConfig.Elimination.defaultHearts * 2);
     }
 }

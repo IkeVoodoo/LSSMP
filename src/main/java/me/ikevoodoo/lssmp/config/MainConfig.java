@@ -3,6 +3,7 @@ package me.ikevoodoo.lssmp.config;
 import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.smpcore.config.annotations.Config;
 import me.ikevoodoo.smpcore.config.annotations.ListType;
+import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.World;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class MainConfig {
 
         public static double minHearts = 5.0;
         public static boolean useMinHealth = false;
-        public static boolean banAtMinHealth = false;
+        public static boolean banAtMinHealth = true;
         public static double defaultHearts = 10.0;
 
         public static boolean useReviveHearts = true;
@@ -45,6 +46,10 @@ public class MainConfig {
 
             public static boolean broadcastBan = false;
             public static String broadcastMessage = "§c%player% has lost all of their hearts and has been banned.";
+
+            public static long getBanTime() {
+                return useBanTime ? StringUtils.parseBanTime(banTime) : Long.MAX_VALUE;
+            }
         }
 
         public static boolean perWorldHearts = false;
@@ -60,8 +65,12 @@ public class MainConfig {
             return (useMaxHealth ? maxHearts : 1024) * 2;
         }
 
-        public static double getMin() {
-            return (useMinHealth ? minHearts : 0);
+        public static double getMinHearts() {
+            return getMinHealth() * 2;
+        }
+
+        public static double getMinHealth() {
+            return (useMinHealth ? minHearts : 0) * 2;
         }
 
         public static double getHeartScale() {

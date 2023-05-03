@@ -7,7 +7,6 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.handlers.EliminationData;
-import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
 
 public class EliminateAllCommand extends SMPCommand {
@@ -18,7 +17,7 @@ public class EliminateAllCommand extends SMPCommand {
     @Override
     public boolean execute(Context<?> contexts) {
         var defaultBanMessage = MainConfig.Elimination.Bans.banMessage;
-        var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
+        var standardBanTime = MainConfig.Elimination.Bans.getBanTime();
 
         for (var player : Bukkit.getOnlinePlayers()) {
             var data = BanConfig.INSTANCE.findHighest(player);
