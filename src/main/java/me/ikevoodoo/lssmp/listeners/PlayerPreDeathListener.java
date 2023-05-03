@@ -40,8 +40,6 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        Bukkit.broadcastMessage("[PPK] Passed checks!");
-
         Util.increaseOrDrop(
                 MainConfig.Elimination.getHeartScale(),
                 MainConfig.Elimination.getMax(),
@@ -58,8 +56,6 @@ public class PlayerPreDeathListener extends SMPListener {
 
         if(result.newHealth() <= MainConfig.Elimination.getMinHearts() && MainConfig.Elimination.banAtMinHealth)
             eliminate(killed);
-
-        Bukkit.broadcastMessage("[PPK] Processed!");
     }
 
     @EventHandler
@@ -84,8 +80,6 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        Bukkit.broadcastMessage("[EPK] Passed checks!");
-
         if(MainConfig.Elimination.alwaysDropHearts || MainConfig.Elimination.environmentDropHearts) {
             Util.drop(
                     getPlugin()
@@ -104,8 +98,6 @@ public class PlayerPreDeathListener extends SMPListener {
 
         if(setResult.newHealth() <= MainConfig.Elimination.getMinHearts() && MainConfig.Elimination.banAtMinHealth)
             eliminate(player);
-
-        Bukkit.broadcastMessage("[EPK] Processed!");
     }
 
     @EventHandler
