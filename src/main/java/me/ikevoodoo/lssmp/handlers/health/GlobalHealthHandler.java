@@ -29,4 +29,20 @@ public class GlobalHealthHandler implements HealthHandler {
 
         return attrib.getBaseValue();
     }
+
+    @Override
+    public double getMaxHealth(LivingEntity livingEntity, World world) {
+        return getMaxHealth(livingEntity);
+    }
+
+    @Override
+    public double updateMaxHealth(LivingEntity livingEntity) {
+        var amount = this.getMaxHealth(livingEntity);
+        var attrib = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (attrib == null)
+            return amount;
+
+        attrib.setBaseValue(amount);
+        return amount;
+    }
 }

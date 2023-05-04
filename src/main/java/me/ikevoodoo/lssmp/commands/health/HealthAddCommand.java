@@ -7,6 +7,7 @@ import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import me.ikevoodoo.smpcore.commands.arguments.Argument;
 import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class HealthAddCommand extends SMPCommand {
@@ -14,7 +15,8 @@ public class HealthAddCommand extends SMPCommand {
         super(plugin, CommandConfig.HealthCommand.HealthAddCommand.name, CommandConfig.HealthCommand.HealthAddCommand.perms);
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
-                new Argument("hearts", true, Double.class, OptionalFor.NONE)
+                new Argument("hearts", true, Double.class, OptionalFor.NONE),
+                new Argument("world", false, World.class, OptionalFor.ALL)
         );
     }
 
@@ -25,9 +27,30 @@ public class HealthAddCommand extends SMPCommand {
 
         var player = context.args().get("player", Player.class);
 
-        var oldHearts = getPlugin().getHealthHelper().getMaxHealth(player) / MainConfig.Elimination.getHeartScale();
+        double oldHearts;
+        double newHearts;
+        if (context.args().has("world")) {
+            var world = context.args().get("world", World.class);
+            if (world == null) {
+                context.source().sendMessage(String.format(
+                        CommandConfig.HealthCommand.Messages.unknownWorld,
+                        context.args().get("world", String.class)
+                ));
+                return true;
+            }
 
-        var newHearts = getPlugin().getHealthHelper().increaseMaxHealth(player, health) / MainConfig.Elimination.getHeartScale();
+            oldHearts = getPlugin().getHealthHelper().getMaxHealth(player, world);
+            newHearts = getPlugin().getHealthHelper().increaseMaxHealth(player, health, world);
+        } else {
+            oldHearts = getPlugin().getHealthHelper().getMaxHealth(player);
+            newHearts = getPlugin().getHealthHelper().increaseMaxHealth(player, health);
+        }
+
+        getPlugin().getHealthHelper().updateHealth(player);
+
+        oldHearts /= MainConfig.Elimination.getHeartScale();
+        newHearts /= MainConfig.Elimination.getHeartScale();
+
         context.source().sendMessage(String.format(
                 CommandConfig.HealthCommand.Messages.addMessage,
                 player.getName(),

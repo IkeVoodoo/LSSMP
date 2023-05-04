@@ -16,33 +16,46 @@ public class HealthSetCommand extends SMPCommand {
 
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
-                new Argument("hearts", true, Double.class, OptionalFor.NONE),
+                new Argument("health", true, Double.class, OptionalFor.NONE),
                 new Argument("world", false, World.class, OptionalFor.ALL)
         );
     }
 
     @Override
     public boolean execute(Context<?> context) {
-        var hearts = context.args().get("hearts", Double.class) * MainConfig.Elimination.getHeartScale();
+        var hearts = context.args().get("health", Double.class);
+        var health = hearts * MainConfig.Elimination.getHeartScale();
         var player = context.args().get("player", Player.class);
         var oldHearts = getPlugin().getHealthHelper().getMaxHealth(player) / MainConfig.Elimination.getHeartScale();
 
         if (context.args().has("world")) {
             var world = context.args().get("world", World.class);
+            if (world == null) {
+                context.source().sendMessage(String.format(
+                        CommandConfig.HealthCommand.Messages.unknownWorld,
+                        context.args().get("world", String.class)
+                ));
+                return true;
+            }
 
-            var setTo = getPlugin().getHealthHelper().setMaxHealth(player, hearts, world);
+            var newHearts = getPlugin().getHealthHelper().setMaxHealth(player, health, world) / MainConfig.Elimination.getHeartScale();
+            getPlugin().getHealthHelper().updateHealth(player);
 
             context.source().sendMessage(String.format(
                     CommandConfig.HealthCommand.Messages.setInWorldMessage,
                     player.getName(),
-                    setTo,
+                    newHearts,
                     world.getName(),
                     oldHearts
             ));
             return true;
         }
 
-        getPlugin().getHealthHelper().setMaxHealthEverywhere(player, hearts);
+        getPlugin().getHealthHelper().setMaxHealthEverywhere(player, health);
+        getPlugin().getHealthHelper().updateHealth(player);
+
+
+
         context.source().sendMessage(String.format(
                 CommandConfig.HealthCommand.Messages.setMessage,
                 player.getName(),

@@ -1,7 +1,6 @@
 package me.ikevoodoo.lssmp.handlers.health;
 
 import me.ikevoodoo.smpcore.utils.PDCUtils;
-import me.ikevoodoo.smpcore.utils.Pair;
 import me.ikevoodoo.smpcore.utils.health.HealthHandler;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -10,7 +9,6 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 public class WorldHealthHandler implements HealthHandler {
@@ -41,13 +39,28 @@ public class WorldHealthHandler implements HealthHandler {
 
     @Override
     public double getMaxHealth(LivingEntity livingEntity) {
-        var world = livingEntity.getWorld();
+        AttributeInstance instance = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        return instance == null ? 20 : instance.getBaseValue();
+    }
+
+    @Override
+    public double getMaxHealth(LivingEntity livingEntity, World world) {
         var container = livingEntity.getPersistentDataContainer();
-        Optional<Pair<String, Double>> amount = PDCUtils.getPartial(container, world.getUID().toString(), PersistentDataType.DOUBLE);
+        var amount = PDCUtils.getPartial(container, world.getUID().toString(), PersistentDataType.DOUBLE);
         if (amount.isPresent())
             return amount.get().getSecond();
 
-        AttributeInstance instance = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        return instance == null ? 20 : instance.getBaseValue();
+        return 20;
+    }
+
+    @Override
+    public double updateMaxHealth(LivingEntity livingEntity) {
+        var amount = this.getMaxHealth(livingEntity, livingEntity.getWorld());
+        var attrib = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (attrib == null)
+            return amount;
+
+        attrib.setBaseValue(amount);
+        return amount;
     }
 }

@@ -62,6 +62,8 @@ public class CommandConfig {
 
             // §3PlayerName §c-%s§4❤ §6(§a%s§4❤ §6-> §c%s§4❤§6)
             public static String subMessage = "§3%s §c-%s§4❤ §6(§a%s§4❤ §6-> §c%s§4❤§6)";
+
+            public static String unknownWorld = "§cCould not find world §3%s";
         }
     }
 
