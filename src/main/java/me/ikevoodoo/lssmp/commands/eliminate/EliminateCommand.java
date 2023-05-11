@@ -2,11 +2,10 @@ package me.ikevoodoo.lssmp.commands.eliminate;
 
 import me.ikevoodoo.lssmp.config.CommandConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
-import me.ikevoodoo.lssmp.config.bans.BanConfig;
+import me.ikevoodoo.lssmp.utils.Util;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
-import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -26,14 +25,9 @@ public class EliminateCommand extends SMPCommand {
 
         List<Player> players = context.args().getAll(Player.class);
 
-        var defaultBanMessage = MainConfig.Elimination.Bans.banMessage;
-        var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
 
         for(Player player : players) {
-            var data = BanConfig.INSTANCE.findHighest(player, defaultBanMessage, standardBanTime);
-
-            getPlugin().getEliminationHandler().eliminate(player, data);
-            player.kickPlayer(data.message());
+            Util.eliminate(getPlugin(), player);
         }
 
         context.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedPlayers.replace("%s", String.valueOf(players.size())));

@@ -43,13 +43,7 @@ public class WithdrawCommand extends SMPCommand {
 
         if (amount > max) {
             if (CommandConfig.WithdrawCommand.withdrawEliminates) {
-                var data = BanConfig.INSTANCE.findHighest(player,
-                        MainConfig.Elimination.Bans.banMessage,
-                        MainConfig.Elimination.Bans.getBanTime()
-                );
-
-                getPlugin().getEliminationHandler().eliminate(player, data);
-                player.kickPlayer(data.message());
+                Util.eliminate(getPlugin(), player);
                 return true;
             }
 

@@ -1,20 +1,24 @@
 package me.ikevoodoo.lssmp.listeners;
 
+import dev.refinedtech.configlang.scope.Scope;
+import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.lssmp.config.MainConfig;
-import me.ikevoodoo.lssmp.config.bans.BanConfig;
+import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.utils.Util;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.events.PlayerPreDeathEvent;
 import me.ikevoodoo.smpcore.events.TotemCheckEvent;
-import me.ikevoodoo.smpcore.handlers.EliminationData;
 import me.ikevoodoo.smpcore.listeners.SMPListener;
-import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PlayerPreDeathListener extends SMPListener {
 
@@ -28,15 +32,17 @@ public class PlayerPreDeathListener extends SMPListener {
         var world = killed.getWorld();
         var eventKiller = event.getKiller();
 
+        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+            return;
+        }
+
         if (!(eventKiller instanceof Player killer)) {
             return;
         }
 
-        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(killed, killer)) {
-            return;
-        }
+        fireKillEvent(killed, killer);
 
-        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(killed, killer)) {
             return;
         }
 
@@ -62,6 +68,11 @@ public class PlayerPreDeathListener extends SMPListener {
     public void onEnvironmentPreKill(PlayerPreDeathEvent event) {
         var player = event.getPlayer();
         var world = player.getWorld();
+
+        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+            return;
+        }
+
         var killer = event.getKiller();
 
         if (killer instanceof Player) {
@@ -72,11 +83,9 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(player, killer)) {
-            return;
-        }
+        fireKillEvent(player, killer);
 
-        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(player, killer)) {
             return;
         }
 
@@ -108,31 +117,50 @@ public class PlayerPreDeathListener extends SMPListener {
     }
 
     private void eliminate(Player player) {
-        Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-            if (getPlugin().getEliminationHandler().isEliminated(player)) return;
+        Bukkit.getScheduler().runTaskLater(getPlugin(), () -> Util.eliminate(getPlugin(), player), 1);
+    }
 
-            var banData = BanConfig.INSTANCE.findHighest(player);
+    private void fireKillEvent(Player killed, Entity killer) {
+        Scope scope = new Scope("elimination");
 
-            var standardBanTime = StringUtils.parseBanTime(MainConfig.Elimination.Bans.banTime);
-            var standardBanMessage = MainConfig.Elimination.Bans.banMessage;
+        scope.variables().set("hasVictim", killed != null);
+        scope.variables().set("hasKiller", killer != null);
+        scope.variables().set("hasPlayerKiller", killer instanceof Player);
 
-            var banTime = banData == null ? standardBanTime : banData.time();
-            var banMessage = banData == null ? standardBanMessage : banData.banMessage();
+        if (killed != null) {
+            var killedWorld = killed.getWorld();
+            scope.variables().set("killed", new Object() {
+                public final String name = killed.getName();
+                public final String displayName = killed.getDisplayName();
+                public final UUID uuid = killed.getUniqueId();
+                public final double health = killed.getHealth();
+                public final double maxHealth = killed.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
 
-            if(MainConfig.Elimination.Bans.broadcastBan) {
-                var standardBroadcastMessage = MainConfig.Elimination.Bans.broadcastMessage;
+                public final String worldName = killedWorld.getName();
+                public final UUID worldUUID = killedWorld.getUID();
+            });
+        }
 
-                var broadcastMessage = banData == null ? standardBroadcastMessage : banData.broadcastBanMessage();
+        if (killer != null) {
+            var killerWorld = killer.getWorld();
+            scope.variables().set("killer", new Object() {
+                public final String name = killer.getName();
+                public final String displayName = killer instanceof Player player ? player.getDisplayName() : killer.getName();
+                public final UUID uuid = killer.getUniqueId();
+                public final boolean isMob = killer instanceof LivingEntity;
+                public final double health = killer instanceof LivingEntity livingEntity ? livingEntity.getHealth() : 0;
+                public final double maxHealth = killer instanceof LivingEntity livingEntity
+                        ? livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()
+                        : 0;
 
-                Bukkit.broadcastMessage(broadcastMessage.replace("%player%", player.getDisplayName()));
-            }
+                public final String worldName = killerWorld.getName();
+                public final UUID worldUUID = killerWorld.getUID();
+            });
+        }
 
-            var usedTime = MainConfig.Elimination.Bans.useBanTime ? banTime : Long.MAX_VALUE;
 
-            getPlugin().getEliminationHandler().eliminate(player, new EliminationData(banMessage, usedTime));
-
-            player.kickPlayer(MainConfig.Elimination.Bans.banMessage);
-        }, 1);
+        getPlugin(LSSMP.class).getLanguage().execute(YamlConfigSection.of(
+                getYamlConfig("events.yml").getConfigurationSection("killed")), scope);
     }
 
 }

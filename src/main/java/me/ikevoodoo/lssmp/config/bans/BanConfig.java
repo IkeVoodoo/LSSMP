@@ -59,7 +59,10 @@ public class BanConfig {
     public BanTimeData findHighest(Permissible permissible) {
         BanTimeData highest = null;
         for (var entry : this.banTimeDatas.entrySet()) {
-            if (!permissible.hasPermission(entry.getValue().permission()))
+
+            var data = entry.getValue();
+
+            if (data.permission() != null && !data.permission().isBlank() && !permissible.hasPermission(data.permission()))
                 continue;
 
             if(highest == null || highest.time() < entry.getValue().time())

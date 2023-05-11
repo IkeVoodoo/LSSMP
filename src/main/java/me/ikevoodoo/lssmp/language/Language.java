@@ -88,9 +88,29 @@ public class Language extends PluginProvider {
             protected Object run(ConfigSection section, Scope scope, Object... args) {
                 Object left = getVar(section, "left", scope, args);
                 Object right = getVar(section, "right", scope, args);
-                String operator = String.valueOf(lang.getData(section, "operator", scope, args));
+
+                String operator = String.valueOf(getVar(section, "operator", scope, args));
 
                 if (left == null || right == null) return false;
+                System.out.println(left.getClass() + " " + operator + " " + right.getClass());
+
+                if (operator.equalsIgnoreCase("==")) {
+                    return left.equals(right);
+                }
+
+                if (operator.equalsIgnoreCase("!=")) {
+                    return !left.equals(right);
+                }
+
+                if (operator.equalsIgnoreCase("===")) {
+                    return (left.getClass().isAssignableFrom(right.getClass()) || right.getClass().isAssignableFrom(left.getClass()))
+                            && left.equals(right);
+                }
+
+                if (operator.equalsIgnoreCase("!==")) {
+                    return (left.getClass().isAssignableFrom(right.getClass()) || right.getClass().isAssignableFrom(left.getClass()))
+                            && !left.equals(right);
+                }
 
                 if (ClassUtils.is(left, Number.class) && ClassUtils.is(right, Number.class)) {
                     double leftDouble = ((Number)left).doubleValue();
@@ -127,15 +147,12 @@ public class Language extends PluginProvider {
                     };
                 }
 
-                return switch (operator) {
-                    case "==" -> left == right;
-                    case "!=" -> left != right;
-                    case "===" ->
-                            (left.getClass().isAssignableFrom(right.getClass()) || right.getClass().isAssignableFrom(left.getClass()))
-                                && left.equals(right);
-                    case "+" -> String.valueOf(left) + right;
-                    default -> false;
-                };
+
+                if (operator.equalsIgnoreCase("+")) {
+                    return String.valueOf(left) + right;
+                }
+
+                return false;
             }
         });
 

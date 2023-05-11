@@ -65,12 +65,12 @@ public class MainConfig {
             return (useMaxHealth ? maxHearts : 1024) * 2;
         }
 
-        public static double getMinHearts() {
-            return getMinHealth() * 2;
+        public static double getMin() {
+            return (useMinHealth ? minHearts : 0) * 2;
         }
 
-        public static double getMinHealth() {
-            return (useMinHealth ? minHearts : 0) * 2;
+        public static double getMinHearts() {
+            return getMin() * 2;
         }
 
         public static double getHeartScale() {
