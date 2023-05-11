@@ -24,7 +24,6 @@ public class Util {
                     .getItem("heart_item")
                     .orElseThrow()
                     .getItemStack(), dropAt);
-            Bukkit.broadcastMessage("Dropping heart.");
             return;
         }
 
@@ -33,8 +32,6 @@ public class Util {
                 amount,
                 max
         );
-
-        Bukkit.broadcastMessage(result.toString());
 
         if (!result.isInRange()) {
             drop(plugin

@@ -92,7 +92,6 @@ public class Language extends PluginProvider {
                 String operator = String.valueOf(getVar(section, "operator", scope, args));
 
                 if (left == null || right == null) return false;
-                System.out.println(left.getClass() + " " + operator + " " + right.getClass());
 
                 if (operator.equalsIgnoreCase("==")) {
                     return left.equals(right);
