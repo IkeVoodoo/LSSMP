@@ -18,7 +18,7 @@ public class HealthCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
-        context.source().sendMessage("§cUsage: §f/lshealth <set|add|sub|get>");
+        context.source().sendMessage("§cPlease use either §fset§c, §fadd§c, §fsub §cor §fget§c.");
         return true;
     }
 }

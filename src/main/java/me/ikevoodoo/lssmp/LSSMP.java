@@ -35,7 +35,7 @@ import java.util.logging.Level;
 
 public final class LSSMP extends SMPPlugin {
 
-    public static final int CURRENT_CONFIG_VERSION = 10;
+    public static final int CURRENT_CONFIG_VERSION = 11;
     private final Lazy<Language> lazyLanguage;
 
     public LSSMP() {

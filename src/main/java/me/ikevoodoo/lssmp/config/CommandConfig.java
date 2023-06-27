@@ -27,6 +27,12 @@ public class CommandConfig {
         public static String perms = "lssmp.give";
     }
 
+
+    public static class PermSetupCommand {
+        public static String name = "lsperms";
+        public static String perms = "lssmp.perms";
+    }
+
     public static class HealthCommand {
         public static String name = "lshealth";
         public static String perms = "lssmp.health";
@@ -64,6 +70,30 @@ public class CommandConfig {
             public static String subMessage = "§3%s §c-%s§4❤ §6(§a%s§4❤ §6-> §c%s§4❤§6)";
 
             public static String unknownWorld = "§cCould not find world §3%s";
+        }
+    }
+
+    public static class ConfigCommand {
+        public static String name = "lsconfig";
+        public static String perms = "lssmp.config";
+
+        public static class ConfigSetCommand {
+            public static String name = "set";
+            public static String perms = "lssmp.config.set";
+        }
+
+        public static class ConfigGetCommand {
+            public static String name = "get";
+            public static String perms = "lssmp.config.get";
+        }
+
+        public static class Messages {
+
+            public static String configGetMessage = "§7[§6%config%§7] §b%path% §fis %value%";
+            public static String configSetMessage = "§7[§6%config%§7] §b%path% §fwas set to %value%";
+
+            public static String value = "§a%s";
+            public static String stringValue = "§a\"%s§a\"";
         }
     }
 
