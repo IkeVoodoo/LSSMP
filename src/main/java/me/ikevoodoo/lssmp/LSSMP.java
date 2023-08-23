@@ -12,7 +12,6 @@ import me.ikevoodoo.lssmp.handlers.health.WorldHealthHandler;
 import me.ikevoodoo.lssmp.language.Language;
 import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.menus.RecipeEditor;
-import me.ikevoodoo.lssmp.menus.ReviveBeaconUI;
 import me.ikevoodoo.lssmp.menus.SharedItems;
 import me.ikevoodoo.lssmp.menus.selection.PlayerSelector;
 import me.ikevoodoo.smpcore.SMPPlugin;
@@ -87,7 +86,6 @@ public final class LSSMP extends SMPPlugin {
         };
 
         SharedItems.register(this);
-        ReviveBeaconUI.createItems(this);
 
         if (isInstalled("PlaceholderAPI")) {
             PlaceholderHandler.create(this, "lssmp", "1.0.0")
@@ -107,12 +105,7 @@ public final class LSSMP extends SMPPlugin {
             toRevive.forEach(uuid -> getEliminationHandler().reviveOffline(Bukkit.getOfflinePlayer(uuid)));
         }, 0, 20L * 5L);
 
-        getEliminationHandler().onCacheUpdated((uuid, number) -> {
-            ReviveBeaconUI.createItems(this);
-            ReviveBeaconUI.createMenus(this);
-
-            this.updatePlayerSelector();
-        });
+        getEliminationHandler().onCacheUpdated((uuid, number) -> this.updatePlayerSelector());
 
         getEliminationHandler().listen(EliminationType.ELIMINATED, (eliminationType, player) -> {
             Scope scope = new Scope("elimination");
@@ -188,7 +181,6 @@ public final class LSSMP extends SMPPlugin {
         this.reloadConfigs();
 
         RecipeEditor.createMenus(this);
-        ReviveBeaconUI.createMenus(this);
 
         this.updatePlayerSelector();
 
