@@ -12,10 +12,14 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigCommand extends SMPCommand {
     public ConfigCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ConfigCommand.name, CommandConfig.ConfigCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getConfigCommand().name(),
+                "permission", commandConfig.getConfigCommand().perms()
+        )));
         registerSubCommands(
                 new ConfigGetCommand(plugin),
                 new ConfigSetCommand(plugin)

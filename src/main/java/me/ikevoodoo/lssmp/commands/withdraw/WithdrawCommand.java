@@ -14,53 +14,63 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class WithdrawCommand extends SMPCommand {
     public WithdrawCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.WithdrawCommand.name, CommandConfig.WithdrawCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getWithdrawCommand().name(),
+                "permission", commandConfig.getWithdrawCommand().perms()
+        )));
         setUsable(CommandUsable.PLAYER);
         setArgs(new Argument("amount", false, Integer.class, OptionalFor.ALL));
     }
 
     @Override
     public boolean execute(Context<?> context) {
-        Player player = context.source(Player.class);
+        var elimination = getConfig(MainConfig.class).getEliminationConfig();
+        var bans = elimination.getBansConfig();
+        var conf = getConfig(CommandConfig.class).getWithdrawCommand();
+        var messages = conf.getMessages();
+
+        var player = context.source(Player.class);
         var amount = Math.abs(context.args().get("amount", Integer.class, 1));
         if (amount < 1) {
-            player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdrawnTooLittle);
+            player.sendMessage(messages.withdrawnTooLittle());
             return true;
         }
 
         var maxHealth = Bukkit.spigot().getConfig().getDouble("settings.attribute.maxHealth.max", 2048);
-        var maxHearts = Math.floor(maxHealth / MainConfig.Elimination.getHeartScale());
+        var maxHearts = Math.floor(maxHealth / elimination.getHeartScale());
 
         // At 10 hearts it's 20 / (1 * 2) for the default config
-        var max = getPlugin().getHealthHelper().getMaxHealth(player) / MainConfig.Elimination.getHeartScale();
+        var max = getPlugin().getHealthHelper().getMaxHealth(player) / elimination.getHeartScale();
 
         if (amount >= maxHearts) {
-            player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdrawnTooMuch.replace("%max%", String.valueOf(max)));
+            player.sendMessage(messages.withdrawnTooMuch().replace("%max%", String.valueOf(max)));
             return true;
         }
 
         if (amount > max) {
-            if (CommandConfig.WithdrawCommand.withdrawEliminates) {
+            if (conf.withdrawEliminates()) {
                 Util.eliminate(getPlugin(), player);
                 return true;
             }
 
-            player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdrawnTooMuch.replace("%max%", String.valueOf(max)));
+            player.sendMessage(messages.withdrawnTooMuch().replace("%max%", String.valueOf(max)));
             return true;
         }
 
         var result = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 player,
-                amount * MainConfig.Elimination.getHeartScale(),
-                MainConfig.Elimination.getMinHearts()
+                amount * elimination.getHeartScale(),
+                elimination.getMinHearts()
         );
 
         if (result.isBelowMin()) {
             var data = BanConfig.INSTANCE.findHighest(player,
-                    MainConfig.Elimination.Bans.banMessage,
-                    MainConfig.Elimination.Bans.getBanTime()
+                    bans.banMessage(),
+                    bans.getBanTime()
             );
 
             getPlugin().getEliminationHandler().eliminate(player, data);
@@ -76,11 +86,11 @@ public class WithdrawCommand extends SMPCommand {
                 .map(ItemStack::getAmount)
                 .reduce(0, Integer::sum);
 
-        if (!MainConfig.Elimination.fullInventoryHeartDrop && sum > 0) {
-            var toAdd = sum * MainConfig.Elimination.getHeartScale();
+        if (!elimination.fullInventoryHeartDrop() && sum > 0) {
+            var toAdd = sum * elimination.getHeartScale();
             var newHealth = getPlugin().getHealthHelper().increaseMaxHealth(player, toAdd);
             player.setHealth(Math.min(toAdd, newHealth));
-            player.sendMessage(CommandConfig.WithdrawCommand.Messages.notEnoughSpace.replace("%amount%", String.valueOf(sum)));
+            player.sendMessage(messages.notEnoughSpace().replace("%amount%", String.valueOf(sum)));
             return true;
         }
 
@@ -97,7 +107,7 @@ public class WithdrawCommand extends SMPCommand {
 
             sum -= count;
         }
-        player.sendMessage(CommandConfig.WithdrawCommand.Messages.withdraw.replace("%amount%", String.valueOf(amount)));
+        player.sendMessage(messages.withdraw().replace("%amount%", String.valueOf(amount)));
         return true;
     }
 }

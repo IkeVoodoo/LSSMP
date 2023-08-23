@@ -6,27 +6,39 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 public class ResetAllCommand extends SMPCommand {
     protected ResetAllCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ResetCommand.ResetAllCommand.name, CommandConfig.ResetCommand.ResetAllCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getResetCommand().getResetAllCommand().name(),
+                "permission", commandConfig.getResetCommand().getResetAllCommand().perms()
+        )));
     }
 
     @Override
     public boolean execute(Context<?> context) {
-        Bukkit.getOnlinePlayers().forEach(player -> getPlugin().getHealthHelper().setMaxHealthEverywhere(player, MainConfig.Elimination.defaultHearts * 2));
+        var defaultHearts = getConfig(MainConfig.class).getEliminationConfig().defaultHearts();
+        Bukkit.getOnlinePlayers().forEach(player -> getPlugin().getHealthHelper().setMaxHealthEverywhere(player, defaultHearts * 2));
 
-        for(OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-            getPlugin().getJoinActionHandler().runOnceOnJoin(player.getUniqueId(), id -> {
-                Player plr = Bukkit.getPlayer(id);
-                if(plr != null) {
-                    getPlugin().getHealthHelper().setMaxHealthEverywhere(plr, MainConfig.Elimination.defaultHearts * 2);
-                }
+        for(var offlinePlayer : Bukkit.getOfflinePlayers()) {
+            getPlugin().getJoinActionHandler().runOnceOnJoin(offlinePlayer.getUniqueId(), id -> {
+                var player = Bukkit.getPlayer(id);
+                if (player == null) return;
+
+                getPlugin().getHealthHelper().setMaxHealthEverywhere(player, defaultHearts * 2);
             });
         }
-        context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetAllPlayers);
+
+        context.source().sendMessage(
+                getPlugin()
+                        .getConfigHandler()
+                        .getConfig(CommandConfig.class)
+                        .getResetCommand()
+                        .getMessages()
+                        .resetAllPlayers()
+        );
         return true;
     }
 }

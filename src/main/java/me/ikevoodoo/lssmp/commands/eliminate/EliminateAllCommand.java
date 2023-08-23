@@ -7,9 +7,14 @@ import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import org.bukkit.Bukkit;
 
+import java.util.Map;
+
 public class EliminateAllCommand extends SMPCommand {
     protected EliminateAllCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.EliminateCommand.EliminateAllCommand.name, CommandConfig.EliminateCommand.EliminateAllCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getEliminateCommand().getEliminateAllCommand().name(),
+                "permission", commandConfig.getEliminateCommand().getEliminateAllCommand().perms()
+        )));
     }
 
     @Override
@@ -27,7 +32,12 @@ public class EliminateAllCommand extends SMPCommand {
             Util.eliminate(getPlugin(), player);
         }
 
-        contexts.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedAllPlayers);
+        contexts.source().sendMessage(getPlugin()
+                .getConfigHandler()
+                .getConfig(CommandConfig.class)
+                .getEliminateCommand()
+                .getMessages()
+                .eliminatedAllPlayers());
         return true;
     }
 }

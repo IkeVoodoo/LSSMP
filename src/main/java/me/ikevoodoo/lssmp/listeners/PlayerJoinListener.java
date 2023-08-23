@@ -20,11 +20,11 @@ public class PlayerJoinListener extends SMPListener {
         if(!event.getPlayer().hasPlayedBefore()) {
             getPlugin().getHealthHelper().setMaxHearts(
                     event.getPlayer(),
-                    MainConfig.Elimination.defaultHearts
+                    getConfig(MainConfig.class).getEliminationConfig().defaultHearts()
             );
         }
 
-        if (ResourepackConfig.enabled) {
+        if (getConfig(ResourepackConfig.class).isEnabled()) {
             getPlugin().getResourcePackHandler().applyResourcePack(event.getPlayer(), "pack");
         }
 
@@ -32,12 +32,13 @@ public class PlayerJoinListener extends SMPListener {
         if (version.contains("Part") && !version.contains("Customization") && event.getPlayer().isOp()) {
             Player player = event.getPlayer();
             PersistentDataContainer container = player.getPersistentDataContainer();
-            if (container.has(makeKey("version_msg"), PersistentDataType.STRING) &&
-                    version.equals(container.get(makeKey("version_msg"), PersistentDataType.STRING))) {
+            var versionKey = makeKey("version_msg");
+            if (container.has(versionKey, PersistentDataType.STRING) &&
+                    version.equals(container.get(versionKey, PersistentDataType.STRING))) {
                 return;
             }
-            container.set(makeKey("version_msg"), PersistentDataType.STRING, version);
-            player.sendMessage("§cYou are using a Part version that is not complete, there won't be much customization.");
+            container.set(versionKey, PersistentDataType.STRING, version);
+            player.sendMessage("§cYou are using a Part version that is not complete, there won't be much customization for new features.");
         }
     }
 }

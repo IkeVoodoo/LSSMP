@@ -28,11 +28,12 @@ public class PlayerPreDeathListener extends SMPListener {
 
     @EventHandler
     public void onPlayerPreKill(PlayerPreDeathEvent event) {
+        var elimination = getConfig(MainConfig.class).getEliminationConfig();
         var killed = event.getPlayer();
         var world = killed.getWorld();
         var eventKiller = event.getKiller();
 
-        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+        if(!elimination.isWorldAllowed(world)) {
             return;
         }
 
@@ -42,13 +43,13 @@ public class PlayerPreDeathListener extends SMPListener {
 
         fireKillEvent(killed, killer);
 
-        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(killed, killer)) {
+        if (!elimination.allowSelfElimination() && Objects.equals(killed, killer)) {
             return;
         }
 
         Util.increaseOrDrop(
-                MainConfig.Elimination.getHeartScale(),
-                MainConfig.Elimination.getMax(),
+                elimination.getHeartScale(),
+                elimination.getMax(),
                 killer,
                 killed.getEyeLocation(),
                 getPlugin()
@@ -56,20 +57,21 @@ public class PlayerPreDeathListener extends SMPListener {
 
         var result = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 killed,
-                MainConfig.Elimination.getHeartScale(),
-                MainConfig.Elimination.getMinHearts()
+                elimination.getHeartScale(),
+                elimination.getMinHearts()
         );
 
-        if(result.newHealth() <= MainConfig.Elimination.getMinHearts() && MainConfig.Elimination.banAtMinHealth)
+        if(result.newHealth() <= elimination.getMinHearts() && elimination.banAtMinHealth())
             eliminate(killed);
     }
 
     @EventHandler
     public void onEnvironmentPreKill(PlayerPreDeathEvent event) {
+        var elimination = getConfig(MainConfig.class).getEliminationConfig();
         var player = event.getPlayer();
         var world = player.getWorld();
 
-        if(!MainConfig.Elimination.isWorldAllowed(world)) {
+        if(!elimination.isWorldAllowed(world)) {
             return;
         }
 
@@ -79,17 +81,17 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        if (!MainConfig.Elimination.environmentStealsHearts) {
+        if (!elimination.environmentStealsHearts()) {
             return;
         }
 
         fireKillEvent(player, killer);
 
-        if (!MainConfig.Elimination.allowSelfElimination && Objects.equals(player, killer)) {
+        if (!elimination.allowSelfElimination() && Objects.equals(player, killer)) {
             return;
         }
 
-        if(MainConfig.Elimination.alwaysDropHearts || MainConfig.Elimination.environmentDropHearts) {
+        if(elimination.alwaysDropHearts() || elimination.environmentDropHearts()) {
             Util.drop(
                     getPlugin()
                             .getItem("heart_item")
@@ -101,17 +103,17 @@ public class PlayerPreDeathListener extends SMPListener {
 
         var setResult = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 player,
-                MainConfig.Elimination.getEnvironmentHeartScale(),
-                MainConfig.Elimination.getMinHearts()
+                elimination.getEnvironmentHeartScale(),
+                elimination.getMinHearts()
         );
 
-        if(setResult.newHealth() <= MainConfig.Elimination.getMinHearts() && MainConfig.Elimination.banAtMinHealth)
+        if(setResult.newHealth() <= elimination.getMinHearts() && elimination.banAtMinHealth())
             eliminate(player);
     }
 
     @EventHandler
     public void on(TotemCheckEvent event) {
-        if (MainConfig.Elimination.totemWorksInInventory) {
+        if (getConfig(MainConfig.class).getEliminationConfig().totemWorksInInventory()) {
             event.setHasTotem(event.getInventory().contains(Material.TOTEM_OF_UNDYING));
         }
     }
@@ -160,7 +162,7 @@ public class PlayerPreDeathListener extends SMPListener {
 
 
         getPlugin(LSSMP.class).getLanguage().execute(YamlConfigSection.of(
-                getYamlConfig("events.yml").getConfigurationSection("killed")), scope);
+                getYmlConfig("events.yml").getConfigurationSection("killed")), scope);
     }
 
 }

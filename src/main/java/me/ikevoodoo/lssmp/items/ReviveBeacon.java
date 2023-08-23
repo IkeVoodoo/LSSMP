@@ -1,7 +1,9 @@
 package me.ikevoodoo.lssmp.items;
 
+import me.ikevoodoo.lssmp.LSSMP;
 import me.ikevoodoo.lssmp.config.ItemConfig;
 import me.ikevoodoo.lssmp.config.MainConfig;
+import me.ikevoodoo.lssmp.menus.selection.PlayerReviveCallback;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.callbacks.chat.ChatTransactionListener;
 import me.ikevoodoo.smpcore.commands.arguments.parsers.ParserRegistry;
@@ -42,14 +44,20 @@ public class ReviveBeacon extends CustomItem {
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
-        if(getPlugin().getChatInputHandler().hasListener(player)) {
-            return new ItemClickResult(ItemClickState.FAIL, true);
+        var beacon = getConfig(ItemConfig.class).getReviveBeacon();
+        var messages = beacon.getMessages();
+
+        if (beacon.getOptions().shouldUseMenu()) {
+            player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, .5f, 2);
+
+            getPlugin(LSSMP.class).getPlayerSelector().openFor(player, new PlayerReviveCallback(getPlugin()));
+
+            // getPlugin().getMenuHandler().get("lssmp_revive_beacon_menu").open(player);
+            return new ItemClickResult(ItemClickState.IGNORE, true);
         }
 
-        if (ItemConfig.ReviveBeacon.Options.useMenu) {
-            player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, .5f, 2);
-            getPlugin().getMenuHandler().get("lssmp_revive_beacon_menu").open(player);
-            return new ItemClickResult(ItemClickState.IGNORE, true);
+        if(getPlugin().getChatInputHandler().hasListener(player)) {
+            return new ItemClickResult(ItemClickState.FAIL, true);
         }
 
         getPlugin().getChatInputHandler().onCancellableInput(player, new ChatTransactionListener() {
@@ -59,16 +67,16 @@ public class ReviveBeacon extends CustomItem {
                 if (plr == null) {
                     OfflinePlayer offlinePlayer = ParserRegistry.get(OfflinePlayer.class).parse(player, message);
                     if (!offlinePlayer.hasPlayedBefore()) {
-                        player.sendMessage(MainConfig.Messages.Errors.notFound.replace("%s", "Player"));
+                        player.sendMessage(getConfig(MainConfig.class).getMessages().getErrorMessages().notFound().replace("%s", "Player"));
                         return false;
                     }
                     getPlugin().getEliminationHandler().reviveOffline(offlinePlayer);
-                    player.sendMessage(ItemConfig.ReviveBeacon.Messages.revivedPlayer.replace("%s", String.valueOf(offlinePlayer.getName())));
+                    player.sendMessage(messages.revivedPlayer().replace("%s", String.valueOf(offlinePlayer.getName())));
                     return true;
                 }
 
                 getPlugin().getEliminationHandler().revive(plr);
-                player.sendMessage(ItemConfig.ReviveBeacon.Messages.revivedPlayer.replace("%s", plr.getDisplayName()));
+                player.sendMessage(messages.revivedPlayer().replace("%s", plr.getDisplayName()));
                 return true;
             }
 
@@ -76,7 +84,7 @@ public class ReviveBeacon extends CustomItem {
             public void onComplete(boolean success) {
                 if(!success) CustomItem.give(player, getPlugin().getItem("revive_beacon").orElseThrow());
             }
-        }, ItemConfig.ReviveBeacon.Messages.cancelMessage, ItemConfig.ReviveBeacon.Messages.cancelled, ItemConfig.ReviveBeacon.Messages.useMessage);
+        }, messages.cancelMessage(), messages.cancelled(), messages.useMessage());
         return new ItemClickResult(ItemClickState.SUCCESS, true);
     }
 

@@ -10,10 +10,14 @@ import me.ikevoodoo.smpcore.commands.arguments.parsers.ParserRegistry;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class ConfigSetCommand extends SMPCommand {
     public ConfigSetCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ConfigCommand.ConfigSetCommand.name, CommandConfig.ConfigCommand.ConfigSetCommand.name);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getConfigCommand().getConfigSetCommand().name(),
+                "permission", commandConfig.getConfigCommand().getConfigSetCommand().perms()
+        )));
         setArgs(
                 ConfigCommand.configArgument(plugin),
                 ConfigCommand.pathArgument(plugin),
@@ -29,7 +33,7 @@ public class ConfigSetCommand extends SMPCommand {
         var parsedConfName = StringUtils.stripExtension(confName) + ".yml";
 
 
-        var config = plugin.getConfigHandler().getYmlConfig(parsedConfName);
+        var config = getYmlConfig(parsedConfName);
         if (config == null) {
             context.source().sendMessage("§cUnknown config §f" + confName + "§c.");
             return true;
@@ -65,12 +69,13 @@ public class ConfigSetCommand extends SMPCommand {
             return true;
         }
 
+        var cfg = getConfig(CommandConfig.class).getConfigCommand().getMessages();
 
         var valueStr = parsed instanceof String
-                ? CommandConfig.ConfigCommand.Messages.stringValue.formatted(parsed)
-                : CommandConfig.ConfigCommand.Messages.value.formatted(parsed);
+                ? cfg.stringValue().formatted(parsed)
+                : cfg.value().formatted(parsed);
 
-        var message = CommandConfig.ConfigCommand.Messages.configSetMessage
+        var message = cfg.configSetMessage()
                         .replace("%config%", confName)
                         .replace("%path%", path)
                         .replace("%value%", valueStr);

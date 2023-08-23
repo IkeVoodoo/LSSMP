@@ -1,23 +1,40 @@
 package me.ikevoodoo.lssmp.config;
 
-import me.ikevoodoo.smpcore.config.annotations.Config;
-import me.ikevoodoo.smpcore.config.annotations.ListType;
+import me.ikevoodoo.smpcore.config2.annotations.Config;
+import me.ikevoodoo.smpcore.config2.annotations.data.Getter;
 
 import java.util.List;
 
-@Config("menus.yml")
-public class MenuConfig {
+@Config
+public interface MenuConfig {
 
-    public static class ReviveBeacon {
-        public static class Head {
-            public static String headName = "<<green>><<bold>>Revive <<red>>%player name%";
+    @Getter
+    ReviveBeacon getReviveBeacon();
 
-            @ListType("java.lang.String")
-            public static List<String> lore = List.of("", "<<green>><<bold>>Banned for <<red>>%ban time%");
+    interface ReviveBeacon {
+        interface Head {
+            @Getter
+            default String headName() {
+                return "<<green>><<bold>>Revive <<red>>%player name%";
+            }
 
-            public static class Messages {
-                public static String notEliminated = "[[bold]]<<red>>The player <<green>>%player name% <<red>>is not eliminated.";
-                public static String revived = "[[bold]]<<green>>Revived <<red>>%player name%";
+            @Getter
+            default List<String> lore() {
+                return List.of("", "<<green>><<bold>>Banned for <<red>>%ban time%");
+            }
+
+
+            interface Messages {
+                @Getter
+                default String notEliminated() {
+                    return "[[bold]]<<red>>The player <<green>>%player name% <<red>>is not eliminated.";
+                }
+
+                @Getter
+                default String revived() {
+                    return "[[bold]]<<green>>Revived <<red>>%player name%";
+                }
+
             }
         }
     }

@@ -1,15 +1,19 @@
 package me.ikevoodoo.lssmp.config;
 
-import me.ikevoodoo.smpcore.config.annotations.Config;
 
-@Config("resourcepack.yml")
-public class ResourepackConfig {
+import me.ikevoodoo.smpcore.config2.annotations.Config;
+import me.ikevoodoo.smpcore.config2.annotations.data.Getter;
 
-    public static boolean enabled = true;
-    public static String url = "https://raw.githubusercontent.com/IkeVoodoo/LSSMP/v3/HeartPack.zip";
+@Config(value = "resourcepack", hidden = true)
+public interface ResourepackConfig {
 
-    public static String getUrl() {
-        return url == null ? "https://raw.githubusercontent.com/IkeVoodoo/LSSMP/v3/HeartPack.zip" : url;
-    }
+   @Getter(target = "enabled")
+   default boolean isEnabled() {
+       return true;
+   }
+   @Getter
+   default String url() {
+       return "https://raw.githubusercontent.com/IkeVoodoo/LSSMP/v3/HeartPack.zip";
+   }
 
 }

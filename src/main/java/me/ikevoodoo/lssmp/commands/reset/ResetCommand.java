@@ -10,18 +10,25 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ResetCommand extends SMPCommand {
     public ResetCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ResetCommand.name, CommandConfig.ResetCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getResetCommand().name(),
+                "permission", commandConfig.getResetCommand().perms()
+        )));
         registerSubCommands(new ResetAllCommand(plugin));
     }
 
     @Override
     public boolean execute(Context<?> context) {
         if(context.args().isEmpty()) {
-            context.source().sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
+            context.source().sendMessage(
+                    getConfig(MainConfig.class)
+                            .getMessages()
+                            .getErrorMessages().specifyAtLeastOne().replace("%s", "player"));
             return true;
         }
 
@@ -35,7 +42,10 @@ public class ResetCommand extends SMPCommand {
             getPlugin().getJoinActionHandler().runOnceOnJoin(offlinePlayer.getUniqueId(), this::handlePlayer);
         }
 
-        context.source().sendMessage(CommandConfig.ResetCommand.Messages.resetPlayers.replace("%s", String.valueOf(players.size())));
+        context.source().sendMessage(
+                getConfig(CommandConfig.class)
+                        .getResetCommand()
+                        .getMessages().resetPlayers().replace("%s", String.valueOf(players.size())));
         return true;
     }
 
@@ -46,6 +56,6 @@ public class ResetCommand extends SMPCommand {
     private void handlePlayer(Player player) {
         if (player == null) return;
 
-        getPlugin().getHealthHelper().setMaxHealthEverywhere(player, MainConfig.Elimination.defaultHearts * 2);
+        getPlugin().getHealthHelper().setMaxHealthEverywhere(player, getConfig(MainConfig.class).getEliminationConfig().defaultHearts() * 2);
     }
 }

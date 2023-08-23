@@ -19,7 +19,9 @@ public class Util {
     }
 
     public static void increaseOrDrop(double amount, double max, LivingEntity entity, Location dropAt, SMPPlugin plugin) {
-        if (MainConfig.Elimination.alwaysDropHearts || MainConfig.Elimination.playersDropHearts) {
+        var conf = plugin.getConfigHandler().getConfig(MainConfig.class).getEliminationConfig();
+
+        if (conf.alwaysDropHearts() || conf.playersDropHearts()) {
             drop(plugin
                     .getItem("heart_item")
                     .orElseThrow()
@@ -53,17 +55,18 @@ public class Util {
 
     public static void eliminate(SMPPlugin plugin, Player player) {
         if (plugin.getEliminationHandler().isEliminated(player)) return;
+        var bans = plugin.getConfigHandler().getConfig(MainConfig.class).getEliminationConfig().getBansConfig();
 
         var banData = BanConfig.INSTANCE.findHighest(player);
         if (banData == null) {
-            if (MainConfig.Elimination.Bans.broadcastBan) {
-                var banMessage = MainConfig.Elimination.Bans.broadcastMessage;
+            if (bans.broadcastBan()) {
+                var banMessage = bans.broadcastMessage();
 
                 Bukkit.broadcastMessage(banMessage.replace("%player%", player.getDisplayName()));
             }
 
-            var banTime = MainConfig.Elimination.Bans.getBanTime();
-            var banMessage = MainConfig.Elimination.Bans.banMessage;
+            var banTime = bans.getBanTime();
+            var banMessage = bans.banMessage();
             plugin.getEliminationHandler().eliminate(player, new EliminationData(banMessage, banTime));
             player.kickPlayer(banMessage);
             return;

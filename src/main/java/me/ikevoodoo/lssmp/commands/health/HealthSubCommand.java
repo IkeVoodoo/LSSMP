@@ -11,9 +11,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 public class HealthSubCommand extends SMPCommand {
     protected HealthSubCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.HealthCommand.HealthSubCommand.name, CommandConfig.HealthCommand.HealthSubCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getHealthCommand().getHealthSubCommand().name(),
+                "permission", commandConfig.getHealthCommand().getHealthSubCommand().perms()
+        )));
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
                 new Argument("hearts", true, Double.class, OptionalFor.NONE),
@@ -23,8 +28,11 @@ public class HealthSubCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
+        var heartScale = getConfig(MainConfig.class).getEliminationConfig().getHeartScale();
+        var messages = getConfig(CommandConfig.class).getHealthCommand().getMessages();
+
         var hearts = context.args().get("hearts", Double.class);
-        var health = hearts * MainConfig.Elimination.getHeartScale();
+        var health = hearts * heartScale;
         var player = context.args().get("player", Player.class);
 
         World world = null;
@@ -33,20 +41,20 @@ public class HealthSubCommand extends SMPCommand {
             world = context.args().get("world", World.class);
             if (world == null) {
                 context.source().sendMessage(String.format(
-                        CommandConfig.HealthCommand.Messages.unknownWorld,
+                        messages.unknownWorld(),
                         context.args().get("world", String.class)
                 ));
                 return true;
             }
         }
 
-        var oldHearts = getPlugin().getHealthHelper().getMaxHealth(player, world) / MainConfig.Elimination.getHeartScale();
-        var newHearts = decreaseMaxHealth(player, health, world, false) / MainConfig.Elimination.getHeartScale();
+        var oldHearts = getPlugin().getHealthHelper().getMaxHealth(player, world) / heartScale;
+        var newHearts = decreaseMaxHealth(player, health, world, false) / heartScale;
 
         getPlugin().getHealthHelper().updateHealth(player);
 
         context.source().sendMessage(String.format(
-                CommandConfig.HealthCommand.Messages.subMessage,
+                messages.subMessage(),
                 player.getName(),
                 hearts,
                 oldHearts,
@@ -60,7 +68,7 @@ public class HealthSubCommand extends SMPCommand {
             return getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                     player,
                     health,
-                    MainConfig.Elimination.getMin(),
+                    getConfig(MainConfig.class).getEliminationConfig().getMinHealth(),
                     world
             ).newHealth();
         }

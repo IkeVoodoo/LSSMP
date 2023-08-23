@@ -5,9 +5,14 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 
+import java.util.Map;
+
 public class DebugCommand extends SMPCommand {
     public DebugCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.DebugCommand.name, CommandConfig.DebugCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getDebugCommand().name(),
+                "permission", commandConfig.getDebugCommand().perms()
+        )));
     }
 
     @Override

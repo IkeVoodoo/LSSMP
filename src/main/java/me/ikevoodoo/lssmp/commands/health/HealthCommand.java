@@ -5,9 +5,14 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 
+import java.util.Map;
+
 public class HealthCommand extends SMPCommand {
     public HealthCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.HealthCommand.name, CommandConfig.HealthCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getHealthCommand().name(),
+                "permission", commandConfig.getHealthCommand().perms()
+        )));
         registerSubCommands(
                 new HealthSetCommand(plugin),
                 new HealthAddCommand(plugin),

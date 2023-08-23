@@ -10,9 +10,14 @@ import me.ikevoodoo.smpcore.commands.arguments.OptionalFor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public class HealthGetCommand extends SMPCommand {
     protected HealthGetCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.HealthCommand.HealthGetCommand.name, CommandConfig.HealthCommand.HealthGetCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getHealthCommand().getHealthGetCommand().name(),
+                "permission", commandConfig.getHealthCommand().getHealthGetCommand().perms()
+        )));
         setArgs(
                 new Argument("player", true, Player.class, OptionalFor.NONE),
                 new Argument("world", false, World.class, OptionalFor.ALL)
@@ -21,6 +26,9 @@ public class HealthGetCommand extends SMPCommand {
 
     @Override
     public boolean execute(Context<?> context) {
+        var heartScale = getConfig(MainConfig.class).getEliminationConfig().getHeartScale();
+        var messages = getConfig(CommandConfig.class).getHealthCommand().getMessages();
+
         var player = context.args().get("player", Player.class);
         double hearts;
 
@@ -28,7 +36,7 @@ public class HealthGetCommand extends SMPCommand {
             var world = context.args().get("world", World.class);
             if (world == null) {
                 context.source().sendMessage(String.format(
-                        CommandConfig.HealthCommand.Messages.unknownWorld,
+                        messages.unknownWorld(),
                         context.args().get("world", String.class)
                 ));
                 return true;
@@ -39,12 +47,12 @@ public class HealthGetCommand extends SMPCommand {
             hearts = getPlugin().getHealthHelper().getMaxHearts(player);
         }
 
-        hearts /= MainConfig.Elimination.getHeartScale();
+        hearts /= heartScale;
 
         getPlugin().getHealthHelper().updateHealth(player);
 
         context.source().sendMessage(String.format(
-                CommandConfig.HealthCommand.Messages.getMessage,
+                messages.getMessage(),
                 player.getName(),
                 hearts
         ));

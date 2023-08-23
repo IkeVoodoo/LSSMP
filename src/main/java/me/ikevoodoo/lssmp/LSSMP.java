@@ -14,20 +14,32 @@ import me.ikevoodoo.lssmp.language.YamlConfigSection;
 import me.ikevoodoo.lssmp.menus.RecipeEditor;
 import me.ikevoodoo.lssmp.menus.ReviveBeaconUI;
 import me.ikevoodoo.lssmp.menus.SharedItems;
+import me.ikevoodoo.lssmp.menus.selection.PlayerSelector;
 import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.callbacks.eliminations.EliminationType;
 import me.ikevoodoo.smpcore.handlers.placeholders.PlaceholderHandler;
+import me.ikevoodoo.smpcore.text.messaging.MessageBuilder;
 import me.ikevoodoo.smpcore.utils.ExceptionUtils;
 import me.ikevoodoo.smpcore.utils.Lazy;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import me.ikevoodoo.smpcore.utils.ThreadUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +49,7 @@ public final class LSSMP extends SMPPlugin {
 
     public static final int CURRENT_CONFIG_VERSION = 11;
     private final Lazy<Language> lazyLanguage;
+    private PlayerSelector playerSelector;
 
     public LSSMP() {
         this.lazyLanguage = new Lazy<>(() -> new Language(this));
@@ -57,6 +70,8 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void whenEnabled() {
+        this.playerSelector = new PlayerSelector(this);
+
         this.loadHealthHandler();
 
         var logger = new Printer<>(getLogger()) {
@@ -90,11 +105,13 @@ public final class LSSMP extends SMPPlugin {
                 toRevive.add(uuid);
             });
             toRevive.forEach(uuid -> getEliminationHandler().reviveOffline(Bukkit.getOfflinePlayer(uuid)));
-        }, 0, 20 * 5);
+        }, 0, 20L * 5L);
 
         getEliminationHandler().onCacheUpdated((uuid, number) -> {
             ReviveBeaconUI.createItems(this);
             ReviveBeaconUI.createMenus(this);
+
+            this.updatePlayerSelector();
         });
 
         getEliminationHandler().listen(EliminationType.ELIMINATED, (eliminationType, player) -> {
@@ -112,8 +129,9 @@ public final class LSSMP extends SMPPlugin {
         });
 
         getEliminationHandler().listen(EliminationType.REVIVED, ((eliminationType, player) -> {
-            if (MainConfig.Elimination.useReviveHearts) {
-                getHealthHelper().setMaxHeartsEverywhere(player, MainConfig.Elimination.reviveHearts);
+            var elimination = getConfigHandler().getConfig(MainConfig.class).getEliminationConfig();
+            if (elimination.useReviveHearts()) {
+                getHealthHelper().setMaxHeartsEverywhere(player, elimination.reviveHearts());
             }
 
             Scope scope = new Scope("revived");
@@ -130,13 +148,31 @@ public final class LSSMP extends SMPPlugin {
         }));
 
         this.reload();
-        if (!getConfig().contains("doNotTouch_configVersion") || MainConfig.doNotTouch_configVersion < CURRENT_CONFIG_VERSION) {
+        if (!getConfig().contains("doNotTouch_configVersion") || getConfigHandler().getConfig(MainConfig.class).doNotTouch_configVersion() < CURRENT_CONFIG_VERSION) {
             UserError.from("You're using an outdated version of the config!")
                     .addReason("The config version has changed")
                     .addHelp("Run /lsupgrade (Will reset all of your configs and restart)")
                     .addHelp("Make sure you don't change the option 'doNotTouch_configVersion' in the config")
                     .printAll(logger, "LSSMP: ");
         }
+    }
+
+    private void updatePlayerSelector() {
+        this.getPlayerSelector().setupPages(getEliminationHandler().getEliminatedPlayers().keySet().stream().map(Bukkit::getOfflinePlayer).toList(), player -> {
+            var item = new ItemStack(Material.PLAYER_HEAD);
+            var meta = (SkullMeta) item.getItemMeta();
+            assert meta != null;
+            meta.setOwningPlayer(player);
+            var displayName = MessageBuilder
+                    .builderOf("&a&lRevive ")
+                    .add(player.getName(), ChatColor.RED.asBungee()).build().text();
+
+            meta.setDisplayName(displayName);
+
+            item.setItemMeta(meta);
+
+            return item;
+        });
     }
 
     @Override
@@ -146,7 +182,7 @@ public final class LSSMP extends SMPPlugin {
 
     @Override
     public void onReload() {
-        getResourcePackHandler().addResourcePack("pack", ResourepackConfig.getUrl());
+        getResourcePackHandler().addResourcePack("pack", getConfigHandler().getConfig(ResourepackConfig.class).url());
 
         this.loadHealthHandler();
         this.reloadConfigs();
@@ -154,7 +190,9 @@ public final class LSSMP extends SMPPlugin {
         RecipeEditor.createMenus(this);
         ReviveBeaconUI.createMenus(this);
 
-        if (MainConfig.autoConfigReload) {
+        this.updatePlayerSelector();
+
+        if (getConfigHandler().getConfig(MainConfig.class).autoConfigReload()) {
             try {
                 WatchService service = FileSystems.getDefault().newWatchService();
                 Path dir = getDataFolder().toPath();
@@ -190,6 +228,10 @@ public final class LSSMP extends SMPPlugin {
         ThreadUtils.stop(0xD00D);
     }
 
+    public PlayerSelector getPlayerSelector() {
+        return this.playerSelector;
+    }
+
     private void reloadConfigs() {
         var bans = getConfigHandler().getYmlConfig("bans.yml");
         if (bans == null) {
@@ -205,7 +247,7 @@ public final class LSSMP extends SMPPlugin {
     }
 
     private void loadHealthHandler() {
-        if (MainConfig.Elimination.perWorldHearts) {
+        if (getConfigHandler().getConfig(MainConfig.class).getEliminationConfig().perWorldHearts()) {
             getHealthHelper().setHealthHandler(new WorldHealthHandler(world -> this.makeKey(world.getUID().toString())));
             return;
         }

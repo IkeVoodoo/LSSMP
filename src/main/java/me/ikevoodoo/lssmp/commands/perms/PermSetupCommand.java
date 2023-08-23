@@ -25,17 +25,19 @@ public class PermSetupCommand extends SMPCommand {
     private static final int UNKNOWN_COMMAND = 1;
     private static final int ALREADY_MARKED_COMMAND = 2;
     private static final int NONE = -1;
+    private final Map<String, String> allowedCommands = new HashMap<>();
 
-    private static final Map<String, String> ALLOWED_COMMANDS = new HashMap<>();
-
-    static {
-        ALLOWED_COMMANDS.put(CommandConfig.WithdrawCommand.name, CommandConfig.WithdrawCommand.perms);
-        ALLOWED_COMMANDS.put(CommandConfig.RecipeCommand.name, CommandConfig.RecipeCommand.perms);
-    }
 
     public PermSetupCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.PermSetupCommand.name, CommandConfig.PermSetupCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getPermSetupCommand().name(),
+                "permission", commandConfig.getPermSetupCommand().perms()
+        )));
         setUsable(CommandUsable.PLAYER);
+
+        var commandConfig = getConfig(CommandConfig.class);
+        this.allowedCommands.put(commandConfig.getWithdrawCommand().name(), commandConfig.getWithdrawCommand().perms());
+        this.allowedCommands.put(commandConfig.getRecipeCommand().name(), commandConfig.getRecipeCommand().perms());
     }
 
     @Override
@@ -61,7 +63,7 @@ public class PermSetupCommand extends SMPCommand {
 
                 player.sendMessage("§aConfirming for the following commands:");
                 for (var cmd : allowed) {
-                    var perm = ALLOWED_COMMANDS.get(cmd);
+                    var perm = allowedCommands.get(cmd);
 
                     player.sendMessage("§a - §f/" + cmd + " §7[§6" + perm + "§7]");
 
@@ -75,7 +77,7 @@ public class PermSetupCommand extends SMPCommand {
             
             if (allowed.contains(line)) {
                 code = ALREADY_MARKED_COMMAND;
-            } else if (ALLOWED_COMMANDS.containsKey(line)) {
+            } else if (allowedCommands.containsKey(line)) {
                 code = ADDED_COMMAND;
                 allowed.add(line);
             }
@@ -108,13 +110,13 @@ public class PermSetupCommand extends SMPCommand {
     }
 
     private void sendCommands(Player player, List<String> allowed) {
-        if (allowed.size() == ALLOWED_COMMANDS.size()) {
+        if (allowed.size() == allowedCommands.size()) {
             player.sendMessage("§aPlease type \"§6confirm§a\" to confirm!");
             return;
         }
 
         player.sendMessage("§aChoose one of the following commands or type \"§6confirm§a\" to confirm!");
-        for (var cmd : ALLOWED_COMMANDS.keySet()) {
+        for (var cmd : allowedCommands.keySet()) {
 
             var beforeComponent = new TextComponent(" - ");
             beforeComponent.setColor(ChatColor.GREEN);

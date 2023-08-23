@@ -5,9 +5,14 @@ import me.ikevoodoo.smpcore.SMPPlugin;
 import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 
+import java.util.Map;
+
 public class ConfigGetCommand extends SMPCommand {
     public ConfigGetCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ConfigCommand.ConfigGetCommand.name, CommandConfig.ConfigCommand.ConfigGetCommand.name);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getConfigCommand().getConfigGetCommand().name(),
+                "permission", commandConfig.getConfigCommand().getConfigGetCommand().perms()
+        )));
         setArgs(
                 ConfigCommand.configArgument(plugin),
                 ConfigCommand.pathArgument(plugin)
@@ -39,11 +44,13 @@ public class ConfigGetCommand extends SMPCommand {
 
         var value = config.get(path);
 
-        var valueStr = value instanceof String
-                ? CommandConfig.ConfigCommand.Messages.stringValue.formatted(value)
-                : CommandConfig.ConfigCommand.Messages.value.formatted(value);
+        var cfg = plugin.getConfigHandler().getConfig(CommandConfig.class).getConfigCommand().getMessages();
 
-        var message = CommandConfig.ConfigCommand.Messages.configGetMessage
+        var valueStr = value instanceof String
+                ? cfg.stringValue().formatted(value)
+                : cfg.value().formatted(value);
+
+        var message = cfg.configGetMessage()
                         .replace("%config%", confName)
                         .replace("%path%", path)
                         .replace("%value%", valueStr);

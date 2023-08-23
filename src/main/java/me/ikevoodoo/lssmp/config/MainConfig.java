@@ -1,122 +1,299 @@
 package me.ikevoodoo.lssmp.config;
 
 import me.ikevoodoo.lssmp.LSSMP;
-import me.ikevoodoo.smpcore.config.annotations.Config;
 import me.ikevoodoo.smpcore.config.annotations.ListType;
+import me.ikevoodoo.smpcore.config2.annotations.Config;
+import me.ikevoodoo.smpcore.config2.annotations.data.CollectionType;
+import me.ikevoodoo.smpcore.config2.annotations.data.Getter;
 import me.ikevoodoo.smpcore.utils.StringUtils;
 import org.bukkit.World;
 
 import java.util.List;
 
-@Config("config.yml")
-public class MainConfig {
+@Config(value = "config", hidden = true)
+public interface MainConfig {
 
-    public static boolean autoConfigReload = false;
+    @Getter
+    default boolean autoConfigReload() {
+        return false;
+    }
 
-    public static class Elimination {
-        public static boolean environmentStealsHearts = true;
-        public static double environmentHealthScale = 1.0;
-        public static double healthScale = 1.0;
-        public static double maxHearts = 20.0;
-        public static boolean useMaxHealth = true;
+    @Getter(target = "elimination")
+    Elimination getEliminationConfig();
 
-        public static double minHearts = 5.0;
-        public static boolean useMinHealth = false;
-        public static boolean banAtMinHealth = true;
-        public static double defaultHearts = 10.0;
+    @Config
+    interface Elimination {
 
-        public static boolean useReviveHearts = true;
-        public static double reviveHearts = 10.0;
+        @Getter
+        default boolean environmentStealsHearts() {
+            return true;
+        }
 
-        public static boolean totemWorksInInventory = false;
+        @Getter
+        default double environmentHealthScale() {
+            return 1.0;
+        }
 
-        public static boolean alwaysDropHearts = false;
-        public static boolean environmentDropHearts = false;
-        public static boolean playersDropHearts = false;
+        @Getter
+        default double healthScale() {
+            return 1.0;
+        }
 
-        public static boolean fullInventoryHeartDrop = true;
+        @Getter
+        default double maxHearts() {
+            return 20.0;
+        }
 
-        public static boolean allowSelfElimination = false;
+        @Getter
+        default boolean useMaxHealth() {
+            return true;
+        }
 
-        public static class Bans {
-            public static String banMessage = "§cYou have been eliminated!";
+        @Getter
+        default double minHearts() {
+            return 5.0;
+        }
 
-            public static boolean useBanTime = false;
-            public static String banTime = "00:00:00.0000";
+        @Getter
+        default boolean useMinHealth() {
+            return false;
+        }
 
-            public static boolean broadcastBan = false;
-            public static String broadcastMessage = "§c%player% has lost all of their hearts and has been banned.";
+        @Getter
+        default boolean banAtMinHealth() {
+            return true;
+        }
 
-            public static long getBanTime() {
-                return useBanTime ? StringUtils.parseBanTime(banTime) : Long.MAX_VALUE;
+        @Getter
+        default double defaultHearts() {
+            return 10.0;
+        }
+
+        @Getter
+        default boolean useReviveHearts() {
+            return true;
+        }
+
+        @Getter
+        default double reviveHearts() {
+            return 10.0;
+        }
+
+        @Getter
+        default boolean totemWorksInInventory() {
+            return false;
+        }
+
+        @Getter
+        default boolean alwaysDropHearts() {
+            return false;
+        }
+
+        @Getter
+        default boolean environmentDropHearts() {
+            return false;
+        }
+
+        @Getter
+        default boolean playersDropHearts() {
+            return false;
+        }
+
+        @Getter
+        default boolean fullInventoryHeartDrop() {
+            return true;
+        }
+
+        @Getter
+        default boolean allowSelfElimination() {
+            return false;
+        }
+
+        @Getter(target = "bans")
+        Bans getBansConfig();
+
+        @Config
+        interface Bans {
+
+            @Getter
+            default String banMessage() {
+                return "§cYou have been eliminated!";
+            }
+
+            @Getter
+            default boolean useBanTime() {
+                return false;
+            }
+
+            @Getter
+            default String banTime() {
+                return "00:00:00.0000";
+            }
+
+            @Getter
+            default boolean broadcastBan() {
+                return false;
+            }
+
+            @Getter
+            default String broadcastMessage() {
+                return "§c%player% has lost all of their hearts and has been banned.";
+            }
+
+            default long getBanTime() {
+                return useBanTime() ? StringUtils.parseBanTime(banTime()) : Long.MAX_VALUE;
             }
         }
 
-        public static boolean perWorldHearts = false;
-
-        @ListType("java.lang.String")
-        public static List<String> allowedWorlds = List.of("all");
-
-        public static boolean isWorldAllowed(World world) {
-            return allowedWorlds.contains("all") || allowedWorlds.contains(world.getName());
+        @Getter
+        default boolean perWorldHearts() {
+            return false;
         }
 
-        public static double getMax() {
-            return (useMaxHealth ? maxHearts : 1024) * 2;
+        @ListType(String.class)
+        default List<String> allowedWorlds() {
+            return List.of("all");
         }
 
-        public static double getMin() {
-            return (useMinHealth ? minHearts : 0) * 2;
+        default boolean isWorldAllowed(World world) {
+            return allowedWorlds().contains("all") || allowedWorlds().contains(world.getName());
         }
 
-        public static double getMinHearts() {
-            return getMin() * 2;
+        default double getMax() {
+            return (useMaxHealth() ? maxHearts() : 1024) * 2;
         }
 
-        public static double getHeartScale() {
-            return healthScale * 2;
+        default double getMinHealth() {
+            return (useMinHealth() ? minHearts() : 0) * 2;
         }
 
-        public static double getEnvironmentHeartScale() {
-            return environmentHealthScale * 2;
-        }
-    }
-
-    public static class Items {
-        public static class Heart {
-            public static String displayName = "§c❤ §fExtra heart.";
-
-            @ListType("java.lang.String")
-            public static List<String> lore = List.of("Gives you an extra heart!");
-            public static int customModelData = 931;
+        default double getMinHearts() {
+            return getMinHealth() * 2;
         }
 
-        public static class Beacon {
-            public static String displayName = "§fRevive Beacon.";
-
-            @ListType("java.lang.String")
-            public static List<String> lore = List.of("Right click to revive!");
-            public static int customModelData = 932;
+        default double getHeartScale() {
+            return healthScale() * 2;
         }
 
-        public static class HeartFragment {
-            public static String displayName = "§c§lHeart Fragment.";
-
-            @ListType("java.lang.String")
-            public static List<String> lore = List.of("Use 4 of these to craft a heart!");
-            public static int customModelData = 933;
+        default double getEnvironmentHeartScale() {
+            return environmentHealthScale() * 2;
         }
     }
 
-    public static class Messages {
-        public static class Errors {
-            public static String requiresPlayer = "§cA player is required to perform this command!";
-            public static String requiresArgument = "§cThe argument \"%s\" is required to perform this command!";
-            public static String specifyAtLeastOne = "§cYou must specify at least one %s!";
-            public static String notFound = "§c%s not found!";
+
+    @Getter(target = "items")
+    Items getItemsConfig();
+
+    @Config
+    interface Items {
+
+        @Getter
+        Heart getHeart();
+
+        @Config
+        interface Heart {
+
+            @Getter
+            default String displayName() {
+                return "§c❤ §fExtra heart.";
+            }
+
+            @CollectionType(String.class)
+            default List<String> lore() {
+                return List.of("Gives you an extra heart!");
+            }
+
+            @Getter
+            default int customModelData() {
+                return 931;
+            }
+        }
+
+
+        @Getter
+        Beacon getBeacon();
+
+        @Config
+        interface Beacon {
+
+            @Getter
+            default String displayName() {
+                return "§fRevive Beacon.";
+            }
+
+            @CollectionType(String.class)
+            default List<String> lore() {
+                return List.of("Right click to revive!");
+            }
+
+            @Getter
+            default int customModelData() {
+                return 932;
+            }
+        }
+
+
+        @Getter
+        HeartFragment getHeartFragment();
+
+        @Config
+        interface HeartFragment {
+
+            @Getter
+            default String displayName() {
+                return "§c§lHeart Fragment.";
+            }
+
+            @CollectionType(String.class)
+            default List<String> lore() {
+                return List.of("Use 4 of these to craft a heart!");
+            }
+
+            @Getter
+            default int customModelData() {
+                return 933;
+            }
         }
     }
 
-    public static int doNotTouch_configVersion = LSSMP.CURRENT_CONFIG_VERSION;
+
+    @Getter(target = "messages")
+    Messages getMessages();
+
+    @Config
+    interface Messages {
+
+        @Getter(target = "errors")
+        Errors getErrorMessages();
+
+        @Config
+        interface Errors {
+
+            @Getter
+            default String requiresPlayer() {
+                return "§cA player is required to perform this command!";
+            }
+
+            @Getter
+            default String requiresArgument() {
+                return "§cThe argument \"%s\" is required to perform this command!";
+            }
+
+            @Getter
+            default String specifyAtLeastOne() {
+                return "§cYou must specify at least one %s!";
+            }
+
+            @Getter
+            default String notFound() {
+                return "§c%s not found!";
+            }
+        }
+    }
+
+    @Getter
+    default int doNotTouch_configVersion() {
+        return LSSMP.CURRENT_CONFIG_VERSION;
+    }
 
 }

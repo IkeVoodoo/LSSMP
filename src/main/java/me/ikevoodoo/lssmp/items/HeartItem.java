@@ -41,10 +41,14 @@ public class HeartItem extends CustomItem {
 
     @Override
     public ItemClickResult onClick(Player player, ItemStack itemStack, Action action) {
+        var heart = getConfig(ItemConfig.class).getHeartItem();
+        var messages = heart.getMessages();
+        var elimination = getConfig(MainConfig.class).getEliminationConfig();
+
         var heartsToMax = getHeartsToMax(player);
         if (heartsToMax <= 0) {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, .7f);
-            player.sendMessage(ItemConfig.HeartItem.Messages.maxHearts);
+            player.sendMessage(messages.maxHearts());
             return new ItemClickResult(
                     ItemClickState.FAIL,
                     true
@@ -53,13 +57,13 @@ public class HeartItem extends CustomItem {
 
 
         var maxItems = this.getMaxItems(heartsToMax, itemStack.getAmount(), player.isSneaking());
-        var healthToAdd = maxItems * MainConfig.Elimination.getHeartScale();
+        var healthToAdd = maxItems * elimination.getHeartScale();
 
-        var message = ItemConfig.HeartItem.Messages.increment.replace("%s", String.valueOf(maxItems));
+        var message = messages.increment().replace("%s", String.valueOf(maxItems));
         player.sendMessage(message);
 
         var newHealth = getPlugin().getHealthHelper().increaseMaxHealth(player, healthToAdd);
-        if(ItemConfig.HeartItem.claimingHeartHeals) {
+        if(heart.claimingHeartHeals()) {
             var health = player.getHealth();
             var toSet = health + healthToAdd;
 
@@ -76,7 +80,7 @@ public class HeartItem extends CustomItem {
     }
 
     private double getHeartsToMax(Player player) {
-        var max = MainConfig.Elimination.getMax();
+        var max = getConfig(MainConfig.class).getEliminationConfig().getMax();
         var current = getPlugin().getHealthHelper().getMaxHealth(player);
 
         var diff = max - current;
@@ -90,7 +94,7 @@ public class HeartItem extends CustomItem {
             return healthToMax >= 1 ? 1 : 0;
         }
 
-        var maxItems = (int) Math.floor(healthToMax / MainConfig.Elimination.getHeartScale());
+        var maxItems = (int) Math.floor(healthToMax / getConfig(MainConfig.class).getEliminationConfig().getHeartScale());
         return Math.min(maxItems, stackSize);
     }
 }

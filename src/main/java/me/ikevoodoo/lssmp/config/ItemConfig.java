@@ -1,30 +1,82 @@
 package me.ikevoodoo.lssmp.config;
 
-import me.ikevoodoo.smpcore.config.annotations.Config;
+import me.ikevoodoo.smpcore.config2.annotations.Config;
+import me.ikevoodoo.smpcore.config2.annotations.data.Getter;
 
-@Config("items.yml")
-public class ItemConfig {
+@Config(value = "items", hidden = true)
+public interface ItemConfig {
 
-    public static class HeartItem {
-        public static class Messages {
-            public static String increment = "§a+%s §4❤";
-            public static String maxHearts = "§cYou have reached the maximum amount of hearts!";
+    @Getter
+    HeartItem getHeartItem();
+
+    @Config("heart")
+    interface HeartItem {
+
+        @Getter
+        Messages getMessages();
+
+        @Config
+        interface Messages {
+
+            @Getter
+            default String increment() {
+                return "§a+%s §4❤";
+            }
+
+            @Getter
+            default String maxHearts() {
+                return "§cYou have reached the maximum amount of hearts!";
+            }
         }
 
-        public static boolean claimingHeartHeals = true;
+        @Getter
+        default boolean claimingHeartHeals() {
+            return true;
+        }
     }
 
+    @Getter
+    ReviveBeacon getReviveBeacon();
 
-    public static class ReviveBeacon {
-        public static class Messages {
-            public static String useMessage = "§cEnter the name of the player you want to revive";
-            public static String revivedPlayer = "§aRevived §e%s";
-            public static String cancelMessage = "§cType \"§ccancel§c\" to cancel.";
-            public static String cancelled = "§aSuccessfully cancelled";
+    @Config
+    interface ReviveBeacon {
+
+        @Getter
+        Messages getMessages();
+
+        @Getter
+        Options getOptions();
+
+        @Config
+        interface Messages {
+            @Getter
+            default String useMessage() {
+                return "§cEnter the name of the player you want to revive";
+            }
+
+            @Getter
+            default String revivedPlayer() {
+                return "§aRevived §e%s";
+            }
+
+            @Getter
+            default String cancelMessage() {
+                return "§cType \"§ccancel§c\" to cancel.";
+            }
+
+            @Getter
+            default String cancelled() {
+                return "§aSuccessfully cancelled";
+            }
         }
 
-        public static class Options {
-            public static boolean useMenu = true;
+        @Config
+        interface Options {
+
+            @Getter(target = "useMenu")
+            default boolean shouldUseMenu() {
+                return true;
+            }
         }
     }
 

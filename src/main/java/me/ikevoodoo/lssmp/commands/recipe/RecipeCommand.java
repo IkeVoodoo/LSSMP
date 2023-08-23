@@ -7,9 +7,14 @@ import me.ikevoodoo.smpcore.commands.Context;
 import me.ikevoodoo.smpcore.commands.SMPCommand;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public class RecipeCommand extends SMPCommand {
     public RecipeCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.RecipeCommand.name, CommandConfig.RecipeCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getRecipeCommand().name(),
+                "permission", commandConfig.getRecipeCommand().perms()
+        )));
         setUsable(CommandUsable.PLAYER);
     }
 

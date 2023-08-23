@@ -9,17 +9,21 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 
 public class ReviveCommand extends SMPCommand {
     public ReviveCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.ReviveCommand.name, CommandConfig.ReviveCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getReviveCommand().name(),
+                "permission", commandConfig.getReviveCommand().perms()
+        )));
         registerSubCommands(new ReviveAllCommand(plugin));
     }
 
     @Override
     public boolean execute(Context<?> context) {
         if(context.args().isEmpty()) {
-            context.source().sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
+            context.source().sendMessage(getConfig(MainConfig.class).getMessages().getErrorMessages().specifyAtLeastOne().replace("%s", "player"));
             return true;
         }
 
@@ -35,7 +39,7 @@ public class ReviveCommand extends SMPCommand {
             }
         }
 
-        context.source().sendMessage(CommandConfig.ReviveCommand.Messages.revivedPlayers.replace("%s", String.valueOf(players.size())));
+        context.source().sendMessage(getConfig(CommandConfig.class).getReviveCommand().getMessages().revivedPlayers().replace("%s", String.valueOf(players.size())));
         return true;
     }
 }

@@ -9,17 +9,22 @@ import me.ikevoodoo.smpcore.commands.SMPCommand;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 
 public class EliminateCommand extends SMPCommand {
     public EliminateCommand(SMPPlugin plugin) {
-        super(plugin, CommandConfig.EliminateCommand.name, CommandConfig.EliminateCommand.perms);
+        super(plugin, plugin.getConfigHandler().extractValues(CommandConfig.class, commandConfig -> Map.of(
+                "name", commandConfig.getEliminateCommand().name(),
+                "permission", commandConfig.getEliminateCommand().perms()
+        )));
         registerSubCommands(new EliminateAllCommand(plugin));
     }
 
     @Override
     public boolean execute(Context<?> context) {
         if(context.args().isEmpty()) {
-            context.source().sendMessage(MainConfig.Messages.Errors.specifyAtLeastOne.replace("%s", "player"));
+            var cfg = getConfig(MainConfig.class).getMessages().getErrorMessages();
+            context.source().sendMessage(cfg.specifyAtLeastOne().replace("%s", "player"));
             return true;
         }
 
@@ -30,7 +35,13 @@ public class EliminateCommand extends SMPCommand {
             Util.eliminate(getPlugin(), player);
         }
 
-        context.source().sendMessage(CommandConfig.EliminateCommand.Messages.eliminatedPlayers.replace("%s", String.valueOf(players.size())));
+
+        context.source().sendMessage(getPlugin()
+                .getConfigHandler()
+                .getConfig(CommandConfig.class)
+                .getEliminateCommand()
+                .getMessages()
+                .eliminatedPlayers().replace("%s", String.valueOf(players.size())));
         return true;
     }
 
