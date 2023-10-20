@@ -47,19 +47,21 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        Util.increaseOrDrop(
-                elimination.getHeartScale(),
-                elimination.getMax(),
-                killer,
-                killed.getEyeLocation(),
-                getPlugin()
-        );
-
         var result = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 killed,
                 elimination.getHeartScale(),
                 elimination.getMinHearts()
         );
+
+        if (!elimination.useMinHealth || result.oldHealth() > elimination.getMinHearts()) {
+            Util.increaseOrDrop(
+                    elimination.getHeartScale(),
+                    elimination.getMax(),
+                    killer,
+                    killed.getEyeLocation(),
+                    getPlugin()
+            );
+        }
 
         if(result.newHealth() <= elimination.getMinHearts() && elimination.banAtMinHealth())
             eliminate(killed);
@@ -91,21 +93,23 @@ public class PlayerPreDeathListener extends SMPListener {
             return;
         }
 
-        if(elimination.alwaysDropHearts() || elimination.environmentDropHearts()) {
-            Util.drop(
-                    getPlugin()
-                            .getItem("heart_item")
-                            .orElseThrow()
-                            .getItemStack(),
-                    player.getEyeLocation()
-            );
-        }
-
         var setResult = getPlugin().getHealthHelper().decreaseMaxHealthIfOver(
                 player,
                 elimination.getEnvironmentHeartScale(),
                 elimination.getMinHearts()
         );
+
+        if (elimination.alwaysDropHearts() || elimination.environmentDropHearts()) {
+            if (!elimination.useMinHealth || setResult.oldHealth() > elimination.getMinHearts()) {
+                Util.drop(
+                        getPlugin()
+                                .getItem("heart_item")
+                                .orElseThrow()
+                                .getItemStack(),
+                        player.getEyeLocation()
+                );
+            }
+        }
 
         if(setResult.newHealth() <= elimination.getMinHearts() && elimination.banAtMinHealth())
             eliminate(player);
