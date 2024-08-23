@@ -27,7 +27,6 @@ public class FirstJoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         var player = event.getPlayer();
 
-        // TODO events should have nice error messages
         var oldKey = new NamespacedKey("lifesteal-smp-plugin", "eliminated_player");
 
         var pdc = player.getPersistentDataContainer();
