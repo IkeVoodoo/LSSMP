@@ -18,8 +18,5 @@ public record EliminationConfiguration(
         double reviveHearts
 ) {
 
-    public EliminationConfiguration {
-        System.out.println(TimeFormatter.formatDuration(banTime));
-    }
 
 }
