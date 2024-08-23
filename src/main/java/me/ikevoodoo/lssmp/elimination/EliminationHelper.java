@@ -35,7 +35,7 @@ public class EliminationHelper {
                     "§cYou have been eliminated!",
                     EliminationNotificationMode.SUPPRESS,
                     "",
-                    "",
+                    null,
                     -1,
                     ReviveHeartsMode.USE_DEFAULT_HEARTS,
                     -1
@@ -55,7 +55,7 @@ public class EliminationHelper {
                         storage.getString("playerMessage"),
                         EliminationNotificationMode.values()[storage.getByte("notifMode")],
                         storage.getString("notifMsg"),
-                        "",
+                        null,
                         storage.getLong("banTime"),
                         ReviveHeartsMode.values()[storage.getByte("reviveMode")],
                         storage.getDouble("reviveHearts")
