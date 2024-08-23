@@ -349,43 +349,7 @@ public class Lifesteal {
 
     public void onEnable(LifestealInit init) {
         var pluginFolder = init.getDataFolder().getParentFile();
-        var oldData = new File(pluginFolder, "LifeSteal-Smp-Plugin");
-        var converted = new File(oldData, "converted.mark");
-
-        if (oldData.isDirectory() && !converted.isFile()) {
-            try {
-                converted.createNewFile();
-            } catch (IOException ignored) {
-
-            }
-
-            HelixLogger.info("Lifesteal is attempting to convert over some options...");
-            var main = new File(oldData, "config.yml");
-
-            if (main.isFile()) {
-                var conf = new YamlConfiguration();
-                try {
-                    conf.load(main);
-                } catch (IOException | InvalidConfigurationException e) {
-                    HelixLogger.error("Unable to load lifesteal old main configuration!");
-                    HelixLogger.reportError(e);
-                }
-                ConfigurationConverter.convertMain(conf, this.mainConfiguration);
-            }
-
-
-            var bans = new File(oldData, "bans.yml");
-            if (bans.isFile()) {
-                var conf = new YamlConfiguration();
-                try {
-                    conf.load(bans);
-                } catch (IOException | InvalidConfigurationException e) {
-                    HelixLogger.error("Unable to load lifesteal old ban configuration!");
-                    HelixLogger.reportError(e);
-                }
-                ConfigurationConverter.convertBans(conf, this.eliminationConfiguration);
-            }
-        }
+        this.convertOldConfigs(pluginFolder);
 
         this.reloadConfig(init);
 
@@ -465,7 +429,7 @@ public class Lifesteal {
             };
 
             player.setFallDistance(0);
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(value);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(value);
             player.setHealth(value);
 
             instance.remove();
@@ -514,7 +478,7 @@ public class Lifesteal {
 
             this.loadItems(init);
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            HelixLogger.reportError(throwable);
         }
     }
 
@@ -522,9 +486,57 @@ public class Lifesteal {
 
     }
 
+    private void convertOldConfigs(File pluginFolder) {
+        var oldData = new File(pluginFolder, "LifeSteal-Smp-Plugin");
+        var converted = new File(oldData, "converted.mark");
+
+        if (!oldData.isDirectory() || converted.isFile()) {
+            return;
+        }
+
+        try {
+            if(!converted.createNewFile()) {
+                HelixLogger.error("Unable to mark old data as converted! Will not convert old configs.");
+                return;
+            }
+        } catch (IOException exception) {
+            HelixLogger.reportError(exception);
+            HelixLogger.error("Error while creating converted mark file! Aborting conversion.");
+            return;
+        }
+
+        HelixLogger.info("Lifesteal is attempting to convert over some options...");
+        var main = new File(oldData, "config.yml");
+
+        if (main.isFile()) {
+            var conf = new YamlConfiguration();
+            try {
+                conf.load(main);
+            } catch (IOException | InvalidConfigurationException e) {
+                HelixLogger.error("Unable to load lifesteal old main configuration!");
+                HelixLogger.reportError(e);
+            }
+            ConfigurationConverter.convertMain(conf, this.mainConfiguration);
+        }
+
+        var bans = new File(oldData, "bans.yml");
+        if (bans.isFile()) {
+            var conf = new YamlConfiguration();
+            try {
+                conf.load(bans);
+            } catch (IOException | InvalidConfigurationException e) {
+                HelixLogger.error("Unable to load lifesteal old ban configuration!");
+                HelixLogger.reportError(e);
+            }
+            ConfigurationConverter.convertBans(conf, this.eliminationConfiguration);
+        }
+
+        HelixLogger.info("Lifesteal has converted it's old config to the latest format!");
+    }
+
     private void loadItems(LifestealInit init) {
          var recipes = new LinkedHashMap<String, RecipeConfiguration>();
-;        var itemRegistry = Helix.items();
+         var itemRegistry = Helix.items();
 
         var general = this.mainConfiguration.child("general");
 
