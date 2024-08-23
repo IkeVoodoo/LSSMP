@@ -38,8 +38,7 @@ public class BaconItem extends HelixItem {
                 context.player().playEffect(EntityEffect.LOVE_HEARTS);
                 context.player().setVelocity(new Vector(0, 1, 0));
 
-                var stack = itemInstance.getStack();
-                stack.setAmount(stack.getAmount() - 1); // TODO add consume method?
+                itemInstance.consume(1);
 
                 return ItemUseResult.SUCCEED;
             }

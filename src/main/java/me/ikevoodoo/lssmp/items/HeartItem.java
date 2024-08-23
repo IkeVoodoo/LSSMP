@@ -92,8 +92,7 @@ public class HeartItem extends HelixItem {
                     player.setHealth(newHearts);
                 }
 
-                var stack = itemInstance.getStack();
-                stack.setAmount(stack.getAmount() - 1); // TODO add consume method?
+                itemInstance.consume(1);
 
                 var claimed = newHearts - originalHearts;
 
