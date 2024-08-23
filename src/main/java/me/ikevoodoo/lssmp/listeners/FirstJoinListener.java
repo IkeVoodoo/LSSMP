@@ -10,6 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Objects;
+
 public class FirstJoinListener implements Listener {
 
     private final Configuration generalConfig;
@@ -21,6 +23,7 @@ public class FirstJoinListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    @SuppressWarnings("deprecation")
     public void onPlayerJoin(PlayerJoinEvent event) {
         var player = event.getPlayer();
 
@@ -49,7 +52,7 @@ public class FirstJoinListener implements Listener {
 
         double max = this.generalConfig.getValue("defaultHearts");
 
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(max * 2);
+        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(max * 2);
         player.setHealth(max * 2);
 
     }

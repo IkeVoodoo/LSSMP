@@ -46,9 +46,8 @@ public class LifestealCombatListener implements Listener {
         if (cancel.get()) {
             if (playerHearts.get() < 0) {
                 var tag = Helix.tags().get("elimination");
-                tag.add(player.getUniqueId(), (uuid, storage) -> {
-                    storage.setString("killer", attacker == null ? "Environment" : attacker.getUniqueId().toString());
-                });
+                tag.add(player.getUniqueId(), (uuid, storage) ->
+                        storage.setString("killer", attacker == null ? "Environment" : attacker.getUniqueId().toString()));
 
                 player.setFallDistance(0);
 

@@ -68,6 +68,7 @@ public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer kill
         return this.getKickMessage(addr.getAddress());
     }
 
+    @SuppressWarnings("unused")
     public String getKickMessage() {
         var player = this.player.getPlayer();
         if (player == null) return null;

@@ -110,6 +110,8 @@ public class PlayerSelectionHandler implements HelixComponentHandler {
                 .andThen(new BasicElimination(this.generalSection));
 
         var attrib = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        assert attrib != null;
+
         var atomic = new AtomicDouble(attrib.getBaseValue());
 
         var cancel = new AtomicBoolean();

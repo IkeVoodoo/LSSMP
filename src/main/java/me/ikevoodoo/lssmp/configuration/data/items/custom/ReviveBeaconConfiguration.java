@@ -14,6 +14,7 @@ public class ReviveBeaconConfiguration extends ItemConfiguration {
         this.heartCost = heartCost;
     }
 
+    // TODO use this
     public int getMaxRevives() {
         return this.maxRevives;
     }

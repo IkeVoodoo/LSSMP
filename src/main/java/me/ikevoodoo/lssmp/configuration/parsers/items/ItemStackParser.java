@@ -31,7 +31,7 @@ public class ItemStackParser implements TypeParser<String, ItemStack> {
     }
 
     @Override
-    public @NotNull ItemStack deserialize(String s) {
+    public @NotNull ItemStack deserialize(@NotNull String s) {
         var key = UniqueIdentifier.parse(s);
         var itemRegistry = Helix.items();
 

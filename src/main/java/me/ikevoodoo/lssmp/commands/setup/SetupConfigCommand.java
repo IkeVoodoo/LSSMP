@@ -425,17 +425,15 @@ public class SetupConfigCommand extends HelixCommand {
 
         if (handler instanceof SetupChatHandler name) {
             player.spigot().sendMessage(this.getNameMessage(name));
-            this.commandNameGetters.put(player.getUniqueId(), (plr, string) -> {
-                Helix.scheduler().sync(() -> {
-                    var next = getNext(mode, key);
-                    if(!name.onSubmit(string)) {
-                        plr.chat("/lssetup config ERROR!<light:red>Invalid value <light:cyan>" + string + mode);
-                        return;
-                    }
+            this.commandNameGetters.put(player.getUniqueId(), (plr, string) -> Helix.scheduler().sync(() -> {
+                var next = getNext(mode, key);
+                if(!name.onSubmit(string)) {
+                    plr.chat("/lssetup config ERROR!<light:red>Invalid value <light:cyan>" + string + mode);
+                    return;
+                }
 
-                    plr.chat("/lssetup config " + next);
-                });
-            });
+                plr.chat("/lssetup config " + next);
+            }));
 
             return CommandExecutionResult.HANDLED;
         }
