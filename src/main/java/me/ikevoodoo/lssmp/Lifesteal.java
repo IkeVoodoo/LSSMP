@@ -6,7 +6,6 @@ import me.ikevoodoo.helix.api.items.display.ItemDisplayData;
 import me.ikevoodoo.helix.api.items.display.ItemTextDisplayData;
 import me.ikevoodoo.helix.api.logging.HelixLogger;
 import me.ikevoodoo.helix.api.namespaced.UniqueIdentifier;
-import me.ikevoodoo.helix.api.plugins.HelixPlugin;
 import me.ikevoodoo.helix.api.tags.behaviors.TagBehaviors;
 import me.ikevoodoo.helix.api.tags.behaviors.TagResult;
 import me.ikevoodoo.lssmp.commands.eliminate.EliminateCommand;
@@ -376,7 +375,16 @@ public class Lifesteal {
 
 
             var bans = new File(oldData, "bans.yml");
-            // TODO load bans.yml
+            if (bans.isFile()) {
+                var conf = new YamlConfiguration();
+                try {
+                    conf.load(bans);
+                } catch (IOException | InvalidConfigurationException e) {
+                    HelixLogger.error("Unable to load lifesteal old ban configuration!");
+                    HelixLogger.reportError(e);
+                }
+                ConfigurationConverter.convertBans(conf, this.eliminationConfiguration);
+            }
         }
 
         this.reloadConfig(init);
