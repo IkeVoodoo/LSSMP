@@ -37,6 +37,10 @@ import static me.ikevoodoo.helix.logging.LoggerColoring.chatColor;
 
 public class SetupConfigCommand extends HelixCommand {
 
+    private static final MinecraftColor MAIN_COLOR = MinecraftColor.fromHex("#B0B0B0");
+    private static final MinecraftColor DESC_COLOR = MinecraftColor.fromHex("#808080");
+    private static final MinecraftColor RED_COLOR = MinecraftColor.fromHex("#FF5555");
+
     private final Map<String, SetupCommandHandler> handlers = new LinkedHashMap<>();
     private final Map<UUID, BiConsumer<Player, String>> commandNameGetters;
 
@@ -130,13 +134,57 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("Set")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" /%s ", commandConfig.child("withdrawCommand").value("name").value())
+                        .literal(" %s ", this.name())
                         .color(MinecraftColor.DARK_AQUA)
 
                         .literal("permission to")
                         .color(MinecraftColor.GRAY)
 
                         .literal(" \"%s\"", commandConfig.child("withdrawCommand").value("permission").value())
+                        .color(MinecraftColor.GOLD)
+                        .build()
+                        .toLegacyText();
+            }
+        });
+
+        this.handlers.put("withdraw_elimination", new SetupBooleanHandler() {
+            @Override
+            public String name() {
+                return "/" + commandConfig.child("withdrawCommand").value("name").value();
+            }
+
+            @Override
+            public String description() {
+                return "Do you want people to be able to eliminate themselves with the %s%s %scommand?".formatted(
+                        MinecraftColor.DARK_AQUA,
+                        this.name(),
+                        MAIN_COLOR
+                );
+            }
+
+            @Override
+            public void onSubmit(boolean allow) {
+                commandConfig.child("withdrawCommand").value("allowSelfElimination").value(allow);
+            }
+
+            @Override
+            public boolean isCommand() {
+                return false;
+            }
+
+            @Override
+            public String summary() {
+                return new MessageBuilder()
+                        .literal("Set")
+                        .color(MinecraftColor.GRAY)
+
+                        .literal(" %s ", this.name())
+                        .color(MinecraftColor.DARK_AQUA)
+
+                        .literal("elimination mode to")
+                        .color(MinecraftColor.GRAY)
+
+                        .literal(" \"%s\"", commandConfig.child("withdrawCommand").<Boolean>value("allowSelfElimination").value() ? "ELIMINATE" : "DENY")
                         .color(MinecraftColor.GOLD)
                         .build()
                         .toLegacyText();
@@ -210,7 +258,7 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("Set")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" /%s ", commandConfig.child("recipeCommand").value("name").value())
+                        .literal(" %s ", this.name())
                         .color(MinecraftColor.DARK_AQUA)
 
                         .literal("permission to")
@@ -528,27 +576,24 @@ public class SetupConfigCommand extends HelixCommand {
     }
 
     private BaseComponent[] getNameMessage(SetupChatHandler handler) {
-        var main = MinecraftColor.fromHex("#B0B0B0");
-        var desc = MinecraftColor.fromHex("#808080");
-
         return new MessageBuilder()
                 .literal("What do you want the ")
-                .color(main)
+                .color(MAIN_COLOR)
 
                 .literal(handler.name())
                 .color(MinecraftColor.DARK_AQUA)
 
                 .literal(" command to be named?\n")
-                .color(main)
+                .color(MAIN_COLOR)
 
                 .literal("→ ")
-                .color(main)
+                .color(MAIN_COLOR)
 
                 .literal(handler.description())
-                .color(desc)
+                .color(DESC_COLOR)
 
                 .literal("\n§m%s\n".formatted(" ".repeat(65)))
-                .color(main)
+                .color(MAIN_COLOR)
 
                 .literal("Type the name in chat, without the /")
                 .color(MinecraftColor.GOLD)
@@ -557,31 +602,27 @@ public class SetupConfigCommand extends HelixCommand {
     }
 
     private BaseComponent[] getPermsMessage(SetupBooleanHandler handler, String path) {
-        var main = MinecraftColor.fromHex("#B0B0B0");
-        var desc = MinecraftColor.fromHex("#808080");
-        var red = MinecraftColor.fromHex("#FF5555");
-
         MessageBuilder builder = new MessageBuilder();
         if (handler.isCommand()) {
             builder.literal("Do you wish for people to be able to use the ")
-                    .color(main)
+                    .color(MAIN_COLOR)
 
                     .literal(handler.name())
                     .color(MinecraftColor.DARK_AQUA)
 
                     .literal(" command?\n")
-                    .color(main)
+                    .color(MAIN_COLOR)
 
                     .literal("→ ")
-                    .color(main);
+                    .color(MAIN_COLOR);
         }
 
         return builder
                 .literal(handler.description())
-                .color(handler.isCommand() ? desc : main)
+                .color(handler.isCommand() ? DESC_COLOR : MAIN_COLOR)
 
                 .literal("\n§m%s\n".formatted(" ".repeat(65)))
-                .color(main)
+                .color(MAIN_COLOR)
 
 
                 .literal("[ YES ]")
@@ -592,10 +633,10 @@ public class SetupConfigCommand extends HelixCommand {
                 .hover(HoverEvent.Action.SHOW_TEXT, new Text(MinecraftColor.GOLD + "Allow the option"))
 
                 .literal("   |   ")
-                .color(main)
+                .color(MAIN_COLOR)
 
                 .literal("[ NO ]")
-                .color(red)
+                .color(RED_COLOR)
                 .bold(true)
                 .click(ClickEvent.Action.RUN_COMMAND, "/lssetup config %s-deny".formatted(path))
                 .hover(HoverEvent.Action.SHOW_TEXT, new Text(MinecraftColor.RED + "Deny the option"))
