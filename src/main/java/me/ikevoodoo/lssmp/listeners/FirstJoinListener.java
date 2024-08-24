@@ -53,25 +53,26 @@ public class FirstJoinListener implements Listener {
 
         Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(max * 2);
         player.setHealth(max * 2);
-
     }
 
     private void sendWelcome(Player player) {
-        player.sendMessage("§aWelcome to §cLifeSteal §3v3.0.0§a! Here you can find all of the info you need.");
-        player.sendMessage("§aTo get started, run the command §f/lssetup §ato setup your server.");
-        player.sendMessage("§aThe config is found by navigating through the following folders:");
-        player.sendMessage("§fplugins §7-> §flifesteal");
+        player.sendMessage("§aWelcome to §cLifeSteal §3v3.0.0§a!");
+        player.sendMessage("§aHere's everything you need to get started:");
+
+        player.sendMessage("§6❖ §aRun §f/lssetup §ato set up your server. §e(Do this first!)");
+
+        player.sendMessage("§6❖ §aFind the config here: §fplugins §7-> §flifesteal");
+        player.sendMessage("§7This is where all your settings are located.");
+
         player.sendMessage("§r");
-        player.sendMessage("§aThe folder named §fplugins §ais the same folder where you install your plugins.");
-        player.sendMessage("§aThe folder named §flifesteal §ais different from the file §flifesteal.jar");
-        player.sendMessage("§a§nDo not try to open the file §flifesteal.jar §aas you cannot edit that!");
+        player.sendMessage("§c⚠ §aDon't open §flifesteal.jar§a—this file can't be edited!");
         player.sendMessage("§r");
-        player.sendMessage("§aYou will be informed of plugin updates in-game and will be able to install them with a single click.");
-        player.sendMessage("§aIf you feel like some features are missing, it may be because there are a few minor updates left, so watch out for those messages!");
-        player.sendMessage("§aTo reload the plugin, you can use §f/helix reload lifesteal");
-        player.sendMessage("§r");
-        player.sendMessage("§6If the message is cut off, you can scroll up in the chat for extra info!");
-        player.sendMessage("§aThank you for using §3Refined Tech §asoftware.");
+
+        player.sendMessage("§aStay updated with in-game messages. §bUpdates install with one click!");
+        player.sendMessage("§aUse §f/helix reload lifesteal §ato reload the plugin.");
+
+        player.sendMessage("§e§lNOTE! §r§ev3 is in alpha. Expect regular updates!");
+        player.sendMessage("§aThanks for choosing §3Refined Tech§a software.");
     }
 
 }
