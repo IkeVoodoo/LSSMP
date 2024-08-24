@@ -14,6 +14,7 @@ import me.ikevoodoo.lssmp.commands.recipe.RecipeCommand;
 import me.ikevoodoo.lssmp.commands.reset.ResetCommand;
 import me.ikevoodoo.lssmp.commands.revive.ReviveCommand;
 import me.ikevoodoo.lssmp.commands.setup.SetupCommand;
+import me.ikevoodoo.lssmp.commands.withdraw.WithdrawCommand;
 import me.ikevoodoo.lssmp.configuration.ConfigurationConverter;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
 import me.ikevoodoo.lssmp.configuration.data.items.custom.HeartItemConfiguration;
@@ -36,6 +37,7 @@ import me.ikevoodoo.lssmp.feature.heart.BasicHeartDeny;
 import me.ikevoodoo.lssmp.feature.heart.BasicHeartDrop;
 import me.ikevoodoo.lssmp.feature.heart.BasicHeartGain;
 import me.ikevoodoo.lssmp.feature.heart.BasicHeartLoss;
+import me.ikevoodoo.lssmp.feature.heart.BasicHeartTake;
 import me.ikevoodoo.lssmp.feature.heart.BasicTotemCheck;
 import me.ikevoodoo.lssmp.items.BaconItem;
 import me.ikevoodoo.lssmp.items.HeartItem;
@@ -342,6 +344,15 @@ public class Lifesteal {
                 .value("permission", "lssmp.withdraw")
                 .comment("The permission of the command")
                 .next()
+
+                .value("allowSelfElimination", true)
+                .comment("Should people be able to eliminate themselves when withdrawing too much?")
+                .next()
+
+                .value("heartItem", "default_heart_item")
+                .comment("What item should be given to the player that ran the command?")
+                .next()
+
                 .parent()
 
                 .build(new File(init.getDataFolder(), "commands.yml"));
@@ -381,6 +392,10 @@ public class Lifesteal {
         commands.register(init, new HealthCommand(this.commandConfiguration.child("healthCommand")));
         commands.register(init, new RecipeCommand(this.commandConfiguration.child("recipeCommand")));
         commands.register(init, new SetupCommand(this.commandConfiguration, this.mainConfiguration, this.messageConsumer));
+
+        var withdrawPipeline = HeartPipeline.create()
+                        .andThen(new BasicHeartTake(2.0));
+        commands.register(init, new WithdrawCommand(this.commandConfiguration.child("withdrawCommand"), withdrawPipeline));
 
         var screens = Helix.screens();
         if(!screens.register(REVIVE_SCREEN_ID, new ReviveScreen(generalSection, this.eliminatedList))) {
