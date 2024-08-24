@@ -1,5 +1,6 @@
 package me.ikevoodoo.lssmp.elimination;
 
+import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.storage.HelixDataStorage;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
 import me.ikevoodoo.lssmp.configuration.data.types.EliminationNotificationMode;
@@ -62,6 +63,28 @@ public class EliminationHelper {
                 ),
                 storage.getLong("eliminatedAt")
         );
+    }
+
+    public static void eliminate(Player player, Player attacker) {
+        var tag = Helix.tags().get("elimination");
+        tag.add(player.getUniqueId(), (uuid, storage) ->
+                storage.setString("killer", attacker == null ? "Environment" : attacker.getUniqueId().toString()));
+
+        player.setFallDistance(0);
+
+        var storage = tag.getData(player.getUniqueId());
+        var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
+
+        player.kickPlayer(data.getKickMessage(player));
+
+        switch (data.configuration().notificationMode()) {
+            case SEND_TO_KILLER -> {
+                if (attacker != null) {
+                    attacker.sendMessage(data.getNotificationMessage(player, attacker));
+                }
+            }
+            case SEND_TO_EVERYONE -> Bukkit.broadcastMessage(data.getNotificationMessage(player, attacker));
+        }
     }
 
     private static OfflinePlayer getKiller(HelixDataStorage storage) {
