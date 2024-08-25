@@ -1,5 +1,6 @@
 package me.ikevoodoo.lssmp;
 
+import me.ikevoodoo.helix.BukkitHelixProvider;
 import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.helix.api.items.display.ItemDisplayData;
@@ -359,8 +360,7 @@ public class Lifesteal {
     }
 
     public void onEnable(LifestealInit init) {
-        var pluginFolder = init.getDataFolder().getParentFile();
-        this.convertOldConfigs(pluginFolder);
+        this.convertOldConfigs();
 
         this.reloadConfig(init);
 
@@ -501,8 +501,8 @@ public class Lifesteal {
 
     }
 
-    private void convertOldConfigs(File pluginFolder) {
-        var oldData = new File(pluginFolder, "LifeSteal-Smp-Plugin");
+    private void convertOldConfigs() {
+        var oldData = new File(((BukkitHelixProvider) Helix.provider()).getDataFolder().getParentFile(), "LifeSteal-Smp-Plugin");
         var converted = new File(oldData, "converted.mark");
 
         if (!oldData.isDirectory() || converted.isFile()) {
