@@ -21,6 +21,14 @@ public class ReviveBeaconItem extends HelixItem {
     public ReviveBeaconItem(ReviveBeaconConfiguration configuration) {
         this.configuration = configuration;
 
+        this.addCallback(ItemAction.DROP, new ItemUseCallback() {
+            @Override
+            public ItemUseResult onItemUse(ItemUseContext context, HelixItemInstance itemInstance) {
+                context.player().sendMessage("§cYou can't drop a revive beacon!");
+                return ItemUseResult.CANCEL;
+            }
+        });
+
         this.addCallback(ItemAction.RIGHT_CLICK_GENERAL, new ItemUseCallback<>() {
             @Override
             public ItemUseResult onItemUse(ItemUseContext context, HelixItemInstance itemInstance) {
