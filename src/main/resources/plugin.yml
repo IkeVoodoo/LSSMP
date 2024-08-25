@@ -4,7 +4,7 @@ main: me.ikevoodoo.lssmp.LifestealInit
 api-version: '1.17'
 
 loadbefore:
-  - MetaSpigot
+  - Helix
 
 softdepend:
-  - MetaSpigot
+  - Helix
