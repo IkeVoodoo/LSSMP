@@ -15,7 +15,6 @@ public record RecipeConfiguration(boolean shaped, RecipeChoice[] choices) {
 
     public ItemStack[] getShapedStacks() {
         var shape = this.generateShape();
-        System.out.println(Arrays.toString(shape));
         var items = new ItemStack[9];
 
         var line = -1;

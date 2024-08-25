@@ -18,7 +18,6 @@ public class ItemRecipeHandler implements HelixComponentHandler {
 
     @Override
     public void render(HelixComponentContext context, HelixPageComponent component) {
-        System.out.println(Arrays.toString(this.recipe));
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 var slot = y * 3 + x;

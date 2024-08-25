@@ -18,7 +18,7 @@ public class LifestealInit extends JavaPlugin implements Listener {
 
         if (helix == null) {
             getLogger().log(Level.SEVERE, "========================");
-            getLogger().log(Level.SEVERE, "Lifesteal requires Helix, please download it from: <link>");
+            getLogger().log(Level.SEVERE, "Lifesteal requires Helix, please download it from: https://www.spigotmc.org/resources/helix.119149/");
             getLogger().log(Level.SEVERE, "To install Helix, simply add it to your plugins folder.");
             getLogger().log(Level.SEVERE, "The plugin will NOT work until that is done.");
             getLogger().log(Level.SEVERE, "========================");
@@ -64,7 +64,7 @@ public class LifestealInit extends JavaPlugin implements Listener {
             }
 
             player.sendMessage("§c========================");
-            player.sendMessage("§cLifesteal requires Helix, please download it from: <link>");
+            player.sendMessage("§cLifesteal requires Helix, please download it from: https://www.spigotmc.org/resources/helix.119149/");
             player.sendMessage("§cTo install Helix, simply add it to your plugins folder.");
             player.sendMessage("§cThe plugin will NOT work until that is done.");
             player.sendMessage("§c========================");

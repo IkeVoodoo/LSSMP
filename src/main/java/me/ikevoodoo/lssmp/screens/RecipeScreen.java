@@ -31,8 +31,6 @@ public class RecipeScreen implements HelixScreen {
 
     @Override
     public void setup(HelixScreenSetup setup) {
-        System.out.println(this.recipes);
-
         var ids = new HashMap<UniqueIdentifier, HelixItem>();
 
         for (var itemKey : Helix.items().getKeys(JavaPlugin.getPlugin(LifestealInit.class))) {
