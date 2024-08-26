@@ -33,6 +33,18 @@ public class LifestealInit extends JavaPlugin implements Listener {
         if (!ownFolder.startsWith(dataFolder)) {
             getLogger().log(Level.INFO, "Lifesteal is being moved to the correct directory and will be disabled for a short amount of time.");
 
+            var repoManager = ((me.ikevoodoo.helix.BukkitHelixProvider) helix).getRepositoryManager();
+
+            var central = repoManager.getRepositories().get("central");
+
+            if (central != null) {
+                repoManager.downloadPlugin(
+                        central.getUrl(),
+                        "lifesteal",
+                        null
+                );
+            }
+
             ((me.ikevoodoo.helix.BukkitHelixProvider) helix).movePlugin(this);
             return;
         }
