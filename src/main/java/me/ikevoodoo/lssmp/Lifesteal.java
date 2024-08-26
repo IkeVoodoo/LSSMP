@@ -260,7 +260,7 @@ public class Lifesteal {
 
                                 -1,
 
-                                ReviveHeartsMode.USE_REVIVE_HEARTS,
+                                ReviveHeartsMode.USE_DEFAULT_HEARTS,
                                 10D
                         )
                 }, new EliminationConfigurationParser())

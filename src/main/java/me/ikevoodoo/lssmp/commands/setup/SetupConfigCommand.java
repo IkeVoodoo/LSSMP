@@ -379,6 +379,53 @@ public class SetupConfigCommand extends HelixCommand {
             }
         });
 
+        this.handlers.put("default_hearts", new SetupChatHandler() {
+            @Override
+            public boolean onSubmit(String chat) {
+                try {
+                    var value = Double.parseDouble(chat) * 2;
+                    generalConfig.value("defaultHearts").value(value);
+
+                    return true;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            }
+
+            @Override
+            public String name() {
+                return null;
+            }
+
+            @Override
+            public String description() {
+                return "How many hearts should players have by default? " + DESC_COLOR + "(Needs to be a number between 1 and 1024)";
+            }
+
+            @Override
+            public boolean isCommand() {
+                return false;
+            }
+
+            @Override
+            public String summary() {
+                return new MessageBuilder()
+                        .literal("Set")
+                        .color(MinecraftColor.GRAY)
+
+                        .literal(" Heart Drop Mode ")
+                        .color(MinecraftColor.DARK_AQUA)
+
+                        .literal("to")
+                        .color(MinecraftColor.GRAY)
+
+                        .literal(" %s", generalConfig.child("combat").value("playerDropHeartsMode").value())
+                        .color(MinecraftColor.GOLD)
+                        .build()
+                        .toLegacyText();
+            }
+        });
+
         this.handlers.put("complete", new SetupCommandHandler() {
             @Override
             public String name() {
@@ -576,26 +623,29 @@ public class SetupConfigCommand extends HelixCommand {
     }
 
     private BaseComponent[] getNameMessage(SetupChatHandler handler) {
-        return new MessageBuilder()
-                .literal("What do you want the ")
-                .color(MAIN_COLOR)
+        var builder = new MessageBuilder();
 
-                .literal(handler.name())
-                .color(MinecraftColor.DARK_AQUA)
+        if (handler.isCommand()) {
+                builder.literal("What do you want the ")
+                    .color(MAIN_COLOR)
 
-                .literal(" command to be named?\n")
-                .color(MAIN_COLOR)
+                    .literal(handler.name())
+                    .color(MinecraftColor.DARK_AQUA)
 
-                .literal("→ ")
-                .color(MAIN_COLOR)
+                    .literal(" command to be named?\n")
+                    .color(MAIN_COLOR)
 
-                .literal(handler.description())
-                .color(DESC_COLOR)
+                    .literal("→ ")
+                    .color(MAIN_COLOR);
+        }
+
+        return builder.literal(handler.description())
+                .color(handler.isCommand() ? DESC_COLOR : MAIN_COLOR)
 
                 .literal("\n§m%s\n".formatted(" ".repeat(65)))
                 .color(MAIN_COLOR)
 
-                .literal("Type the name in chat, without the /")
+                .literal(handler.isCommand() ? "Type the name in chat, without the /" : "Type the value in chat")
                 .color(MinecraftColor.GOLD)
                 .bold(true)
                 .buildArray();

@@ -14,4 +14,8 @@ public interface SetupCommandHandler {
 
     }
 
+    default boolean isCommand() {
+        return true;
+    }
+
 }
