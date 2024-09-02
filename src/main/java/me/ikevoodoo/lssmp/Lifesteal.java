@@ -224,17 +224,17 @@ public class Lifesteal {
                                 new RecipeConfiguration(
                                         true,
                                         new RecipeChoice[] {
-                                                new RecipeChoice.MaterialChoice(Material.AIR),
+                                                new RecipeChoice.MaterialChoice(Material.DANDELION),
                                                 new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT),
-                                                new RecipeChoice.MaterialChoice(Material.AIR),
+                                                new RecipeChoice.MaterialChoice(Material.DANDELION),
 
                                                 new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT),
                                                 new RecipeChoice.MaterialChoice(Material.BEACON),
                                                 new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT),
 
-                                                new RecipeChoice.MaterialChoice(Material.AIR),
+                                                new RecipeChoice.MaterialChoice(Material.DANDELION),
                                                 new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT),
-                                                new RecipeChoice.MaterialChoice(Material.AIR)
+                                                new RecipeChoice.MaterialChoice(Material.DANDELION)
                                         }
                                 ),
                                 "default_revive_beacon",

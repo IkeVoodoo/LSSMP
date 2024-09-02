@@ -27,7 +27,7 @@ public class LifestealInit extends JavaPlugin implements Listener {
             return;
         }
 
-        var inHelix = getDataFolder().getParentFile().getParentFile().getName().equals("Helix");
+        var inHelix = getDataFolder().getAbsoluteFile().getParentFile().getParentFile().getName().equals("Helix");
 
         if (!inHelix) {
             getLogger().log(Level.INFO, "Lifesteal is being moved to the correct directory and will be disabled for a short amount of time.");

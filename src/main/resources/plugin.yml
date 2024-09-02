@@ -3,8 +3,5 @@ version: '${project.version}'
 main: me.ikevoodoo.lssmp.LifestealInit
 api-version: '1.17'
 
-loadbefore:
-  - Helix
-
 softdepend:
   - Helix

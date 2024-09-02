@@ -50,13 +50,13 @@ public record RecipeConfiguration(boolean shaped, RecipeChoice[] choices) {
 
             var shape = recipe.getShape();
 
-            var line = -1;
+            var line = 0;
 
             for (int i = 0; i < this.choices.length; i++) {
                 var choice = this.choices[i];
                 if (choice == null) continue;
 
-                if (i % 3 == 0) {
+                if (i != 0 && i % 3 == 0) {
                     line++;
                 }
 
@@ -90,7 +90,7 @@ public record RecipeConfiguration(boolean shaped, RecipeChoice[] choices) {
 
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                var index = x + y * 3;
+                var index = y * 3 + x;
 
                 var choice = this.choices[index];
                 if (choice == null) {

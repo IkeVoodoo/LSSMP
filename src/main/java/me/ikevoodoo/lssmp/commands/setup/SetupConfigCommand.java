@@ -384,7 +384,7 @@ public class SetupConfigCommand extends HelixCommand {
             public boolean onSubmit(String chat) {
                 try {
                     var value = Double.parseDouble(chat) * 2;
-                    generalConfig.value("defaultHearts").value(value);
+                    generalConfig.child("general").value("defaultHearts").value(value);
 
                     return true;
                 } catch (NumberFormatException e) {
@@ -413,13 +413,13 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("Set")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" Heart Drop Mode ")
+                        .literal(" Default Hearts ")
                         .color(MinecraftColor.DARK_AQUA)
 
                         .literal("to")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" %s", generalConfig.child("combat").value("playerDropHeartsMode").value())
+                        .literal(" %s", generalConfig.child("general").value("defaultHearts").value())
                         .color(MinecraftColor.GOLD)
                         .build()
                         .toLegacyText();
