@@ -7,6 +7,8 @@ import me.ikevoodoo.helix.api.commands.HelixCommand;
 import me.ikevoodoo.helix.api.commands.HelixCommandParameters;
 import me.ikevoodoo.helix.api.commands.arguments.ArgumentList;
 import me.ikevoodoo.helix.api.config.Configuration;
+import me.ikevoodoo.helix.api.namespaced.UniqueIdentifier;
+import me.ikevoodoo.helix.api.plugins.HelixPlugin;
 import me.ikevoodoo.lssmp.elimination.EliminationHelper;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipeline;
 import org.bukkit.attribute.Attribute;
@@ -48,7 +50,12 @@ public class WithdrawCommand extends HelixCommand {
             return CommandExecutionResult.FAILURE;
         }
 
-        var stack = Helix.items().createItem(this.configuration.getValue("heartItem"), null);
+        final var id = this.configuration.<String>getValue("heartItem");
+        final var plugin = HelixPlugin.getProvidingPlugin(this.getClass());
+
+        final var uniqueId = UniqueIdentifier.plugin(plugin, id);
+
+        var stack = Helix.items().createItem(uniqueId, null);
         var res = player.getInventory().addItem(stack);
         for (var result : res.values()) {
             player.getWorld().dropItemNaturally(player.getLocation(), result);
