@@ -36,7 +36,8 @@ public class WithdrawCommand extends HelixCommand {
 
     @Override
     public CommandExecutionResult handlePlayerSender(@NotNull Player player, @NotNull ArgumentList args) {
-        var hearts = new AtomicDouble(Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getBaseValue());
+        final var maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH));
+        var hearts = new AtomicDouble(maxHealth.getBaseValue());
         var cancel = new AtomicBoolean();
         this.pipeline.fire(player, null, hearts, null, cancel);
 
@@ -49,6 +50,8 @@ public class WithdrawCommand extends HelixCommand {
             player.sendMessage("§cYou can't eliminate yourself!");
             return CommandExecutionResult.FAILURE;
         }
+
+        maxHealth.setBaseValue(hearts.get());
 
         final var id = this.configuration.<String>getValue("heartItem");
         final var plugin = HelixPlugin.getProvidingPlugin(this.getClass());
