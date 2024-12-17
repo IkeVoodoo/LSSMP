@@ -34,7 +34,10 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 TimeFormatter.parseDuration(configuration.getValue("banTime")),
 
                 configuration.getValue("reviveHeartsMode"),
-                configuration.getValue("reviveHearts")
+                configuration.getValue("reviveHearts"),
+
+                configuration.getValue("shouldBanPlayer"),
+                configuration.getValueArray("eliminationCommands")
         );
     }
 
@@ -72,7 +75,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 .comment("What message should be broadcast whenever a player gets eliminated?")
                 .commentSpace()
                 .comment("Placeholders:")
-                .comment(" - {{player}}  The name of the player that got eliminated")
+                .comment(" - {{player}}  The name of the player that got eliminated.")
                 .comment(" - {{killer}}  The name of the player that eliminated this player.")
                 .next();
 
@@ -102,6 +105,18 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
         template.value("reviveHearts", value.reviveHearts())
                 .comment("How many hearts should players have when they get revived?")
                 .comment("Note: Only works when reviveHeartsMode is USE_REVIVE_HEARTS")
+                .next();
+
+        template.value("shouldBanPlayer", value.shouldBanPlayer())
+                .comment("Should the eliminated player be banned?")
+                .next();
+
+        template.valueArray("eliminationCommands", value.eliminationCommands())
+                .comment("What commands should be ran when a player is eliminated?")
+                .commentSpace()
+                .comment("Placeholders:")
+                .comment(" - {{player}}  The name of the player that got eliminated.")
+                .comment(" - {{killer}}  The name of the player that eliminated this player.")
                 .next();
     }
 }

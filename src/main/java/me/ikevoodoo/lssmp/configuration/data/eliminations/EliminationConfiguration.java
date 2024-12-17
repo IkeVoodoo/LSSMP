@@ -14,7 +14,10 @@ public record EliminationConfiguration(
         long banTime,
 
         ReviveHeartsMode reviveHeartsMode,
-        double reviveHearts
+        double reviveHearts,
+
+        boolean shouldBanPlayer,
+        String[] eliminationCommands
 ) {
 
 

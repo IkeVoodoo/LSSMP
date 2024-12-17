@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class EliminationHelper {
@@ -39,7 +40,10 @@ public class EliminationHelper {
                     null,
                     -1,
                     ReviveHeartsMode.USE_DEFAULT_HEARTS,
-                    -1
+                    -1,
+
+                    true,
+                    new String[0]
             );
         } else {
             configuration = configurations[highest];
@@ -49,6 +53,8 @@ public class EliminationHelper {
     }
 
     public static EliminationInfo fromStorage(UUID uuid, HelixDataStorage storage) {
+        final var commandBytes = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
+
         return new EliminationInfo(
                 Bukkit.getOfflinePlayer(uuid),
                 getKiller(storage),
@@ -59,7 +65,10 @@ public class EliminationHelper {
                         null,
                         storage.getLong("banTime"),
                         ReviveHeartsMode.values()[storage.getByte("reviveMode")],
-                        storage.getDouble("reviveHearts")
+                        storage.getDouble("reviveHearts"),
+
+                        storage.getBoolean("shouldBanPlayer"),
+                        commandBytes
                 ),
                 storage.getLong("eliminatedAt")
         );
@@ -75,7 +84,9 @@ public class EliminationHelper {
         var storage = tag.getData(player.getUniqueId());
         var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
 
-        player.kickPlayer(data.getKickMessage(player));
+        if (data.configuration().shouldBanPlayer()) {
+            player.kickPlayer(data.getKickMessage(player));
+        }
 
         switch (data.configuration().notificationMode()) {
             case SEND_TO_KILLER -> {
@@ -84,6 +95,10 @@ public class EliminationHelper {
                 }
             }
             case SEND_TO_EVERYONE -> Bukkit.broadcastMessage(data.getNotificationMessage(player, attacker));
+        }
+
+        for (final var command : data.configuration().eliminationCommands()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         }
     }
 

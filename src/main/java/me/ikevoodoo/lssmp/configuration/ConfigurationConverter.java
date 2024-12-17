@@ -87,7 +87,10 @@ public class ConfigurationConverter {
                     banTime,
 
                     ReviveHeartsMode.USE_REVIVE_HEARTS,
-                    10.0
+                    10.0,
+
+                    true,
+                    new String[0]
             );
 
             configs.add(info);

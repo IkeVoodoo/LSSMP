@@ -51,6 +51,7 @@ import org.bukkit.inventory.RecipeChoice;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -250,7 +251,15 @@ public class Lifesteal {
                                 -1,
 
                                 ReviveHeartsMode.USE_DEFAULT_HEARTS,
-                                10D
+                                10D,
+
+                                true,
+
+                                new String[] {
+                                        "your",
+                                        "commands",
+                                        "here"
+                                }
                         )
                 }, new EliminationConfigurationParser())
                 .next()
@@ -408,6 +417,9 @@ public class Lifesteal {
         tag.on(TagBehaviors.ASYNC_JOIN, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "kick_player"), (context, storage, instance) -> {
             var player = context.player();
             var data = EliminationHelper.fromStorage(player, storage);
+            if (!data.configuration().shouldBanPlayer()) {
+                return TagResult.SUCCESS;
+            }
 
             var now = System.currentTimeMillis();
             var pardonAt = data.getPardonAt();
@@ -462,6 +474,8 @@ public class Lifesteal {
             storage.setString("notifMsg", info.configuration().notificationMessage());
             storage.setByte("reviveMode", (byte) info.configuration().reviveHeartsMode().ordinal());
             storage.setDouble("reviveHearts", info.configuration().reviveHearts());
+            storage.setBoolean("shouldBanPlayer", info.configuration().shouldBanPlayer());
+            storage.setByteArray("eliminationCommands", String.join("\0", info.configuration().eliminationCommands()).getBytes(StandardCharsets.UTF_8));
 
             this.eliminatedList.removeIf(eliminationInfo -> eliminationInfo.player().getUniqueId().equals(context.target()));
             this.eliminatedList.add(info);
