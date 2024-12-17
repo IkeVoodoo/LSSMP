@@ -174,6 +174,7 @@ public class SetupConfigCommand extends HelixCommand {
 
             @Override
             public String summary() {
+                final var eliminateMode = commandConfig.child("withdrawCommand").<Boolean>value("allowSelfElimination").value();
                 return new MessageBuilder()
                         .literal("Set")
                         .color(MinecraftColor.GRAY)
@@ -184,8 +185,8 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("elimination mode to")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" \"%s\"", commandConfig.child("withdrawCommand").<Boolean>value("allowSelfElimination").value() ? "ELIMINATE" : "DENY")
-                        .color(MinecraftColor.GOLD)
+                        .literal(" %s", eliminateMode ? "ELIMINATE" : "DENY")
+                        .color(eliminateMode ? MinecraftColor.GREEN : MinecraftColor.RED)
                         .build()
                         .toLegacyText();
             }
