@@ -47,25 +47,22 @@ public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer kill
                 .replace("{{killer}}", killerName == null ? "Unknown" : killerName);
     }
 
-    public String getNotificationMessage(Player player, @Nullable Player killer) {
-        var plain = this.configuration.notificationMessage();
+    public String formatMessage(String message) {
+        final var playerName = this.player.getName();
+        final var killerName = this.killer == null
+                ? "[ENVIRONMENT]"
+                : this.killer.getName();
 
-        plain = plain.replace("{{player}}", player.getName());
-
-        if (killer != null) {
-            plain = plain.replace("{{killer}}", killer.getName());
-        } else {
-            plain = plain.replace("{{killer}}", "Environment");
-        }
-
-        return plain;
+        return message
+                .replace("{{player}}", playerName == null ? "[UNKNOWN]" : playerName)
+                .replace("{{killer}}", killerName == null ? "[UNKNOWN]" : killerName);
     }
 
     public String getKickMessage(Player player) {
-        var addr = player.getAddress();
-        if (addr == null) return null;
+        var address = player.getAddress();
+        if (address == null) return null;
 
-        return this.getKickMessage(addr.getAddress());
+        return this.getKickMessage(address.getAddress());
     }
 
     @SuppressWarnings("unused")
