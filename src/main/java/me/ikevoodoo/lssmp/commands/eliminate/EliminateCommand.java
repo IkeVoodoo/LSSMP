@@ -10,6 +10,7 @@ import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.lssmp.elimination.EliminationHelper;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class EliminateCommand extends HelixCommand {
@@ -40,7 +41,7 @@ public class EliminateCommand extends HelixCommand {
 
         sender.sendMessage("§aEliminated §3" + eliminating.getName());
 
-        EliminationHelper.eliminate(eliminating, null);
+        EliminationHelper.eliminate(eliminating, sender instanceof Player senderPlayer ? senderPlayer : null);
 
         return CommandExecutionResult.HANDLED;
     }

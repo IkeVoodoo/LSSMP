@@ -7,6 +7,7 @@ import me.ikevoodoo.helix.api.commands.HelixCommandParameters;
 import me.ikevoodoo.helix.api.commands.arguments.ArgumentList;
 import me.ikevoodoo.lssmp.elimination.EliminationHelper;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class EliminateAllCommand extends HelixCommand {
@@ -24,8 +25,10 @@ public class EliminateAllCommand extends HelixCommand {
             return CommandExecutionResult.HANDLED;
         }
 
+        final var senderPlayer = sender instanceof Player player ? player : null;
+
         for (var plr : online) {
-            EliminationHelper.eliminate(plr, null);
+            EliminationHelper.eliminate(plr, senderPlayer);
         }
 
         sender.sendMessage("§aEliminated §3" + online + " §aplayer" + (online.size() != 1 ? "s" : ""));
