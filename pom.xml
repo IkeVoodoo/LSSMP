@@ -6,7 +6,7 @@
 
   <groupId>me.ikevoodoo</groupId>
   <artifactId>lifesteal</artifactId>
-  <version>3.0.3-SNAPSHOT</version>
+  <version>3.0.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>lifesteal</name>
@@ -30,12 +30,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.6.0</version>
           <configuration>
               <relocations>
                   <relocation>
                       <pattern>org.bstats</pattern>
-                      <!-- Replace this with your package! -->
                       <shadedPattern>me.ikevoodoo.lssmp.bstats</shadedPattern>
                   </relocation>
               </relocations>
