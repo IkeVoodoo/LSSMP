@@ -21,7 +21,7 @@ public class EliminationHelper {
 
         for (int i = 0; i < configurations.length; i++) {
             var config = configurations[i];
-            if (config.permission() != null && permissible.hasPermission(config.permission())) {
+            if (config.permission() == null || permissible.hasPermission(config.permission())) {
                 highest = i;
             }
         }
