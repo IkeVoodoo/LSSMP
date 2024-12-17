@@ -35,7 +35,7 @@ public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer kill
 
         return MinecraftColor.replaceColorCodes('&', this.configuration().playerMessage())
                 .replace("{{time_remaining}}", banTime == Long.MAX_VALUE ? "infinite" : TimeFormatter.formatDuration(remainingSeconds))
-                .replace("{{revived_at}}", banTime == Long.MAX_VALUE ? "the end of the universe" : TimeFormatter.formatDate(
+                .replace("{{revived_at}}", banTime == Long.MAX_VALUE ? "the end of time" : TimeFormatter.formatDate(
                         LocalDateTime.ofInstant(
                                 Instant.ofEpochMilli(
                                         pardonAt

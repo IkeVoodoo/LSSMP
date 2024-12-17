@@ -61,7 +61,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 .comment(" - {{revived_at}}  Formats the exact date and time when the player will be revived.")
                 .comment("                   Uses  month/day/year hour:minute  for: the USA, Belize, Micronesia.")
                 .comment("                   Uses  day/month/year hour:minute  for the rest of the world.")
-                .comment("                   If the ban time is permanent, then it becomes \"the end of the universe\"")
+                .comment("                   If the ban time is permanent, then it becomes \"the end of time\"")
                 .comment(" - {{killer}}  The name of the player that eliminated this player.")
                 .comment("               Becomes \"Environment\" when the player got killed by mobs, fall damage, etc.")
                 .comment("               > Becomes \"unknown\" when the plugin is unable to get the killer's name.")
