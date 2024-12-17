@@ -420,7 +420,7 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("to")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" %d", defaultHearts / 2D)
+                        .literal(" %s",defaultHearts / 2D)
                         .color(MinecraftColor.GOLD)
                         .build()
                         .toLegacyText();
