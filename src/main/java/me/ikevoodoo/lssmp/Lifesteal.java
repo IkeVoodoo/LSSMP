@@ -394,7 +394,8 @@ public class Lifesteal {
         commands.register(init, new SetupCommand(this.commandConfiguration, this.mainConfiguration, this.messageConsumer));
 
         var withdrawPipeline = HeartPipeline.create()
-                        .andThen(new BasicHeartTake(2.0));
+                        .andThen(new BasicHeartTake(2.0))
+                        .andThen(new BasicElimination(generalSection));
         commands.register(init, new WithdrawCommand(this.commandConfiguration.child("withdrawCommand"), withdrawPipeline));
 
         var screens = Helix.screens();
