@@ -384,7 +384,7 @@ public class SetupConfigCommand extends HelixCommand {
             @Override
             public boolean onSubmit(String chat) {
                 try {
-                    var value = Double.parseDouble(chat) * 2;
+                    var value = Double.parseDouble(chat);
                     generalConfig.child("general").value("defaultHearts").value(value);
 
                     return true;
