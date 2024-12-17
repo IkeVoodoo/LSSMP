@@ -84,6 +84,8 @@ public class EliminationHelper {
         var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
 
         for (final var command : data.configuration().eliminationCommands()) {
+            if (command.isBlank()) continue;
+
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), data.formatMessage(command));
         }
 
