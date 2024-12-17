@@ -30,27 +30,17 @@ public class EliminateCommand extends HelixCommand {
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var resetting = args.<OfflinePlayer>getArgument("player");
+        var eliminating = args.<OfflinePlayer>getArgument("player");
 
         var tag = Helix.tags().get("elimination");
-        if(tag.has(resetting.getUniqueId())) {
+        if(tag.has(eliminating.getUniqueId())) {
             sender.sendMessage("§aGood news! That player is already eliminated!");
             return CommandExecutionResult.HANDLED;
         }
 
-        sender.sendMessage("§aEliminated §3" + resetting.getName());
+        sender.sendMessage("§aEliminated §3" + eliminating.getName());
 
-        tag.add(resetting.getUniqueId(), (uuid, storage) -> {});
-
-        if (resetting.isOnline()) {
-            var player = resetting.getPlayer();
-            assert player != null;
-
-            var storage = tag.getData(player.getUniqueId());
-            var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
-
-            player.kickPlayer(data.getKickMessage(player));
-        }
+        EliminationHelper.eliminate(eliminating, null);
 
         return CommandExecutionResult.HANDLED;
     }

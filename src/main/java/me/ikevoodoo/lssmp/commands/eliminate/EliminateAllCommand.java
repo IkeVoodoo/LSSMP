@@ -18,7 +18,6 @@ public class EliminateAllCommand extends HelixCommand {
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var tag = Helix.tags().get("elimination");
         var online = Helix.players().allOnline();
         if (online.isEmpty()) {
             sender.sendMessage("§aThere are no players!");
@@ -26,12 +25,7 @@ public class EliminateAllCommand extends HelixCommand {
         }
 
         for (var plr : online) {
-            tag.add(plr.getUniqueId(), (uuid, storage) -> {});
-
-            var storage = tag.getData(plr.getUniqueId());
-            var data = EliminationHelper.fromStorage(plr.getUniqueId(), storage);
-
-            plr.kickPlayer(data.getKickMessage(plr));
+            EliminationHelper.eliminate(plr, null);
         }
 
         sender.sendMessage("§aEliminated §3" + online + " §aplayer" + (online.size() != 1 ? "s" : ""));
