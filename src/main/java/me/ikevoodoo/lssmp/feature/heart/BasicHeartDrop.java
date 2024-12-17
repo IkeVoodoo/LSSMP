@@ -9,6 +9,7 @@ import me.ikevoodoo.lssmp.configuration.data.types.PlayerDropHeartsMode;
 import me.ikevoodoo.lssmp.pipeline.PipelineResult;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipelineHandler;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -82,10 +83,12 @@ public class BasicHeartDrop implements HeartPipelineHandler {
 
         var stack = Helix.items().createItem(uid, customItem.defaultDisplayData());
 
-        world.dropItem(pos, stack, item -> {
+        world.spawn(pos, Item.class, item -> {
             item.setGravity(false);
             item.setInvulnerable(true);
             item.setGlowing(true);
+
+            item.setItemStack(stack);
         });
     }
 }
