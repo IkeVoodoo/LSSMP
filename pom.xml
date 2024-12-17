@@ -70,7 +70,7 @@
       <dependency>
           <groupId>me.ikevoodoo</groupId>
           <artifactId>helix-impl</artifactId>
-          <version>0.0.4</version>
+          <version>0.0.5</version>
           <scope>provided</scope>
       </dependency>
   </dependencies>
