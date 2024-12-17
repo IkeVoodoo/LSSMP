@@ -71,22 +71,38 @@ public class BasicHeartDrop implements HeartPipelineHandler {
     }
 
     private void dropHeart(Player player) {
-        var location = player.getLocation().add(0.5, 0, 0.5);
-        var world = player.getWorld();
-        var cast = world.rayTraceBlocks(location, new Vector(0, 1, 0), 2);
-
-        var pos = cast == null ? location.add(0, 2, 0) : cast.getHitPosition().toLocation(world).subtract(0, 0.25, 0);
-
         var uid = UniqueIdentifier.combine(Constants.PLUGIN_KEY, this.combatConfig.getValue("heartToDrop"));
 
         var customItem = Helix.items().getItem(uid);
 
         var stack = Helix.items().createItem(uid, customItem.defaultDisplayData());
 
-        world.spawn(pos, Item.class, item -> {
+        final var playerLocation = player.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
+        var world = player.getWorld();
+
+        final var droppedHeartsFloat = this.combatConfig.<Boolean>getValue("droppedHeartsFloat");
+        if (!droppedHeartsFloat) {
+            world.dropItemNaturally(playerLocation, stack, item -> {
+                item.setInvulnerable(true);
+                item.setGlowing(true);
+            });
+            return;
+        }
+
+        final var location = playerLocation.add(0, 2, 0);
+        if (!location.getBlock().getType().isAir()) {
+            location.subtract(0, 1, 0); // Try to place the heart item at the feet instead of the eyes
+        }
+
+        while (!location.getBlock().getType().isAir()) {
+            location.add(0, 1, 0);
+        }
+
+        world.spawn(location, Item.class, item -> {
             item.setGravity(false);
             item.setInvulnerable(true);
             item.setGlowing(true);
+            item.setVelocity(new Vector());
 
             item.setItemStack(stack);
         });

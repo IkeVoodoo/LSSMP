@@ -83,6 +83,12 @@ public class Lifesteal {
                 .commentEnum(PlayerDropHeartsMode.class)
                 .next()
 
+                .value("droppedHeartsFloat", true)
+                .comment("Should dropped hearts float in the air, or fall to the ground?")
+                .comment("Note: Only works when playerDropHeartsMode is not set to NEVER")
+                .commentSpace()
+                .next()
+
                 .value("heartToDrop", "default_heart_item")
                 .comment("What heart item should be used for heart drops?")
                 .comment("Note: Only works when a heart should drop! See <playerDropHeartsMode> for more information!")
