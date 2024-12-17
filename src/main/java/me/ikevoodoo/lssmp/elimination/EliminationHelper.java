@@ -83,12 +83,12 @@ public class EliminationHelper {
         var storage = tag.getData(player.getUniqueId());
         var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
 
-        if (player.isOnline()) {
-            processOlineElimination(data, player.getPlayer(), attacker);
-        }
-
         for (final var command : data.configuration().eliminationCommands()) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        }
+
+        if (player.isOnline()) {
+            processOlineElimination(data, player.getPlayer(), attacker);
         }
     }
 
