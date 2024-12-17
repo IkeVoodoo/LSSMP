@@ -27,9 +27,10 @@ public class HealthAddCommand extends HelixCommand {
 
         var attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         assert attribute != null;
-        attribute.setBaseValue(attribute.getBaseValue() + (amount * 2));
+        final var newHealth = attribute.getBaseValue() + (amount * 2);
+        attribute.setBaseValue(newHealth);
 
-        sender.sendMessage("§f" + player.getName() + " §anow has §3" + (attribute.getBaseValue() / 2) + " §ahearts!");
+        sender.sendMessage("§f" + player.getName() + " §anow has §3" + (newHealth / 2) + " §ahearts!");
 
         return CommandExecutionResult.HANDLED;
     }
