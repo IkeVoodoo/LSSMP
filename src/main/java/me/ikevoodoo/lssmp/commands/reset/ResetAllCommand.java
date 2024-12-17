@@ -24,7 +24,7 @@ public class ResetAllCommand extends ResetCommandBase {
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
         for (var online : Bukkit.getOnlinePlayers()) {
-            reset(online, this.generalConfiguration);
+            super.reset(online, this.generalConfiguration);
         }
 
         sender.sendMessage("§aReset §3" + Bukkit.getOnlinePlayers().size() + "§a players!");

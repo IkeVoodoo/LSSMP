@@ -31,7 +31,7 @@ public class ResetCommand extends ResetCommandBase {
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
         var resetting = args.<Player>getArgument("player");
 
-        reset(resetting, this.generalConfiguration);
+        super.reset(resetting, this.generalConfiguration);
 
         sender.sendMessage("§aReset §3" + resetting.getName());
 
