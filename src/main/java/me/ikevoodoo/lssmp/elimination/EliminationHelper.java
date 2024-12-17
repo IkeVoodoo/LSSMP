@@ -84,7 +84,7 @@ public class EliminationHelper {
         var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
 
         for (final var command : data.configuration().eliminationCommands()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), data.formatMessage(command));
         }
 
         if (player.isOnline()) {
@@ -101,13 +101,15 @@ public class EliminationHelper {
             player.kickPlayer(data.getKickMessage(player));
         }
 
+        final var notificationMessage = data.configuration().notificationMessage();
+
         switch (data.configuration().notificationMode()) {
             case SEND_TO_KILLER -> {
                 if (attacker != null) {
-                    attacker.sendMessage(data.getNotificationMessage(player, attacker));
+                    attacker.sendMessage(data.formatMessage(notificationMessage));
                 }
             }
-            case SEND_TO_EVERYONE -> Bukkit.broadcastMessage(data.getNotificationMessage(player, attacker));
+            case SEND_TO_EVERYONE -> Bukkit.broadcastMessage(data.formatMessage(notificationMessage));
         }
     }
 
