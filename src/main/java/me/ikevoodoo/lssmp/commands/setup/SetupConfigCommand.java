@@ -409,6 +409,7 @@ public class SetupConfigCommand extends HelixCommand {
 
             @Override
             public String summary() {
+                final var defaultHearts = (double) generalConfig.child("general").value("defaultHearts").value();
                 return new MessageBuilder()
                         .literal("Set")
                         .color(MinecraftColor.GRAY)
@@ -419,7 +420,7 @@ public class SetupConfigCommand extends HelixCommand {
                         .literal("to")
                         .color(MinecraftColor.GRAY)
 
-                        .literal(" %s", generalConfig.child("general").value("defaultHearts").value())
+                        .literal(" %d", defaultHearts / 2D)
                         .color(MinecraftColor.GOLD)
                         .build()
                         .toLegacyText();

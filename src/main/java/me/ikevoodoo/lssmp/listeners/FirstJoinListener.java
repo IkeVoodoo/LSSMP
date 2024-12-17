@@ -49,10 +49,10 @@ public class FirstJoinListener implements Listener {
 
         pdc.set(this.initKey, PersistentDataType.BYTE, (byte) 1);
 
-        double max = this.generalConfig.getValue("defaultHearts");
+        double max = (double) this.generalConfig.getValue("defaultHearts") * 2;
 
-        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(max * 2);
-        player.setHealth(max * 2);
+        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(max);
+        player.setHealth(max);
     }
 
     private void sendWelcome(Player player) {
