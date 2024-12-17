@@ -49,6 +49,7 @@ import me.ikevoodoo.lssmp.listeners.PlayerChatListener;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipeline;
 import me.ikevoodoo.lssmp.screens.RecipeScreen;
 import me.ikevoodoo.lssmp.screens.ReviveScreen;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -363,6 +364,9 @@ public class Lifesteal {
         this.convertOldConfigs();
 
         this.reloadConfig(init);
+
+        // UNUSED: I do not need custom charts for now
+        final var metrics = new Metrics(init, 12177);
 
         var combatSection = this.mainConfiguration.child("combat");
         var heartLossSection = combatSection.child("heartLoss");
