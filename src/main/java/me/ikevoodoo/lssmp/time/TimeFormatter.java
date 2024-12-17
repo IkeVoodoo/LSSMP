@@ -11,8 +11,6 @@ public class TimeFormatter {
     private static final DateTimeFormatter EU_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter US_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
 
-
-
     private static final Map<String, Long> UNIT_CONVERSIONS = new HashMap<>();
     private static final Map<String, Pattern> UNIT_PATTERNS = new HashMap<>();
 
