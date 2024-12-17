@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -74,15 +75,27 @@ public class EliminationHelper {
         );
     }
 
-    public static void eliminate(Player player, Player attacker) {
+    public static void eliminate(OfflinePlayer player, Player attacker) {
         var tag = Helix.tags().get("elimination");
         tag.add(player.getUniqueId(), (uuid, storage) ->
                 storage.setString("killer", attacker == null ? "Environment" : attacker.getUniqueId().toString()));
 
-        player.setFallDistance(0);
-
         var storage = tag.getData(player.getUniqueId());
         var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
+
+        if (player.isOnline()) {
+            processOlineElimination(data, player.getPlayer(), attacker);
+        }
+
+        for (final var command : data.configuration().eliminationCommands()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        }
+    }
+
+    private static void processOlineElimination(EliminationInfo data, @Nullable Player player, Player attacker) {
+        assert player != null;
+
+        player.setFallDistance(0);
 
         if (data.configuration().shouldBanPlayer()) {
             player.kickPlayer(data.getKickMessage(player));
@@ -95,10 +108,6 @@ public class EliminationHelper {
                 }
             }
             case SEND_TO_EVERYONE -> Bukkit.broadcastMessage(data.getNotificationMessage(player, attacker));
-        }
-
-        for (final var command : data.configuration().eliminationCommands()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         }
     }
 
