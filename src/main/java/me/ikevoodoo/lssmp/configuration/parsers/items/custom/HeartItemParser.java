@@ -1,12 +1,12 @@
 package me.ikevoodoo.lssmp.configuration.parsers.items.custom;
 
-import me.ikevoodoo.lssmp.configuration.data.items.custom.HeartItemConfiguration;
-import me.ikevoodoo.lssmp.configuration.parsers.recipes.RecipeConfigurationParser;
-import me.ikevoodoo.lssmp.configuration.parsers.items.custom.messages.HeartItemMessagesParser;
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.helix.api.config.builder.ConfigurationBuilder;
 import me.ikevoodoo.helix.api.config.parsing.CompoundTypeParser;
 import me.ikevoodoo.helix.api.items.display.parsers.ItemDisplayDataParser;
+import me.ikevoodoo.lssmp.configuration.data.items.custom.HeartItemConfiguration;
+import me.ikevoodoo.lssmp.configuration.parsers.items.custom.messages.HeartItemMessagesParser;
+import me.ikevoodoo.lssmp.configuration.parsers.recipes.RecipeConfigurationParser;
 import org.jetbrains.annotations.NotNull;
 
 public class HeartItemParser implements CompoundTypeParser<HeartItemConfiguration> {

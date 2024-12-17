@@ -1,9 +1,9 @@
 package me.ikevoodoo.lssmp.feature.heart;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.lssmp.pipeline.PipelineResult;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipelineHandler;
-import me.ikevoodoo.helix.api.config.Configuration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;

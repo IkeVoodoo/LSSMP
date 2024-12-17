@@ -1,11 +1,9 @@
 package me.ikevoodoo.lssmp.listeners;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.events.player.PlayerKilledEvent;
 import me.ikevoodoo.lssmp.elimination.EliminationHelper;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipeline;
-import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

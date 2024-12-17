@@ -1,10 +1,10 @@
 package me.ikevoodoo.lssmp.feature.heart;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.lssmp.configuration.data.types.TotemUseMode;
 import me.ikevoodoo.lssmp.pipeline.PipelineResult;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipelineHandler;
-import me.ikevoodoo.helix.api.config.Configuration;
 import org.bukkit.EntityEffect;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;

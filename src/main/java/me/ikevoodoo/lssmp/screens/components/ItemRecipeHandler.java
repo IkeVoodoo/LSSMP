@@ -6,8 +6,6 @@ import me.ikevoodoo.helix.api.screens.components.HelixComponentHandler;
 import me.ikevoodoo.helix.api.screens.components.HelixPageComponent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-
 public class ItemRecipeHandler implements HelixComponentHandler {
 
     private final ItemStack[] recipe;

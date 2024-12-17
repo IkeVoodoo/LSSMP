@@ -5,7 +5,6 @@ import me.ikevoodoo.helix.api.commands.HelixCommand;
 import me.ikevoodoo.helix.api.commands.HelixCommandParameters;
 import me.ikevoodoo.helix.api.commands.arguments.ArgumentList;
 import me.ikevoodoo.helix.api.commands.parsers.PlayerParser;
-import me.ikevoodoo.helix.api.config.Configuration;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

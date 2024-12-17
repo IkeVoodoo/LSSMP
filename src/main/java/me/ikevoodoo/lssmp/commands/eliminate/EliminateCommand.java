@@ -10,7 +10,6 @@ import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.lssmp.elimination.EliminationHelper;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class EliminateCommand extends HelixCommand {

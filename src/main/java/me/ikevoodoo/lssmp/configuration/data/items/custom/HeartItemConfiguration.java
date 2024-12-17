@@ -1,8 +1,8 @@
 package me.ikevoodoo.lssmp.configuration.data.items.custom;
 
-import me.ikevoodoo.lssmp.configuration.data.recipes.RecipeConfiguration;
-import me.ikevoodoo.lssmp.configuration.data.items.custom.messages.HeartItemMessages;
 import me.ikevoodoo.helix.api.items.display.ItemDisplayData;
+import me.ikevoodoo.lssmp.configuration.data.items.custom.messages.HeartItemMessages;
+import me.ikevoodoo.lssmp.configuration.data.recipes.RecipeConfiguration;
 
 public class HeartItemConfiguration extends ItemConfiguration {
 

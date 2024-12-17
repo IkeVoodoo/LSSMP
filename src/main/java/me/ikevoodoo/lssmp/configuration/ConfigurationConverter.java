@@ -3,11 +3,7 @@ package me.ikevoodoo.lssmp.configuration;
 
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
-import me.ikevoodoo.lssmp.configuration.data.types.EliminationNotificationMode;
-import me.ikevoodoo.lssmp.configuration.data.types.HeartLossMode;
-import me.ikevoodoo.lssmp.configuration.data.types.PlayerDropHeartsMode;
-import me.ikevoodoo.lssmp.configuration.data.types.ReviveHeartsMode;
-import me.ikevoodoo.lssmp.configuration.data.types.TotemUseMode;
+import me.ikevoodoo.lssmp.configuration.data.types.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;

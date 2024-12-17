@@ -1,10 +1,10 @@
 package me.ikevoodoo.lssmp.configuration.parsers.recipes;
 
-import me.ikevoodoo.lssmp.configuration.data.recipes.RecipeConfiguration;
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.helix.api.config.builder.ConfigurationBuilder;
 import me.ikevoodoo.helix.api.config.parsing.CompoundTypeParser;
 import me.ikevoodoo.helix.api.items.display.ItemDisplayData;
+import me.ikevoodoo.lssmp.configuration.data.recipes.RecipeConfiguration;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 

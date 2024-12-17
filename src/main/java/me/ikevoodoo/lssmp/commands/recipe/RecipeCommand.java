@@ -6,12 +6,10 @@ import me.ikevoodoo.helix.api.commands.HelixCommand;
 import me.ikevoodoo.helix.api.commands.HelixCommandParameters;
 import me.ikevoodoo.helix.api.commands.arguments.ArgumentList;
 import me.ikevoodoo.helix.api.config.Configuration;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import static me.ikevoodoo.lssmp.Constants.RECIPE_SCREEN_ID;
-import static me.ikevoodoo.lssmp.Constants.REVIVE_SCREEN_ID;
 
 public class RecipeCommand extends HelixCommand {
 
