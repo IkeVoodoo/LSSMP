@@ -51,7 +51,6 @@ import org.bukkit.inventory.RecipeChoice;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -259,6 +258,12 @@ public class Lifesteal {
                                         "your",
                                         "commands",
                                         "here"
+                                },
+
+                                new String[] {
+                                        "your",
+                                        "commands",
+                                        "here"
                                 }
                         )
                 }, new EliminationConfigurationParser())
@@ -452,6 +457,14 @@ public class Lifesteal {
             Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(value);
             player.setHealth(value);
 
+            final var reviver = storage.getString("reviver");
+
+            for (final var command : data.configuration().reviveCommands()) {
+                if (command.isBlank()) continue;
+
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), data.formatMessage(command).replace("{{reviver}}", reviver));
+            }
+
             instance.remove();
 
             return TagResult.SUCCESS;
@@ -475,7 +488,8 @@ public class Lifesteal {
             storage.setByte("reviveMode", (byte) info.configuration().reviveHeartsMode().ordinal());
             storage.setDouble("reviveHearts", info.configuration().reviveHearts());
             storage.setBoolean("shouldBanPlayer", info.configuration().shouldBanPlayer());
-            storage.setByteArray("eliminationCommands", String.join("\0", info.configuration().eliminationCommands()).getBytes(StandardCharsets.UTF_8));
+            storage.setByteArray("eliminationCommands", info.configuration().eliminationCommandsAsBytes());
+            storage.setByteArray("reviveCommands", info.configuration().reviveCommandsAsBytes());
 
             this.eliminatedList.removeIf(eliminationInfo -> eliminationInfo.player().getUniqueId().equals(context.target()));
             this.eliminatedList.add(info);

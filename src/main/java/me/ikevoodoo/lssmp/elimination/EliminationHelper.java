@@ -32,29 +32,16 @@ public class EliminationHelper {
     public static EliminationInfo getInfoFor(Player player, EliminationConfiguration[] configurations, HelixDataStorage storage) {
         var highest = getHighestConfiguration(player, configurations);
 
-        EliminationConfiguration configuration;
-        if (highest == -1) {
-            configuration = new EliminationConfiguration(
-                    "§cYou have been eliminated!",
-                    EliminationNotificationMode.SUPPRESS,
-                    "",
-                    null,
-                    -1,
-                    ReviveHeartsMode.USE_DEFAULT_HEARTS,
-                    -1,
-
-                    true,
-                    new String[0]
-            );
-        } else {
-            configuration = configurations[highest];
-        }
+        final var configuration = (highest == -1)
+                ? EliminationConfiguration.empty()
+                : configurations[highest];
 
         return new EliminationInfo(player, getKiller(storage), configuration, System.currentTimeMillis());
     }
 
     public static EliminationInfo fromStorage(UUID uuid, HelixDataStorage storage) {
-        final var commandBytes = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
+        final var eliminationCommands = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
+        final var reviveCommands = new String(storage.getByteArray("reviveCommands"), StandardCharsets.UTF_8).split("\0");
 
         return new EliminationInfo(
                 Bukkit.getOfflinePlayer(uuid),
@@ -69,10 +56,42 @@ public class EliminationHelper {
                         storage.getDouble("reviveHearts"),
 
                         storage.getBoolean("shouldBanPlayer"),
-                        commandBytes
+                        eliminationCommands,
+                        reviveCommands
                 ),
                 storage.getLong("eliminatedAt")
         );
+    }
+
+    public static boolean revive(OfflinePlayer player, Player reviver) {
+        final var eliminatedId = player.getUniqueId();
+
+        var tag = Helix.tags().get("elimination");
+        if (tag.has(eliminatedId)) {
+            return false;
+        }
+
+        if (!player.isOnline()) {
+            tag.editData(eliminatedId, storage -> {
+                storage.setLong("banTime", 0);
+                storage.setString("reviver", reviver == null ? "[ENVIRONMENT]" : reviver.getName());
+            });
+            return true;
+        }
+
+        tag.remove(eliminatedId);
+
+        final var data = EliminationHelper.fromStorage(eliminatedId, tag.getData(eliminatedId));
+
+        final var reviverName = reviver == null ? "[ENVIRONMENT]" : reviver.getName();
+
+        for (final var command : data.configuration().reviveCommands()) {
+            if (command.isBlank()) continue;
+
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), data.formatMessage(command).replace("{{reviver}}", reviverName));
+        }
+
+        return true;
     }
 
     public static void eliminate(OfflinePlayer player, Player attacker) {

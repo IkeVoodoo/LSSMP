@@ -90,6 +90,7 @@ public class ConfigurationConverter {
                     10.0,
 
                     true,
+                    new String[0],
                     new String[0]
             );
 

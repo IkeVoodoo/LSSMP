@@ -37,7 +37,8 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 configuration.getValue("reviveHearts"),
 
                 configuration.getValue("shouldBanPlayer"),
-                configuration.getValueArray("eliminationCommands")
+                configuration.getValueArray("eliminationCommands"),
+                configuration.getValueArray("reviveCommands")
         );
     }
 
@@ -52,6 +53,10 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
 
         configuration.value("reviveHeartsMode").value(value.reviveHeartsMode());
         configuration.value("reviveHearts").value(value.reviveHearts());
+
+        configuration.value("shouldBanPlayer").value(value.shouldBanPlayer());
+        configuration.valueArray("eliminationCommands").values(value.eliminationCommands());
+        configuration.valueArray("reviveCommands").values(value.reviveCommands());
     }
 
     @Override
@@ -117,6 +122,15 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 .comment("Placeholders:")
                 .comment(" - {{player}}  The name of the player that got eliminated.")
                 .comment(" - {{killer}}  The name of the player that eliminated this player.")
+                .next();
+
+        template.valueArray("reviveCommands", value.eliminationCommands())
+                .comment("What commands should be ran when a player is revived?")
+                .commentSpace()
+                .comment("Placeholders:")
+                .comment(" - {{player}}  The name of the player that got revived.")
+                .comment(" - {{killer}}  The name of the player that eliminated this player.")
+                .comment(" - {{reviver}}  The name of the player that revived this player.")
                 .next();
     }
 }
