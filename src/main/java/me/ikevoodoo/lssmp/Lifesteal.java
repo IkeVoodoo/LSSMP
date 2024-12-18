@@ -415,13 +415,13 @@ public class Lifesteal {
             var storage = tag.getData(entry);
             if (!storage.has("playerMessage")) continue;
 
-            var info = EliminationHelper.fromStorage(entry, storage);
+            var info = EliminationInfo.fromStorage(entry, storage);
             this.eliminatedList.add(info);
         }
 
         tag.on(TagBehaviors.ASYNC_JOIN, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "kick_player"), (context, storage, instance) -> {
             var player = context.player();
-            var data = EliminationHelper.fromStorage(player, storage);
+            var data = EliminationInfo.fromStorage(player, storage);
             if (!data.configuration().shouldBanPlayer()) {
                 return TagResult.SUCCESS;
             }
@@ -439,7 +439,7 @@ public class Lifesteal {
 
         tag.on(TagBehaviors.JOIN, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "clear_tag"), (context, storage, instance) -> {
             var player = context.player();
-            var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
+            var data = EliminationInfo.fromStorage(player.getUniqueId(), storage);
 
             var now = System.currentTimeMillis();
             var pardonAt = data.getPardonAt();

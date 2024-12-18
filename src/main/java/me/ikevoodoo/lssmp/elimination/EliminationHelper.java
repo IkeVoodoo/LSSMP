@@ -3,64 +3,20 @@ package me.ikevoodoo.lssmp.elimination;
 import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.storage.HelixDataStorage;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
-import me.ikevoodoo.lssmp.configuration.data.types.EliminationNotificationMode;
-import me.ikevoodoo.lssmp.configuration.data.types.ReviveHeartsMode;
+import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfigurations;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class EliminationHelper {
 
-    public static int getHighestConfiguration(Permissible permissible, EliminationConfiguration[] configurations) {
-        int highest = -1;
+    public static EliminationInfo getInfoFor(Player player, EliminationConfiguration[] configurationArray, HelixDataStorage storage) {
+        final var configurations = new EliminationConfigurations(configurationArray);
 
-        for (int i = 0; i < configurations.length; i++) {
-            var config = configurations[i];
-            if (config.permission() == null || permissible.hasPermission(config.permission())) {
-                highest = i;
-            }
-        }
-
-        return highest;
-    }
-
-    public static EliminationInfo getInfoFor(Player player, EliminationConfiguration[] configurations, HelixDataStorage storage) {
-        var highest = getHighestConfiguration(player, configurations);
-
-        final var configuration = (highest == -1)
-                ? EliminationConfiguration.empty()
-                : configurations[highest];
-
-        return new EliminationInfo(player, getKiller(storage), configuration, System.currentTimeMillis());
-    }
-
-    public static EliminationInfo fromStorage(UUID uuid, HelixDataStorage storage) {
-        final var eliminationCommands = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
-        final var reviveCommands = new String(storage.getByteArray("reviveCommands"), StandardCharsets.UTF_8).split("\0");
-
-        return new EliminationInfo(
-                Bukkit.getOfflinePlayer(uuid),
-                getKiller(storage),
-                new EliminationConfiguration(
-                        storage.getString("playerMessage"),
-                        EliminationNotificationMode.values()[storage.getByte("notifMode")],
-                        storage.getString("notifMsg"),
-                        null,
-                        storage.getLong("banTime"),
-                        ReviveHeartsMode.values()[storage.getByte("reviveMode")],
-                        storage.getDouble("reviveHearts"),
-
-                        storage.getBoolean("shouldBanPlayer"),
-                        eliminationCommands,
-                        reviveCommands
-                ),
-                storage.getLong("eliminatedAt")
-        );
+        return new EliminationInfo(player, getKiller(storage), configurations.findHighestConfiguration(player));
     }
 
     public static boolean revive(OfflinePlayer player, Player reviver) {
@@ -81,7 +37,7 @@ public class EliminationHelper {
 
         tag.remove(eliminatedId);
 
-        final var data = EliminationHelper.fromStorage(eliminatedId, tag.getData(eliminatedId));
+        final var data = EliminationInfo.fromStorage(eliminatedId, tag.getData(eliminatedId));
 
         final var reviverName = reviver == null ? "[ENVIRONMENT]" : reviver.getName();
 
@@ -100,7 +56,7 @@ public class EliminationHelper {
                 storage.setString("killer", attacker == null ? "Environment" : attacker.getUniqueId().toString()));
 
         var storage = tag.getData(player.getUniqueId());
-        var data = EliminationHelper.fromStorage(player.getUniqueId(), storage);
+        var data = EliminationInfo.fromStorage(player.getUniqueId(), storage);
 
         for (final var command : data.configuration().eliminationCommands()) {
             if (command.isBlank()) continue;

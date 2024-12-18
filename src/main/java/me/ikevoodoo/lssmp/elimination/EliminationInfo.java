@@ -2,6 +2,7 @@ package me.ikevoodoo.lssmp.elimination;
 
 import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.messages.colors.MinecraftColor;
+import me.ikevoodoo.helix.api.storage.HelixDataStorage;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
 import me.ikevoodoo.lssmp.time.TimeFormatter;
 import org.bukkit.OfflinePlayer;
@@ -12,8 +13,31 @@ import java.net.InetAddress;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.UUID;
 
 public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer killer, EliminationConfiguration configuration, long eliminatedAt) {
+
+    public EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer killer, EliminationConfiguration configuration) {
+        this(player, killer, configuration, System.currentTimeMillis());
+    }
+
+    public static EliminationInfo fromStorage(UUID player, HelixDataStorage storage) {
+        final var killerId = storage.getString("killer");
+        final var killerIdValid = killerId != null && !"Environment".equals(killerId);
+        final var killer = killerIdValid ? Helix.players().getOffline(killerId) : null;
+
+        return new EliminationInfo(
+                Helix.players().getOffline(player),
+                killer,
+                EliminationConfiguration.fromStorage(storage),
+                storage.getLong("eliminatedAt")
+        );
+    }
+
+    public void editPlayerData(HelixDataStorage data) {
+        data.setLong("eliminatedAt", this.eliminatedAt);
+        this.configuration.editPlayerData(data);
+    }
 
     public long getPardonAt() {
         var banTime = this.configuration.banTime();

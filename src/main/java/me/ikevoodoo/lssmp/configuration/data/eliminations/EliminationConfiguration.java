@@ -1,5 +1,6 @@
 package me.ikevoodoo.lssmp.configuration.data.eliminations;
 
+import me.ikevoodoo.helix.api.storage.HelixDataStorage;
 import me.ikevoodoo.lssmp.configuration.data.types.EliminationNotificationMode;
 import me.ikevoodoo.lssmp.configuration.data.types.ReviveHeartsMode;
 
@@ -37,6 +38,36 @@ public record EliminationConfiguration(
                 new String[0],
                 new String[0]
         );
+    }
+
+    public static EliminationConfiguration fromStorage(HelixDataStorage storage) {
+        final var eliminationCommands = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
+        final var reviveCommands = new String(storage.getByteArray("reviveCommands"), StandardCharsets.UTF_8).split("\0");
+
+        return new EliminationConfiguration(
+                storage.getString("playerMessage"),
+                EliminationNotificationMode.values()[storage.getByte("notifMode")],
+                storage.getString("notifMsg"),
+                null,
+                storage.getLong("banTime"),
+                ReviveHeartsMode.values()[storage.getByte("reviveMode")],
+                storage.getDouble("reviveHearts"),
+
+                storage.getBoolean("shouldBanPlayer"),
+                eliminationCommands,
+                reviveCommands
+        );
+    }
+
+    public void editPlayerData(HelixDataStorage data) {
+        data.setLong("banTime", this.banTime < 0 ? Long.MAX_VALUE : this.banTime);
+        data.setString("playerMessage", this.playerMessage);
+        data.setByte("notifMode", (byte) this.notificationMode.ordinal());
+        data.setString("notifMsg", this.notificationMessage);
+        data.setByte("reviveMode", (byte) this.reviveHeartsMode.ordinal());
+        data.setDouble("reviveHearts", this.reviveHearts);
+        data.setByteArray("eliminationCommands", this.eliminationCommandsAsBytes());
+        data.setByteArray("reviveCommands", this.reviveCommandsAsBytes());
     }
 
     public byte[] eliminationCommandsAsBytes() {
