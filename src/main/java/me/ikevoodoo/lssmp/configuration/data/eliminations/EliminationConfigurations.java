@@ -5,7 +5,7 @@ import org.bukkit.permissions.Permissible;
 public record EliminationConfigurations(EliminationConfiguration[] eliminations) {
 
     public int findHighestConfigurationIndex(Permissible permissible) {
-        for (int i = this.eliminations.length - 1; i > 0; i--) {
+        for (int i = this.eliminations.length - 1; i >= 0; i--) {
             final var conf = this.eliminations[i];
             if (conf.permission() == null) {
                 return i;
