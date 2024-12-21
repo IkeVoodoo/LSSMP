@@ -24,12 +24,12 @@ public class ResetCommand extends ResetCommandBase {
         return HelixCommandParameters.create(this.commandConfig.getValue("name"))
                 .childCommand(new ResetAllCommand(this.generalConfiguration))
                 .permission(this.commandConfig.getValue("permission"))
-                .argument("player", PlayerParser.ONLINE);
+                .argument("victim", PlayerParser.ONLINE);
     }
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var resetting = args.<Player>getArgument("player");
+        var resetting = args.<Player>getArgument("victim");
 
         super.reset(resetting, this.generalConfiguration);
 

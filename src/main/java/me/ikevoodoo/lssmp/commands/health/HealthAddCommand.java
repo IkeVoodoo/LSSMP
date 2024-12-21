@@ -16,13 +16,13 @@ public class HealthAddCommand extends HelixCommand {
     @Override
     protected HelixCommandParameters makeParameters() {
         return HelixCommandParameters.create("add")
-                .argument("player", PlayerParser.ONLINE)
+                .argument("victim", PlayerParser.ONLINE)
                 .argument("amount", DoubleArgumentType.doubleArg(0));
     }
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var player = args.<Player>getArgument("player");
+        var player = args.<Player>getArgument("victim");
         var amount = args.<Double>getArgument("amount");
 
         var attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);

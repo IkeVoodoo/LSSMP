@@ -7,6 +7,7 @@ import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfigurati
 import me.ikevoodoo.lssmp.time.TimeFormatter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetAddress;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 
-public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer killer, EliminationConfiguration configuration, long eliminatedAt) {
+public record EliminationInfo(OfflinePlayer victim, @Nullable OfflinePlayer killer, EliminationConfiguration configuration, long eliminatedAt) {
 
     public EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer killer, EliminationConfiguration configuration) {
         this(player, killer, configuration, System.currentTimeMillis());
@@ -71,8 +72,8 @@ public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer kill
                 .replace("{{killer}}", killerName == null ? "Unknown" : killerName);
     }
 
-    public String formatMessage(String message) {
-        final var playerName = this.player.getName();
+    public String formatMessage(@NotNull String message) {
+        final var playerName = this.victim.getName();
         final var killerName = this.killer == null
                 ? "[ENVIRONMENT]"
                 : this.killer.getName();
@@ -91,7 +92,7 @@ public record EliminationInfo(OfflinePlayer player, @Nullable OfflinePlayer kill
 
     @SuppressWarnings("unused")
     public String getKickMessage() {
-        var player = this.player.getPlayer();
+        var player = this.victim.getPlayer();
         if (player == null) return null;
 
         return this.getKickMessage(player);

@@ -26,18 +26,12 @@ public class EliminateCommand extends HelixCommand {
         return HelixCommandParameters.create(this.configuration.getValue("name"))
                 .childCommand(new EliminateAllCommand())
                 .permission(this.configuration.getValue("permission"))
-                .argument("player", PlayerParser.ALL);
+                .argument("victim", PlayerParser.ONLINE);
     }
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var eliminating = args.<OfflinePlayer>getArgument("player");
-
-        var tag = Helix.tags().get("elimination");
-        if(tag.has(eliminating.getUniqueId())) {
-            sender.sendMessage("§aGood news! That player is already eliminated!");
-            return CommandExecutionResult.HANDLED;
-        }
+        var eliminating = args.<Player>getArgument("victim");
 
         sender.sendMessage("§aEliminated §3" + eliminating.getName());
 

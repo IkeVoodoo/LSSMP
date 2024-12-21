@@ -15,12 +15,12 @@ public class HealthGetCommand extends HelixCommand {
     @Override
     protected HelixCommandParameters makeParameters() {
         return HelixCommandParameters.create("get")
-                .argument("player", PlayerParser.ONLINE);
+                .argument("victim", PlayerParser.ONLINE);
     }
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var player = args.<Player>getArgument("player");
+        var player = args.<Player>getArgument("victim");
 
         var health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
         sender.sendMessage("§f" + player.getName() + " §ahas §3" + (health / 2) + " §ahearts!");

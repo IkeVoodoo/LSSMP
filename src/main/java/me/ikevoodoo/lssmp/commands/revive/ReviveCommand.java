@@ -25,12 +25,12 @@ public class ReviveCommand extends HelixCommand {
         return HelixCommandParameters.create(this.configuration.getValue("name"))
                 .childCommand(new ReviveAllCommand())
                 .permission(this.configuration.getValue("permission"))
-                .argument("player", PlayerParser.ALL);
+                .argument("victim", PlayerParser.ALL);
     }
 
     @Override
     public CommandExecutionResult handleGenericSender(@NotNull CommandSender sender, @NotNull ArgumentList args) {
-        var resetting = args.<OfflinePlayer>getArgument("player");
+        var resetting = args.<OfflinePlayer>getArgument("victim");
 
         final var revived = EliminationHelper.revive(resetting, sender instanceof Player reviver ? reviver : null);
         if (!revived) {
