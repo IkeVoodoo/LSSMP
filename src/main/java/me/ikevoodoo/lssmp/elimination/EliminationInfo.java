@@ -35,22 +35,6 @@ public record EliminationInfo(OfflinePlayer victim, @Nullable OfflinePlayer kill
         );
     }
 
-    public Player onlineVictim() {
-        return this.victim.getPlayer();
-    }
-
-    public boolean hasKiller() {
-        return this.killer != null;
-    }
-
-    public Player onlineKiller() {
-        if (!this.hasKiller()) {
-            return null;
-        }
-
-        return this.killer.getPlayer();
-    }
-
     @SuppressWarnings("unused")
     public void initializePlayerData(UUID playerId, HelixDataStorage data) {
         this.editPlayerData(data);
