@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record EliminationAsyncJoinResult(boolean removeTag, @Nullable String kickMessage) {
 
+    @SuppressWarnings("unused")
     public static EliminationAsyncJoinResult noAction() {
         return new EliminationAsyncJoinResult(false, null);
     }

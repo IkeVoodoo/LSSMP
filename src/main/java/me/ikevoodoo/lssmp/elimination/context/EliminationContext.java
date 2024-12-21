@@ -15,6 +15,7 @@ public class EliminationContext {
         this.resetSwitch();
     }
 
+    @SuppressWarnings("unused")
     public void switchTo(String switchModeId) {
         if (Objects.equals(switchModeId, this.info.configuration().eliminationMode())) {
             throw new IllegalArgumentException("An elimination mode may not switch to itself!");

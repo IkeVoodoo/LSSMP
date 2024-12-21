@@ -51,6 +51,7 @@ public record EliminationInfo(OfflinePlayer victim, @Nullable OfflinePlayer kill
         return this.killer.getPlayer();
     }
 
+    @SuppressWarnings("unused")
     public void initializePlayerData(UUID playerId, HelixDataStorage data) {
         this.editPlayerData(data);
     }

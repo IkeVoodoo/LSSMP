@@ -349,6 +349,7 @@ public class Lifesteal {
         this.reloadConfig(init);
 
         // UNUSED: I do not need custom charts for now
+        @SuppressWarnings("unused")
         final var metrics = new Metrics(init, 12177);
 
         var combatSection = this.mainConfiguration.child("combat");
@@ -414,6 +415,7 @@ public class Lifesteal {
         }
     }
 
+    @SuppressWarnings("unused")
     public void onDisable(LifestealInit init) {
 
     }
