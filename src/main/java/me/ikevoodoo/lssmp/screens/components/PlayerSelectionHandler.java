@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,16 +38,17 @@ public class PlayerSelectionHandler implements HelixComponentHandler {
 
     @Override
     public void render(HelixComponentContext context, HelixPageComponent component) {
-        var players = component.<List<EliminationInfo>>getProperty("players", List.of());
+        var players = component.<Collection<EliminationInfo>>getProperty("players", Collections.emptyList());
         assert players != null;
 
+        final var playerIterator = players.iterator();
         for (int x = 0; x < component.dimensions().width(); x++) {
             for (int y = 0; y < component.dimensions().height(); y++) {
-                var pos = component.position(x, y);
-
-                if (players.size() <= pos.slot()) {
+                if (!playerIterator.hasNext()) {
                     continue;
                 }
+
+                var pos = component.position(x, y);
 
                 var stack = new ItemStack(Material.PLAYER_HEAD);
                 var meta = (SkullMeta) stack.getItemMeta();
@@ -53,7 +56,7 @@ public class PlayerSelectionHandler implements HelixComponentHandler {
 
                 meta.setLore(List.of("§7"));
 
-                meta.setOwningPlayer(players.get(pos.slot()).player());
+                meta.setOwningPlayer(playerIterator.next().victim());
                 stack.setItemMeta(meta);
 
                 context.setItem(pos, stack);

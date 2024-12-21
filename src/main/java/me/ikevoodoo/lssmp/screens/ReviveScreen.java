@@ -11,16 +11,16 @@ import me.ikevoodoo.lssmp.screens.components.PlayerSelectionHandler;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public class ReviveScreen implements HelixScreen {
 
     private final Configuration generalConfig;
-    private final List<EliminationInfo> players;
-    private HelixPropertyCallback<List<EliminationInfo>> playerCallback;
+    private final Collection<EliminationInfo> players;
+    private HelixPropertyCallback<Collection<EliminationInfo>> playerCallback;
 
-    public ReviveScreen(Configuration generalConfig, List<EliminationInfo> players) {
+    public ReviveScreen(Configuration generalConfig, Collection<EliminationInfo> players) {
         this.generalConfig = generalConfig;
         this.players = players;
     }
