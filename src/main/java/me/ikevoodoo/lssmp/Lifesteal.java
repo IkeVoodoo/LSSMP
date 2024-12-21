@@ -363,7 +363,7 @@ public class Lifesteal {
     }
 
     public void onEnable(LifestealInit init) {
-        this.convertOldConfigs();
+        ConfigurationConverter.convertOldConfigs(this.mainConfiguration, this.eliminationConfiguration);
 
         this.reloadConfig(init);
 
@@ -408,100 +408,6 @@ public class Lifesteal {
         if(!screens.register(REVIVE_SCREEN_ID, new ReviveScreen(generalSection, this.eliminatedList))) {
             HelixLogger.error("Unable to register revive_screen as it already exists!");
         }
-
-        var tag = Helix.tags().get("elimination");
-        this.eliminatedList.clear();
-        for (var entry : tag.listAll()) {
-            var storage = tag.getData(entry);
-            if (!storage.has("playerMessage")) continue;
-
-            var info = EliminationInfo.fromStorage(entry, storage);
-            this.eliminatedList.add(info);
-        }
-
-        tag.on(TagBehaviors.ASYNC_JOIN, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "kick_player"), (context, storage, instance) -> {
-            var player = context.player();
-            var data = EliminationInfo.fromStorage(player, storage);
-            if (!data.configuration().shouldBanPlayer()) {
-                return TagResult.SUCCESS;
-            }
-
-            var now = System.currentTimeMillis();
-            var pardonAt = data.getPardonAt();
-
-            if (now < pardonAt) {
-                context.kick(data.getKickMessage(context.address()));
-                return TagResult.FAILURE;
-            }
-
-            return TagResult.SUCCESS;
-        });
-
-        tag.on(TagBehaviors.JOIN, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "clear_tag"), (context, storage, instance) -> {
-            var player = context.player();
-            var data = EliminationInfo.fromStorage(player.getUniqueId(), storage);
-
-            var now = System.currentTimeMillis();
-            var pardonAt = data.getPardonAt();
-
-            if (now < pardonAt) {
-                return TagResult.FAILURE;
-            }
-
-            var value = switch (data.configuration().reviveHeartsMode()) {
-                case USE_REVIVE_HEARTS -> data.configuration().reviveHearts() * 2;
-                case USE_DEFAULT_HEARTS -> generalSection.<Double>getValue("defaultHearts") * 2D;
-            };
-
-            player.setFallDistance(0);
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(value);
-            player.setHealth(value);
-
-            final var reviver = storage.getString("reviver");
-
-            for (final var command : data.configuration().reviveCommands()) {
-                if (command.isBlank()) continue;
-
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), data.formatMessage(command).replace("{{reviver}}", reviver));
-            }
-
-            instance.remove();
-
-            return TagResult.SUCCESS;
-        });
-
-        tag.on(TagBehaviors.ADD, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "initialize"), (context, storage, instance) -> {
-            var id = context.target();
-
-            var player = Helix.players().getOnline(id);
-
-            if (player == null) return TagResult.FAILURE;
-
-            var info = EliminationHelper.getInfoFor(player, this.eliminationConfiguration.getCompoundArray("eliminations"), storage);
-            var banTime = info.configuration().banTime() < 0 ? Long.MAX_VALUE : info.configuration().banTime();
-
-            storage.setLong("eliminatedAt", info.eliminatedAt());
-            storage.setLong("banTime", banTime);
-            storage.setString("playerMessage", info.configuration().playerMessage());
-            storage.setByte("notifMode", (byte) info.configuration().notificationMode().ordinal());
-            storage.setString("notifMsg", info.configuration().notificationMessage());
-            storage.setByte("reviveMode", (byte) info.configuration().reviveHeartsMode().ordinal());
-            storage.setDouble("reviveHearts", info.configuration().reviveHearts());
-            storage.setBoolean("shouldBanPlayer", info.configuration().shouldBanPlayer());
-            storage.setByteArray("eliminationCommands", info.configuration().eliminationCommandsAsBytes());
-            storage.setByteArray("reviveCommands", info.configuration().reviveCommandsAsBytes());
-
-            this.eliminatedList.removeIf(eliminationInfo -> eliminationInfo.player().getUniqueId().equals(context.target()));
-            this.eliminatedList.add(info);
-
-            return TagResult.SUCCESS;
-        });
-
-        tag.on(TagBehaviors.REMOVE, UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "teardown"), (context, storage, instance) -> {
-            this.eliminatedList.removeIf(eliminationInfo -> eliminationInfo.player().getUniqueId().equals(context.target()));
-
-            return TagResult.SUCCESS;
-        });
     }
 
     public void reloadConfig(LifestealInit init) {

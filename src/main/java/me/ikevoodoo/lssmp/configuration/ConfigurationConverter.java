@@ -1,15 +1,69 @@
 package me.ikevoodoo.lssmp.configuration;
 
 
+import me.ikevoodoo.helix.BukkitHelixProvider;
+import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.config.Configuration;
+import me.ikevoodoo.helix.api.logging.HelixLogger;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
 import me.ikevoodoo.lssmp.configuration.data.types.*;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationConverter {
+
+    public static void convertOldConfigs(Configuration mainConfiguration, Configuration eliminationConfiguration) {
+        var oldData = new File(((BukkitHelixProvider) Helix.provider()).getDataFolder().getParentFile(), "LifeSteal-Smp-Plugin");
+        var converted = new File(oldData, "converted.mark");
+
+        if (!oldData.isDirectory() || converted.isFile()) {
+            return;
+        }
+
+        try {
+            if(!converted.createNewFile()) {
+                HelixLogger.error("Unable to mark old data as converted! Will not convert old configs.");
+                return;
+            }
+        } catch (IOException exception) {
+            HelixLogger.reportError(exception);
+            HelixLogger.error("Error while creating converted mark file! Aborting conversion.");
+            return;
+        }
+
+        HelixLogger.info("Lifesteal is attempting to convert over some options...");
+        var main = new File(oldData, "config.yml");
+
+        if (main.isFile()) {
+            var conf = new YamlConfiguration();
+            try {
+                conf.load(main);
+            } catch (IOException | InvalidConfigurationException e) {
+                HelixLogger.error("Unable to load lifesteal old main configuration!");
+                HelixLogger.reportError(e);
+            }
+            ConfigurationConverter.convertMain(conf, mainConfiguration);
+        }
+
+        var bans = new File(oldData, "bans.yml");
+        if (bans.isFile()) {
+            var conf = new YamlConfiguration();
+            try {
+                conf.load(bans);
+            } catch (IOException | InvalidConfigurationException e) {
+                HelixLogger.error("Unable to load lifesteal old ban configuration!");
+                HelixLogger.reportError(e);
+            }
+            ConfigurationConverter.convertBans(conf, eliminationConfiguration);
+        }
+
+        HelixLogger.info("Lifesteal has converted it's old config to the latest format!");
+    }
 
     public static void convertMain(YamlConfiguration oldConfig, Configuration config) {
         var elimination = oldConfig.getConfigurationSection("elimination");
@@ -89,9 +143,7 @@ public class ConfigurationConverter {
                     ReviveHeartsMode.USE_REVIVE_HEARTS,
                     10.0,
 
-                    true,
-                    new String[0],
-                    new String[0]
+                    "ban_player"
             );
 
             configs.add(info);
