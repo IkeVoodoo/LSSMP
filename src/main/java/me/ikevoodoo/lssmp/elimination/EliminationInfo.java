@@ -36,6 +36,7 @@ public record EliminationInfo(OfflinePlayer victim, @Nullable OfflinePlayer kill
     }
 
     public void editPlayerData(HelixDataStorage data) {
+        data.setString("killer", this.killer == null ? "[ENVIRONMENT]" : this.killer.getUniqueId().toString());
         data.setLong("eliminatedAt", this.eliminatedAt);
         this.configuration.editPlayerData(data);
     }
