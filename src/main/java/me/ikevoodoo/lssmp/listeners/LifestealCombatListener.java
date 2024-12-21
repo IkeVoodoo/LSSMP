@@ -3,7 +3,7 @@ package me.ikevoodoo.lssmp.listeners;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.events.player.PlayerKilledEvent;
-import me.ikevoodoo.lssmp.elimination.EliminationHelper;
+import me.ikevoodoo.lssmp.elimination.EliminationManager;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipeline;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.event.EventHandler;
@@ -15,9 +15,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LifestealCombatListener implements Listener {
 
     private final HeartPipeline pipeline;
+    private final EliminationManager eliminationManager;
 
-    public LifestealCombatListener(HeartPipeline pipeline) {
+    public LifestealCombatListener(HeartPipeline pipeline, EliminationManager eliminationManager) {
         this.pipeline = pipeline;
+        this.eliminationManager = eliminationManager;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -49,7 +51,7 @@ public class LifestealCombatListener implements Listener {
 
         if (cancel.get()) {
             if (victimHearts.get() < 0) {
-                EliminationHelper.eliminate(victim, attacker);
+                this.eliminationManager.tryEliminate(victim, attacker);
             }
 
             event.setCancelled(true);

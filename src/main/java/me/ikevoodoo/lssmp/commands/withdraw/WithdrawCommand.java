@@ -9,7 +9,7 @@ import me.ikevoodoo.helix.api.commands.arguments.ArgumentList;
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.helix.api.namespaced.UniqueIdentifier;
 import me.ikevoodoo.helix.api.plugins.HelixPlugin;
-import me.ikevoodoo.lssmp.elimination.EliminationHelper;
+import me.ikevoodoo.lssmp.elimination.EliminationManager;
 import me.ikevoodoo.lssmp.pipeline.heart.HeartPipeline;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -22,10 +22,12 @@ public class WithdrawCommand extends HelixCommand {
 
     private final Configuration configuration;
     private final HeartPipeline pipeline;
+    private final EliminationManager eliminationManager;
 
-    public WithdrawCommand(Configuration configuration, HeartPipeline pipeline) {
+    public WithdrawCommand(Configuration configuration, HeartPipeline pipeline, EliminationManager eliminationManager) {
         this.configuration = configuration;
         this.pipeline = pipeline;
+        this.eliminationManager = eliminationManager;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class WithdrawCommand extends HelixCommand {
 
         if (cancel.get()) {
             if (hearts.get() < 0 && this.configuration.<Boolean>getValue("allowSelfElimination")) {
-                EliminationHelper.eliminate(player, player);
+                this.eliminationManager.tryEliminate(player, player);
                 return CommandExecutionResult.FAILURE;
             }
 

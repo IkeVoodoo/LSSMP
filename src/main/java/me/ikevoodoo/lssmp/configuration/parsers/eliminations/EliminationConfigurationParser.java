@@ -17,11 +17,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
 
     @Override
     public @NotNull EliminationConfiguration deserialize(@NotNull Configuration configuration) {
-        var perm = configuration.<String>getValue("permission");
-
-        if ("NONE".equalsIgnoreCase(perm)) {
-            perm = null;
-        }
+        final var perm = configuration.<String>getValue("permission");
 
         return new EliminationConfiguration(
                 configuration.getValue("kickMessage"),
@@ -29,16 +25,14 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 configuration.getValue("notificationMode"),
                 configuration.getValue("notification"),
 
-                perm,
+                "NONE".equalsIgnoreCase(perm) ? null : perm,
 
                 TimeFormatter.parseDuration(configuration.getValue("banTime")),
 
                 configuration.getValue("reviveHeartsMode"),
                 configuration.getValue("reviveHearts"),
 
-                configuration.getValue("shouldBanPlayer"),
-                configuration.getValueArray("eliminationCommands"),
-                configuration.getValueArray("reviveCommands")
+                configuration.getValue("eliminationMode")
         );
     }
 
@@ -54,9 +48,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
         configuration.value("reviveHeartsMode").value(value.reviveHeartsMode());
         configuration.value("reviveHearts").value(value.reviveHearts());
 
-        configuration.value("shouldBanPlayer").value(value.shouldBanPlayer());
-        configuration.valueArray("eliminationCommands").values(value.eliminationCommands());
-        configuration.valueArray("reviveCommands").values(value.reviveCommands());
+        configuration.value("eliminationMode").value(value.eliminationMode());
     }
 
     @Override
@@ -67,7 +59,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 .comment("Placeholders:")
                 .comment(" - {{time_remaining}}  Formats the player's remaining time until revival. Becomes \"infinite\" when the ban time is permanent.")
                 .comment(" - {{revived_at}}  Formats the exact date and time when the player will be revived.")
-                .comment("                   Uses  month/day/year hour:minute  for: the USA, Belize, Micronesia.")
+                .comment("                   Uses  month/day/year hour:minute  for the USA, Belize, and Micronesia.")
                 .comment("                   Uses  day/month/year hour:minute  for the rest of the world.")
                 .comment("                   If the ban time is permanent, then it becomes \"the end of time\"")
                 .comment(" - {{player}}  The name of this player.")
@@ -95,6 +87,7 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
         template.value("permission", value.permission())
                 .comment("What permission is needed to access this configuration?")
                 .comment("This is useful if you want to give a special ban time to certain people")
+                .comment("NOTE: Use \"NONE\" to remove the permission requirement.")
                 .next();
 
         template.value("banTime", TimeFormatter.formatDuration(value.banTime()))
@@ -115,25 +108,14 @@ public class EliminationConfigurationParser implements CompoundTypeParser<Elimin
                 .comment("Note: Only works when reviveHeartsMode is USE_REVIVE_HEARTS")
                 .next();
 
-        template.value("shouldBanPlayer", value.shouldBanPlayer())
-                .comment("Should the eliminated player be banned?")
-                .next();
-
-        template.valueArray("eliminationCommands", value.eliminationCommands())
-                .comment("What commands should be ran when a player is eliminated?")
+        template.value("eliminationMode", value.eliminationMode())
+                .comment("What type of elimination should be carried out?")
                 .commentSpace()
-                .comment("Placeholders:")
-                .comment(" - {{player}}  The name of the player that got eliminated.")
-                .comment(" - {{killer}}  The name of the player that eliminated this player.")
-                .next();
-
-        template.valueArray("reviveCommands", value.eliminationCommands())
-                .comment("What commands should be ran when a player is revived?")
+                .comment("Default elimination types:")
+                .comment(" - ban_player   Bans the player from the server, does not let them join until")
+                .comment("                they are revived. Either by waiting or getting revived by another player.")
                 .commentSpace()
-                .comment("Placeholders:")
-                .comment(" - {{player}}  The name of the player that got revived.")
-                .comment(" - {{killer}}  The name of the player that eliminated this player.")
-                .comment(" - {{reviver}}  The name of the player that revived this player.")
+                .comment("Other valid elimination modes can be found in the elimination_modes.yml file.")
                 .next();
     }
 }

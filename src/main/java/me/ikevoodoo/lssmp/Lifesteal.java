@@ -1,14 +1,11 @@
 package me.ikevoodoo.lssmp;
 
-import me.ikevoodoo.helix.BukkitHelixProvider;
 import me.ikevoodoo.helix.api.Helix;
 import me.ikevoodoo.helix.api.config.Configuration;
 import me.ikevoodoo.helix.api.items.display.ItemDisplayData;
 import me.ikevoodoo.helix.api.items.display.ItemTextDisplayData;
 import me.ikevoodoo.helix.api.logging.HelixLogger;
 import me.ikevoodoo.helix.api.namespaced.UniqueIdentifier;
-import me.ikevoodoo.helix.api.tags.behaviors.TagBehaviors;
-import me.ikevoodoo.helix.api.tags.behaviors.TagResult;
 import me.ikevoodoo.lssmp.commands.eliminate.EliminateCommand;
 import me.ikevoodoo.lssmp.commands.health.HealthCommand;
 import me.ikevoodoo.lssmp.commands.recipe.RecipeCommand;
@@ -18,6 +15,7 @@ import me.ikevoodoo.lssmp.commands.setup.SetupCommand;
 import me.ikevoodoo.lssmp.commands.withdraw.WithdrawCommand;
 import me.ikevoodoo.lssmp.configuration.ConfigurationConverter;
 import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfiguration;
+import me.ikevoodoo.lssmp.configuration.data.eliminations.EliminationConfigurations;
 import me.ikevoodoo.lssmp.configuration.data.items.custom.HeartItemConfiguration;
 import me.ikevoodoo.lssmp.configuration.data.items.custom.ReviveBeaconConfiguration;
 import me.ikevoodoo.lssmp.configuration.data.items.custom.messages.HeartItemMessages;
@@ -26,8 +24,8 @@ import me.ikevoodoo.lssmp.configuration.data.types.*;
 import me.ikevoodoo.lssmp.configuration.parsers.eliminations.EliminationConfigurationParser;
 import me.ikevoodoo.lssmp.configuration.parsers.items.custom.HeartItemParser;
 import me.ikevoodoo.lssmp.configuration.parsers.items.custom.ReviveBeaconParser;
-import me.ikevoodoo.lssmp.elimination.EliminationHelper;
-import me.ikevoodoo.lssmp.elimination.EliminationInfo;
+import me.ikevoodoo.lssmp.elimination.EliminationManager;
+import me.ikevoodoo.lssmp.elimination.modes.BanEliminationMode;
 import me.ikevoodoo.lssmp.feature.heart.*;
 import me.ikevoodoo.lssmp.items.BaconItem;
 import me.ikevoodoo.lssmp.items.HeartItem;
@@ -42,15 +40,11 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.RecipeChoice;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -64,7 +58,6 @@ public class Lifesteal {
     private final Configuration beaconConfiguration;
     private final Configuration eliminationConfiguration;
     private final Configuration commandConfiguration;
-    private final List<EliminationInfo> eliminatedList = new ArrayList<>();
     private final Map<UUID, BiConsumer<Player, String>> messageConsumer = new HashMap<>();
 
     public Lifesteal(LifestealInit init) {
@@ -252,19 +245,7 @@ public class Lifesteal {
                                 ReviveHeartsMode.USE_DEFAULT_HEARTS,
                                 10D,
 
-                                true,
-
-                                new String[] {
-                                        "your",
-                                        "commands",
-                                        "here"
-                                },
-
-                                new String[] {
-                                        "your",
-                                        "commands",
-                                        "here"
-                                }
+                                "ban_player"
                         )
                 }, new EliminationConfigurationParser())
                 .next()
@@ -375,6 +356,15 @@ public class Lifesteal {
 
         var generalSection = this.mainConfiguration.child("general");
 
+        final var eliminationManager = new EliminationManager(
+                Helix.tags().get("elimination"),
+                new EliminationConfigurations(
+                        this.eliminationConfiguration.getCompoundArray("eliminations")
+                )
+        );
+        eliminationManager.initializeTagHandling(init.getName().toLowerCase(Locale.ROOT));
+        eliminationManager.register(new BanEliminationMode(generalSection), true);
+
         var pipeline = HeartPipeline.create()
                 .andThen(new BasicTotemCheck(combatSection))
                 .andThen(new BasicHeartDeny(heartLossSection, generalSection))
@@ -386,15 +376,15 @@ public class Lifesteal {
 
         var registry = Helix.events();
 
-        registry.register(new LifestealCombatListener(pipeline));
+        registry.register(new LifestealCombatListener(pipeline, eliminationManager));
         registry.register(new FirstJoinListener(generalSection, new NamespacedKey(init, "first_join")));
         registry.register(new PlayerChatListener(this.messageConsumer));
 
         var commands = Helix.commands();
 
         commands.register(init, new ResetCommand(generalSection, this.commandConfiguration.child("resetCommand")));
-        commands.register(init, new ReviveCommand(this.commandConfiguration.child("reviveCommand")));
-        commands.register(init, new EliminateCommand(this.commandConfiguration.child("eliminateCommand")));
+        commands.register(init, new ReviveCommand(this.commandConfiguration.child("reviveCommand"), eliminationManager));
+        commands.register(init, new EliminateCommand(this.commandConfiguration.child("eliminateCommand"), eliminationManager));
         commands.register(init, new HealthCommand(this.commandConfiguration.child("healthCommand")));
         commands.register(init, new RecipeCommand(this.commandConfiguration.child("recipeCommand")));
         commands.register(init, new SetupCommand(this.commandConfiguration, this.mainConfiguration, this.messageConsumer));
@@ -402,10 +392,10 @@ public class Lifesteal {
         var withdrawPipeline = HeartPipeline.create()
                         .andThen(new BasicHeartTake(2.0))
                         .andThen(new BasicElimination(generalSection));
-        commands.register(init, new WithdrawCommand(this.commandConfiguration.child("withdrawCommand"), withdrawPipeline));
+        commands.register(init, new WithdrawCommand(this.commandConfiguration.child("withdrawCommand"), withdrawPipeline, eliminationManager));
 
         var screens = Helix.screens();
-        if(!screens.register(REVIVE_SCREEN_ID, new ReviveScreen(generalSection, this.eliminatedList))) {
+        if(!screens.register(REVIVE_SCREEN_ID, new ReviveScreen(generalSection, eliminationManager.eliminatedPlayersView()))) {
             HelixLogger.error("Unable to register revive_screen as it already exists!");
         }
     }
@@ -428,55 +418,8 @@ public class Lifesteal {
 
     }
 
-    private void convertOldConfigs() {
-        var oldData = new File(((BukkitHelixProvider) Helix.provider()).getDataFolder().getParentFile(), "LifeSteal-Smp-Plugin");
-        var converted = new File(oldData, "converted.mark");
-
-        if (!oldData.isDirectory() || converted.isFile()) {
-            return;
-        }
-
-        try {
-            if(!converted.createNewFile()) {
-                HelixLogger.error("Unable to mark old data as converted! Will not convert old configs.");
-                return;
-            }
-        } catch (IOException exception) {
-            HelixLogger.reportError(exception);
-            HelixLogger.error("Error while creating converted mark file! Aborting conversion.");
-            return;
-        }
-
-        HelixLogger.info("Lifesteal is attempting to convert over some options...");
-        var main = new File(oldData, "config.yml");
-
-        if (main.isFile()) {
-            var conf = new YamlConfiguration();
-            try {
-                conf.load(main);
-            } catch (IOException | InvalidConfigurationException e) {
-                HelixLogger.error("Unable to load lifesteal old main configuration!");
-                HelixLogger.reportError(e);
-            }
-            ConfigurationConverter.convertMain(conf, this.mainConfiguration);
-        }
-
-        var bans = new File(oldData, "bans.yml");
-        if (bans.isFile()) {
-            var conf = new YamlConfiguration();
-            try {
-                conf.load(bans);
-            } catch (IOException | InvalidConfigurationException e) {
-                HelixLogger.error("Unable to load lifesteal old ban configuration!");
-                HelixLogger.reportError(e);
-            }
-            ConfigurationConverter.convertBans(conf, this.eliminationConfiguration);
-        }
-
-        HelixLogger.info("Lifesteal has converted it's old config to the latest format!");
-    }
-
     private void loadItems(LifestealInit init) {
+        final var initPluginName = init.getName().toLowerCase(Locale.ROOT);
          var recipes = new LinkedHashMap<String, RecipeConfiguration>();
          var itemRegistry = Helix.items();
 
@@ -484,7 +427,7 @@ public class Lifesteal {
 
         var easterEggs = this.mainConfiguration.child("general").<Boolean>getValue("easterEggs");
 
-        var baconId =  UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), "bacon");
+        var baconId =  UniqueIdentifier.combine(initPluginName, "bacon");
         var baconItem = new BaconItem();
         itemRegistry.register(baconId, baconItem);
 
@@ -493,7 +436,7 @@ public class Lifesteal {
         for (var config : this.heartConfiguration.<HeartItemConfiguration>getCompoundArray("heartItems")) {
             if (!config.isEnabled()) continue;
 
-            var key = UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), config.getId());
+            var key = UniqueIdentifier.combine(initPluginName, config.getId());
             itemRegistry.register(key, new HeartItem(general, config));
 
             if (!config.isCraftable()) continue;
@@ -504,7 +447,7 @@ public class Lifesteal {
         for (var config : this.beaconConfiguration.<ReviveBeaconConfiguration>getCompoundArray("beaconItems")) {
             if(!config.isEnabled()) continue;
 
-            var key = UniqueIdentifier.combine(init.getName().toLowerCase(Locale.ROOT), config.getId());
+            var key = UniqueIdentifier.combine(initPluginName, config.getId());
             itemRegistry.register(key, new ReviveBeaconItem(config));
 
             if (!config.isCraftable()) continue;

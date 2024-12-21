@@ -4,8 +4,6 @@ import me.ikevoodoo.helix.api.storage.HelixDataStorage;
 import me.ikevoodoo.lssmp.configuration.data.types.EliminationNotificationMode;
 import me.ikevoodoo.lssmp.configuration.data.types.ReviveHeartsMode;
 
-import java.nio.charset.StandardCharsets;
-
 public record EliminationConfiguration(
         String playerMessage,
 
@@ -19,31 +17,24 @@ public record EliminationConfiguration(
         ReviveHeartsMode reviveHeartsMode,
         double reviveHearts,
 
-        boolean shouldBanPlayer,
-        String[] eliminationCommands,
-        String[] reviveCommands
+        String eliminationMode
 ) {
 
     public static EliminationConfiguration empty() {
         return new EliminationConfiguration(
                 "§cYou have been eliminated!",
                 EliminationNotificationMode.SUPPRESS,
-                null,
+                "",
                 null,
                 -1,
                 ReviveHeartsMode.USE_DEFAULT_HEARTS,
                 -1,
 
-                true,
-                new String[0],
-                new String[0]
+                "ban_player"
         );
     }
 
     public static EliminationConfiguration fromStorage(HelixDataStorage storage) {
-        final var eliminationCommands = new String(storage.getByteArray("eliminationCommands"), StandardCharsets.UTF_8).split("\0");
-        final var reviveCommands = new String(storage.getByteArray("reviveCommands"), StandardCharsets.UTF_8).split("\0");
-
         return new EliminationConfiguration(
                 storage.getString("playerMessage"),
                 EliminationNotificationMode.values()[storage.getByte("notifMode")],
@@ -53,9 +44,7 @@ public record EliminationConfiguration(
                 ReviveHeartsMode.values()[storage.getByte("reviveMode")],
                 storage.getDouble("reviveHearts"),
 
-                storage.getBoolean("shouldBanPlayer"),
-                eliminationCommands,
-                reviveCommands
+                storage.getString("eliminationMode", "ban_player")
         );
     }
 
@@ -66,20 +55,11 @@ public record EliminationConfiguration(
         data.setString("notifMsg", this.notificationMessage);
         data.setByte("reviveMode", (byte) this.reviveHeartsMode.ordinal());
         data.setDouble("reviveHearts", this.reviveHearts);
-        data.setByteArray("eliminationCommands", this.eliminationCommandsAsBytes());
-        data.setByteArray("reviveCommands", this.reviveCommandsAsBytes());
+        data.setString("eliminationMode", this.eliminationMode);
     }
 
-    public byte[] eliminationCommandsAsBytes() {
-        return this.stringArrayAsBytes(this.eliminationCommands());
-    }
-
-    public byte[] reviveCommandsAsBytes() {
-        return this.stringArrayAsBytes(this.reviveCommands);
-    }
-
-    private byte[] stringArrayAsBytes(String[] text) {
-        return String.join("\0", text).getBytes(StandardCharsets.UTF_8);
+    public void removeBanTime(HelixDataStorage data) {
+        data.setLong("banTime", 0L);
     }
 
 }

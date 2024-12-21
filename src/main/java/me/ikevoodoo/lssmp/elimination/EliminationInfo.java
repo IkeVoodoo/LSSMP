@@ -35,6 +35,26 @@ public record EliminationInfo(OfflinePlayer victim, @Nullable OfflinePlayer kill
         );
     }
 
+    public Player onlineVictim() {
+        return this.victim.getPlayer();
+    }
+
+    public boolean hasKiller() {
+        return this.killer != null;
+    }
+
+    public Player onlineKiller() {
+        if (!this.hasKiller()) {
+            return null;
+        }
+
+        return this.killer.getPlayer();
+    }
+
+    public void initializePlayerData(UUID playerId, HelixDataStorage data) {
+        this.editPlayerData(data);
+    }
+
     public void editPlayerData(HelixDataStorage data) {
         data.setString("killer", this.killer == null ? "[ENVIRONMENT]" : this.killer.getUniqueId().toString());
         data.setLong("eliminatedAt", this.eliminatedAt);
